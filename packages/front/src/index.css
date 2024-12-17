@@ -3,20 +3,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer components {
-  .my-input {
-    @apply text-black bg-slate-300 rounded-md pl-1 outline-none focus:outline-blue-400 outline-2 outline-offset-0 mr-2;
-  }
-
-  .pop-container {
-    @apply bg-sky-800/80 rounded-sm;
-  }
-
-  .action-btn {
-    @apply w-fit h-7 bg-sky-500 text-white rounded-sm pr-2 pl-2 hover:bg-sky-400;
-  }
-}
-
 * {
   box-sizing: border-box;
 }

@@ -22,7 +22,6 @@ export const designConfig = resolveConfig({
   safelist: ['opacity-0', 'opacity-100'],
   theme: {
     colors: {
-      ...colors,
       prime,
       sec: {
         ...colors.neutral,
