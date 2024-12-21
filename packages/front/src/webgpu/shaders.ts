@@ -29,13 +29,23 @@ export const computeCode = /*wgsl*/ `
 
     const PI: f32 = 3.14159;
     const TIME_STEP: f32 = 0.16;
-    const G: f32 = 10;
+    const G: f32 = 1;
+    const MIN_DIST: f32 = 0.1;
+    const TOO_CLOSE: f32 = 0.01;
 
-    fn calcForce(src_ball: Ball, other_ball: Ball, min_dist: f32)-> vec2<f32>{
+    fn calcForce(src_ball: Ball, other_ball: Ball, index_ratio: f32)-> vec2<f32>{
       let other_mass = pow(other_ball.radius, 2.0) * PI;
       let src_mass = 1.0;
       let dist = src_ball.position - other_ball.position;
-      return  other_mass*dist  / pow(max(length(dist), min_dist), 3);
+      let len = length(dist);
+      if(len > MIN_DIST){
+        return vec2<f32>(0.0, 0.0);
+      }
+      if(len < TOO_CLOSE){
+        let direction = step(1.0, index_ratio);
+        return vec2<f32>(0.0, direction*0.01);
+      }
+      return other_mass * dist  / pow(len, 3);
     }
 
     fn constForce(src_ball: Ball, pos: vec2<f32>)-> vec2<f32>{
@@ -67,7 +77,8 @@ export const computeCode = /*wgsl*/ `
         }
         let other_ball = input[i];
         //gravity calc
-        gravity += calcForce(src_ball, other_ball, 0.01)*G;
+        let index_ratio = f32(i)/f32(global_id.x);
+        gravity += calcForce(src_ball, other_ball, index_ratio)*G;
       }
 
       // Apply velocity
@@ -101,9 +112,9 @@ export const computeCode = /*wgsl*/ `
 export const renderShaders = /*wgsl*/ `
 
 struct Ball {
-      radius: f32,
-      position: vec2<f32>,
-      velocity: vec2<f32>,
+  radius: f32,
+  position: vec2<f32>,
+  velocity: vec2<f32>,
 };
 
 struct VertexOutput {

@@ -1,4 +1,4 @@
-import { animationFrames, combineLatest, defer, switchAll, switchMap } from 'rxjs';
+import { animationFrames, combineLatest, defer } from 'rxjs';
 
 export function webgpuTriangle(canvas: HTMLCanvasElement) {
   const obs = defer(async () => {

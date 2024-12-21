@@ -174,11 +174,20 @@ export function useCanvasDPI(fixed?: { width: number; height: number }) {
       }
     }
   }
+  const canvasPromise = new Promise<HTMLCanvasElement>((resolve) => {
+    const effect = watchEffect(() => {
+      if (canvas.value) {
+        resolve(canvas.value);
+        effect.stop();
+      }
+    });
+  });
   watchSyncEffect(() => {
     updateValues();
   });
   return {
     canvas,
+    canvasPromise,
     size,
     pixelSize: computed(() => {
       if (fixed) {

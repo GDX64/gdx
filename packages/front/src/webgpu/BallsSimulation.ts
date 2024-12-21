@@ -13,13 +13,34 @@ function parameter(name: string, def: number) {
   return parseFloat(params.get(name)!);
 }
 
-export async function start(canvas: HTMLCanvasElement) {
-  const NUM_BALLS = parameter('balls', 10);
+type SimulationData = {
+  mousePos: Float32Array;
+  killed: boolean;
+};
+
+export function start(canvas: HTMLCanvasElement, balls: number) {
+  const data = {
+    mousePos: new Float32Array(2),
+    updateMousePos,
+    killed: false,
+  };
+  initSimulation(canvas, balls, data);
+
+  function updateMousePos(event: PointerEvent) {
+    data.mousePos[0] = (event.offsetX / canvas.width) * 2 - 1;
+    data.mousePos[1] = ((canvas.height - event.offsetY) / canvas.height) * 2 - 1;
+  }
+  return data;
+}
+
+async function initSimulation(
+  canvas: HTMLCanvasElement,
+  balls: number,
+  data: SimulationData
+) {
+  const NUM_BALLS = balls;
   const BUFFER_SIZE = NUM_BALLS * 6 * Float32Array.BYTES_PER_ELEMENT;
   const VERTEX_SIZE = NUM_BALLS * 2 * Float32Array.BYTES_PER_ELEMENT;
-
-  canvas.width = parameter('width', 500);
-  canvas.height = parameter('height', 500);
 
   const { device, context, presentationFormat } = await initDevice(canvas);
   const {
@@ -51,16 +72,13 @@ export async function start(canvas: HTMLCanvasElement) {
   device.queue.writeBuffer(scene, 0, new Float32Array([1, 1]));
 
   device.queue.writeBuffer(input, 0, inputBalls);
-  const mousePos = new Float32Array([300, 300]);
 
-  canvas.addEventListener('mousemove', (event) => {
-    mousePos[0] = (event.offsetX / canvas.width) * 2 - 1;
-    mousePos[1] = ((canvas.height - event.offsetY) / canvas.height) * 2 - 1;
-    // console.log(mousePos);
-  });
   while (true) {
+    if (data.killed) {
+      return;
+    }
     performance.mark('webgpu start');
-    device.queue.writeBuffer(mouseBuffer, 0, mousePos);
+    device.queue.writeBuffer(mouseBuffer, 0, data.mousePos);
     const commandEncoder = device.createCommandEncoder();
     const passEncoder = commandEncoder.beginComputePass();
     passEncoder.setPipeline(pipeline);

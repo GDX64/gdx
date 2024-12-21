@@ -8,7 +8,7 @@ const rectData = new Float32Array(
     [1, 1],
   ]
     .flat()
-    .map((item) => item / 100)
+    .map((item) => item / 200)
 );
 
 export function drawBalls(
