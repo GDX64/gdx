@@ -32,6 +32,7 @@ export const computeCode = /*wgsl*/ `
     const G: f32 = 1;
     const MIN_DIST: f32 = 0.1;
     const TOO_CLOSE: f32 = 0.01;
+    const GRAVITY_FORCE: vec2<f32> = vec2<f32>(0.0, -0.05);
 
     fn calcForce(src_ball: Ball, other_ball: Ball, index_ratio: f32)-> vec2<f32>{
       let other_mass = pow(other_ball.radius, 2.0) * PI;
@@ -66,7 +67,7 @@ export const computeCode = /*wgsl*/ `
       let src_mass = 1.0;
       let dst_ball = &output[global_id.x];
       let mouse_ball = Ball(500.0, mouse, vec2(100, 100));
-      var gravity = -constForce(src_ball, mouse)*0.05;
+      var gravity = -constForce(src_ball, mouse)*0.03 + GRAVITY_FORCE;
 
       (*dst_ball) = src_ball;
 
