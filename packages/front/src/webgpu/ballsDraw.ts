@@ -8,52 +8,17 @@ const rectData = new Float32Array(
     [1, 1],
   ]
     .flat()
-    .map((item) => item / 200)
+    .map((item) => item)
 );
-
-export function drawBalls(
-  {
-    commandEncoder,
-    context,
-    pipeData,
-  }: {
-    commandEncoder: GPUCommandEncoder;
-    context: GPUCanvasContext;
-    pipeData: PipelineData;
-  },
-  drawData: { vertexData: GPUBuffer; elements: number }
-) {
-  const textureView = context.getCurrentTexture().createView();
-  const renderPassDescriptor: GPURenderPassDescriptor = {
-    colorAttachments: [
-      {
-        view: textureView,
-        clearValue: { r: 0.0, g: 0.0, b: 0.0, a: 1.0 },
-        loadOp: 'clear',
-        storeOp: 'store',
-      },
-    ],
-  };
-  const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
-  passEncoder.setPipeline(pipeData.pipeline);
-  passEncoder.setVertexBuffer(0, pipeData.vertex);
-  passEncoder.setBindGroup(0, pipeData.bindGroup);
-  passEncoder.draw(4, drawData.elements, 0, 0);
-  // passEncoder.draw(3, 1, 0, 0);
-  passEncoder.end();
-}
-
-interface PipelineData {
-  pipeline: GPURenderPipeline;
-  vertex: GPUBuffer;
-  bindGroup: GPUBindGroup;
-}
 
 export function createDrawPipeline(
   device: GPUDevice,
+  context: GPUCanvasContext,
   presentationFormat: GPUTextureFormat,
-  positionsBuffer: GPUBuffer
-): PipelineData {
+  positionsBuffer: GPUBuffer,
+  sceneBuffer: GPUBuffer,
+  elements: number
+) {
   const pipeline = device.createRenderPipeline({
     layout: 'auto',
     vertex: {
@@ -90,11 +55,6 @@ export function createDrawPipeline(
     },
   });
 
-  const bindGroup = device.createBindGroup({
-    layout: pipeline.getBindGroupLayout(0),
-    entries: [{ binding: 0, resource: { buffer: positionsBuffer } }],
-  });
-
   const vertex = device.createBuffer({
     size: rectData.byteLength,
     usage: GPUBufferUsage.VERTEX,
@@ -102,7 +62,36 @@ export function createDrawPipeline(
   });
   new Float32Array(vertex.getMappedRange()).set(rectData);
   vertex.unmap();
-  return { pipeline, vertex, bindGroup };
+
+  const bindGroup = device.createBindGroup({
+    layout: pipeline.getBindGroupLayout(0),
+    entries: [
+      { binding: 0, resource: { buffer: positionsBuffer } },
+      { binding: 1, resource: { buffer: sceneBuffer } },
+    ],
+  });
+
+  function draw(encoder: GPUCommandEncoder) {
+    const textureView = context.getCurrentTexture().createView();
+    const renderPassDescriptor: GPURenderPassDescriptor = {
+      colorAttachments: [
+        {
+          view: textureView,
+          clearValue: { r: 0.0, g: 0.0, b: 0.0, a: 1.0 },
+          loadOp: 'clear',
+          storeOp: 'store',
+        },
+      ],
+    };
+    const passEncoder = encoder.beginRenderPass(renderPassDescriptor);
+    passEncoder.setPipeline(pipeline);
+    passEncoder.setVertexBuffer(0, vertex);
+    passEncoder.setBindGroup(0, bindGroup);
+    passEncoder.draw(4, elements, 0, 0);
+    // passEncoder.draw(3, 1, 0, 0);
+    passEncoder.end();
+  }
+  return { draw };
 }
 
 export async function initDevice(canvas: HTMLCanvasElement) {
@@ -145,9 +134,9 @@ export function createComputePipeline(
       },
       {
         binding: 2,
-        visibility: GPUShaderStage.COMPUTE,
+        visibility: GPUShaderStage.COMPUTE | GPUShaderStage.VERTEX,
         buffer: {
-          type: 'read-only-storage',
+          type: 'uniform',
         },
       },
       {
@@ -164,12 +153,27 @@ export function createComputePipeline(
           type: 'storage',
         },
       },
+      {
+        binding: 5,
+        visibility: GPUShaderStage.COMPUTE,
+        buffer: {
+          type: 'uniform',
+        },
+      },
+      {
+        binding: 6,
+        visibility: GPUShaderStage.COMPUTE,
+        buffer: {
+          type: 'uniform',
+        },
+      },
     ],
   });
 
   const pipeline = device.createComputePipeline({
     layout: device.createPipelineLayout({
       bindGroupLayouts: [bindGroupLayout],
+      label: 'my compute layout',
     }),
     compute: {
       module,
@@ -177,9 +181,9 @@ export function createComputePipeline(
     },
   });
 
-  const scene = device.createBuffer({
-    size: 2 * Float32Array.BYTES_PER_ELEMENT,
-    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+  const sceneBuffer = device.createBuffer({
+    size: 2 * 4,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   });
 
   const input = device.createBuffer({
@@ -199,6 +203,16 @@ export function createComputePipeline(
 
   const mouseBuffer = device.createBuffer({
     size: 4 * 2,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  });
+
+  const forceBuffer = device.createBuffer({
+    size: 4,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  });
+
+  const mouseDown = device.createBuffer({
+    size: 4,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   });
 
@@ -225,7 +239,7 @@ export function createComputePipeline(
       {
         binding: 2,
         resource: {
-          buffer: scene,
+          buffer: sceneBuffer,
         },
       },
       {
@@ -240,10 +254,22 @@ export function createComputePipeline(
           buffer: vertexData,
         },
       },
+      {
+        binding: 5,
+        resource: {
+          buffer: forceBuffer,
+        },
+      },
+      {
+        binding: 6,
+        resource: {
+          buffer: mouseDown,
+        },
+      },
     ],
   });
   return {
-    scene,
+    sceneBuffer,
     input,
     mouseBuffer,
     pipeline,
@@ -251,5 +277,8 @@ export function createComputePipeline(
     output,
     stagingBuffer,
     vertexData,
+    forceBuffer,
+    mouseDown,
+    computeLayout: bindGroupLayout,
   };
 }
