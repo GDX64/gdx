@@ -32,17 +32,21 @@ var<uniform> mouse_down: u32;
 
 const PI: f32 = 3.14159;
 const TIME_STEP: f32 = 0.16;
-const MIN_DIST: f32 = 1.0;
+const MIN_DIST: f32 = 10.0;
 const TOO_CLOSE: f32 = 0.01;
-const GRAVITY_FORCE: vec2<f32> = vec2<f32>(0.0, -0.05);
+const GRAVITY_FORCE: vec2<f32> = vec2<f32>(0.0, -10.0);
 
 fn calcForce(src_ball: Ball, other_ball: Ball, index_ratio: f32) -> vec2<f32> {
-    let dist = src_ball.position - other_ball.position;
+    var dist = src_ball.position - other_ball.position;
     let len = length(dist);
-    if len >= MIN_DIST || len < TOO_CLOSE {
+    if len < TOO_CLOSE {
+        let y = step(1.0, index_ratio);
+        dist = vec2<f32>(0.0, 1.0);
+    }
+    if len >= MIN_DIST {
         return vec2<f32>(0.0, 0.0);
     }
-    return normalize(dist) * pow((1.0 - len), 2.0) * 0.01;
+    return normalize(dist) * pow((1.0 - len), 2.0);
 }
 
 fn constForce(src_ball: Ball, pos: vec2<f32>) -> vec2<f32> {
@@ -64,7 +68,7 @@ fn main(
     let dst_ball = &output[global_id.x];
     let mouse_ball = Ball(500.0, mouse, vec2(100, 100));
     let mouse_force = select(vec2<f32>(0.0), -constForce(src_ball, mouse) * 0.03, mouse_down == 1u);
-    var gravity = mouse_force + GRAVITY_FORCE;
+    var force_acc = mouse_force + GRAVITY_FORCE;
 
     (*dst_ball) = src_ball;
 
@@ -74,32 +78,33 @@ fn main(
             continue;
         }
         let other_ball = input[i];
-    //gravity calc
+    //force_acc calc
         let index_ratio = f32(i) / f32(global_id.x);
-        gravity += calcForce(src_ball, other_ball, index_ratio) * force_constant;
+        force_acc += calcForce(src_ball, other_ball, index_ratio) * force_constant;
     }
 
     // Apply velocity
     let damping = -src_ball.velocity / 2;
-    gravity += damping;
-    (*dst_ball).velocity += gravity / src_mass * TIME_STEP;
+    force_acc += damping;
+    (*dst_ball).velocity += force_acc / src_mass * TIME_STEP;
     (*dst_ball).position = (*dst_ball).position + (*dst_ball).velocity * TIME_STEP;
 
     // Ball/Wall collision
-    if (*dst_ball).position.x - (*dst_ball).radius < -scene.width {
-        (*dst_ball).position.x = -scene.width + (*dst_ball).radius;
+    if (*dst_ball).position.x < 0.0 {
+        (*dst_ball).position.x = 0.0 ;
         (*dst_ball).velocity.x = -(*dst_ball).velocity.x;
     }
-    if (*dst_ball).position.y - (*dst_ball).radius < -scene.height {
-        (*dst_ball).position.y = -scene.height + (*dst_ball).radius;
+    if (*dst_ball).position.y < 0.0 {
+        (*dst_ball).position.y = 0.0 ;
         (*dst_ball).velocity.y = -(*dst_ball).velocity.y;
+        // (*dst_ball).position.y = scene.height ;
     }
-    if (*dst_ball).position.x + (*dst_ball).radius >= scene.width {
-        (*dst_ball).position.x = scene.width - (*dst_ball).radius;
+    if (*dst_ball).position.x >= scene.width {
+        (*dst_ball).position.x = scene.width ;
         (*dst_ball).velocity.x = -(*dst_ball).velocity.x;
     }
-    if (*dst_ball).position.y + (*dst_ball).radius >= scene.height {
-        (*dst_ball).position.y = scene.height - (*dst_ball).radius;
+    if (*dst_ball).position.y >= scene.height {
+        (*dst_ball).position.y = scene.height ;
         (*dst_ball).velocity.y = -(*dst_ball).velocity.y;
     }
 
