@@ -6,6 +6,9 @@
   "references": [
     {
       "path": "../pixi-vue"
+    },
+    {
+      "path": "../pink-lemonade"
     }
   ],
   "include": [
@@ -13,6 +16,9 @@
     "src/main.ts",
     "src/**/*.ts",
     "src/**/*.test.ts",
-    "src/**/*.vue"
-  ]
+    "src/**/*.vue",
+    "../pink-lemonade/src/HelloWebGpu.ts",
+    "../pink-lemonade/src/HelloWebGpu.ts"
+  ],
+  "exclude": ["./node_modules", "./dist", "./dist-ts"]
 }
