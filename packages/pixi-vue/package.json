@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "exports": {
     ".": {
-      "import": "./src/lib.ts",
-      "types": "./dist-ts/lib.d.ts"
+      "types": "./dist-ts/lib.d.ts",
+      "import": "./src/lib.ts"
     }
   },
   "imports": {
