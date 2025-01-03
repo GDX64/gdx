@@ -3,6 +3,14 @@ struct OurVertexShaderOutput {
     @location(0) color: vec4f,
 };
 
+struct OurStruct {
+    color: vec4f,
+    scale: vec2f,
+    offset: vec2f,
+};
+
+@group(0) @binding(0) var<uniform> ourStruct: OurStruct;
+
 @vertex
 fn vs(
     @builtin(vertex_index) vertexIndex: u32
@@ -19,8 +27,11 @@ fn vs(
         vec4f(0, 0, 1, 1), // blue
     );
 
+    let selected = pos[vertexIndex];
+    let pos_v = vec4f(selected * ourStruct.scale + ourStruct.offset, 0.0, 1.0);
+
     var vsOutput: OurVertexShaderOutput;
-    vsOutput.position = vec4f(pos[vertexIndex], 0.0, 1.0);
+    vsOutput.position = pos_v
     vsOutput.color = color[vertexIndex];
     return vsOutput;
 }  
@@ -30,7 +41,8 @@ fn fs(fsInput: OurVertexShaderOutput) -> @location(0) vec4f {
     let red = vec4f(1, 0, 0, 1);
     let cyan = vec4f(0, 1, 1, 1);
 
-    let grid = vec2u(fsInput.position.xy) / 8;
-    let checker = (grid.x + grid.y) % 2 == 1;
+    let sum = u32(fsInput.position.x + fsInput.position.y);
+    let num = sum / 8;
+    let checker = num % 2 == 1;
     return select(red, cyan, checker);
 }
