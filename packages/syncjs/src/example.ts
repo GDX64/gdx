@@ -63,7 +63,7 @@ export function runExample(root: HTMLElement) {
 
   const key = Talker.sharedKey(1024);
   const workers = createThreads(key);
-  return () => {
+  return (): void => {
     workers.forEach((worker) => worker.terminate());
   };
 }

@@ -7,7 +7,7 @@ export default class RawContainer extends GElement {
     super();
   }
 
-  patch(prop: string, prev: any, next: any) {
+  patch(prop: string, prev: any, next: any): void {
     switch (prop) {
       case "pixiEl":
         this.pixiRef.removeChildren().forEach((child) => child.destroy());

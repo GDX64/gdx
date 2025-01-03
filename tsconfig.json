@@ -1,21 +1,5 @@
 {
-  "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
-    "useDefineForClassFields": true,
-    "moduleResolution": "bundler",
-    "strict": true,
-    "strictNullChecks": true,
-    "strictPropertyInitialization": true,
-    "jsx": "preserve",
-    "emitDeclarationOnly": true,
-    "noUnusedLocals": false,
-    "sourceMap": true,
-    "skipLibCheck": true,
-    "composite": true,
-    "lib": ["esnext", "dom", "dom.iterable"],
-    "types": ["vitest/globals", "@webgpu/types"]
-  },
+  "extends": "./tsconfig.common.json",
   "references": [
     {
       "path": "./packages/pixi-vue"
@@ -25,6 +9,9 @@
     },
     {
       "path": "./packages/syncjs"
+    },
+    {
+      "path": "./packages/pink-lemonade"
     }
   ]
 }

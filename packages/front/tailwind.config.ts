@@ -38,6 +38,7 @@ export const designConfig = resolveConfig({
         1000: '#000000',
       },
       hover: prime[500],
+      ...colors,
     },
     screens: {
       xs: '500px',

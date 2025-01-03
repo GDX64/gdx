@@ -42,7 +42,7 @@ export default class GSprite extends GElement {
 }
 
 export class GAnimatedSprite extends GElement {
-  pixiRef = new AnimatedSprite([Texture.EMPTY]);
+  pixiRef: AnimatedSprite = new AnimatedSprite([Texture.EMPTY]);
   width = 0;
   height = 0;
   frameOffset = 0;

@@ -58,7 +58,7 @@ export class Talker<M extends Messages> {
     return id;
   }
 
-  on<T>(key: KeyFor<T>, cb: (data: T) => void) {
+  on<T>(key: KeyFor<T>, cb: (data: T) => void): () => void {
     const callbacks = this.eventsMap.get(key) || new Set();
     callbacks.add(cb);
     this.eventsMap.set(key, callbacks);
@@ -74,7 +74,7 @@ export class Talker<M extends Messages> {
     });
   }
 
-  response<T>(key: KeyFor<T>, data: T) {
+  response<T>(key: KeyFor<T>, data: T): void {
     this.channel.postMessage({ kind: responseKind, data, id: key });
   }
 
@@ -89,7 +89,7 @@ export class Talker<M extends Messages> {
   static async lockOnShared<T>(
     { __arr__, __key__: key }: SharedKey,
     cb: (view: Uint8Array) => T
-  ) {
+  ): Promise<any> {
     return navigator.locks.request(key, async () => {
       return cb(new Uint8Array(__arr__));
     });

@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "moduleResolution": "bundler",
+    "useDefineForClassFields": true,
+    "isolatedModules": true,
+    "isolatedDeclarations": true,
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "incremental": true,
+    "noEmitOnError": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
+    "jsx": "preserve",
+    "noUnusedLocals": false,
+    "sourceMap": true,
+    "lib": ["esnext", "dom", "dom.iterable"],
+    "types": ["vitest/globals", "@webgpu/types"],
+    "outDir": "dist-ts"
+  }
+}

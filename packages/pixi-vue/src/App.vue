@@ -2,8 +2,6 @@
 import { onBeforeUnmount, onMounted, ref } from "vue";
 import { createRoot } from "./renderer/renderer";
 import Game from "./components/Game.vue";
-// import DynList from "./components/DynList.vue";
-// import SmallScale from "./components/SmallScale.vue";
 
 const canvas = ref<HTMLCanvasElement>();
 
@@ -14,7 +12,6 @@ onMounted(async () => {
 });
 
 onBeforeUnmount(() => {
-  console.log("destroy");
   destroy();
 });
 </script>

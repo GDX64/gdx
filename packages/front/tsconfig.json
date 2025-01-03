@@ -1,11 +1,14 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../tsconfig.common.json",
   "compilerOptions": {
     "outDir": "./dist-ts"
   },
   "references": [
     {
       "path": "../pixi-vue"
+    },
+    {
+      "path": "../pink-lemonade"
     }
   ],
   "include": [
@@ -14,5 +17,6 @@
     "src/**/*.ts",
     "src/**/*.test.ts",
     "src/**/*.vue"
-  ]
+  ],
+  "exclude": ["./node_modules", "./dist", "./dist-ts"]
 }
