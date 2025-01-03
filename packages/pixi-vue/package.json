@@ -2,7 +2,10 @@
   "name": "@repo/pixi-vue",
   "version": "1.0.0",
   "exports": {
-    ".": "./src/lib.ts"
+    ".": {
+      "import": "./src/lib.ts",
+      "types": "./dist-ts/lib.d.ts"
+    }
   },
   "imports": {
     "#els/*": "./src/renderer/*"
