@@ -99,7 +99,15 @@ function appRenderer() {
   return { createApp };
 }
 
-export async function createRoot(canvas: HTMLCanvasElement, comp: Component) {
+export type CreateRootResult = {
+  destroy: () => void;
+  pApp: PIXI.Application;
+};
+
+export async function createRoot(
+  canvas: HTMLCanvasElement,
+  comp: Component
+): Promise<CreateRootResult> {
   const pApp = new PIXI.Application();
   await pApp.init({
     canvas: canvas,
@@ -154,15 +162,15 @@ export async function createRoot(canvas: HTMLCanvasElement, comp: Component) {
   };
 }
 
-export function usePixiApp() {
+export function usePixiApp(): PIXI.Application {
   return inject<PIXI.Application>("pixiApp")!;
 }
 
-export function usePixiAppData() {
+export function usePixiAppData(): { width: number; height: number } {
   return inject<{ width: number; height: number }>("pixiAppData")!;
 }
 
-export function usePixiAnimation(fn: (ticker: PIXI.Ticker) => void) {
+export function usePixiAnimation(fn: (ticker: PIXI.Ticker) => void): void {
   const app = usePixiApp();
   app.ticker.add(fn);
   onUnmounted(() => {

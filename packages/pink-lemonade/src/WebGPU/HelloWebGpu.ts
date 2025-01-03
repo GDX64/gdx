@@ -69,12 +69,12 @@ async function initWebGPU(canvas: HTMLCanvasElement) {
 export class Renderer {
   private constructor(private _render: () => void) {}
 
-  static async new(canvas: HTMLCanvasElement) {
+  static async new(canvas: HTMLCanvasElement): Promise<Renderer> {
     const render = await initWebGPU(canvas);
     return new Renderer(render);
   }
 
-  render() {
+  render(): void {
     this._render();
   }
 }

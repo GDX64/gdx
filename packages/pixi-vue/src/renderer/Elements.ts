@@ -30,17 +30,17 @@ export class GElement {
   isDirty = true;
   elKey = null as ELKey;
 
-  redraw() {
+  redraw(): void {
     if (!this.isDirty) return;
     this.children.forEach((child) => child.redraw());
     this.isDirty = false;
   }
 
-  static text(str: string) {
+  static text(str: string): GText {
     return new GText(str);
   }
 
-  patch(prop: string, prev: any, next: any) {
+  patch(prop: string, prev: any, next: any): void {
     switch (prop) {
       case "visible": {
         this.pixiRef.visible = next;
@@ -94,30 +94,30 @@ export class GElement {
     }
   }
 
-  addChild(child: GElement) {
+  addChild(child: GElement): void {
     child.parent = createWeakRef(this);
     this.children.push(child);
     this.pixiRef.addChild(child.pixiRef);
     this.markDirty();
   }
 
-  markDirty() {
+  markDirty(): void {
     this.isDirty = true;
     this.parent?.deref()?.markDirty();
   }
 
-  setText(str: string) {
+  setText(str: string): void {
     console.log("set text", str);
   }
 
-  addChildAt(child: GElement, index: number) {
+  addChildAt(child: GElement, index: number): void {
     child.parent = createWeakRef(this as GElement);
     this.children.splice(index, 0, child);
     this.pixiRef.addChildAt(child.pixiRef, index);
     this.markDirty();
   }
 
-  removeChild(child: GElement) {
+  removeChild(child: GElement): void {
     const index = this.children.findIndex((item) => item === child);
     if (index === -1) return;
     this.children.splice(index, 1);
@@ -125,11 +125,11 @@ export class GElement {
     this.markDirty();
   }
 
-  replacePixiChild(oldNode: PIXI.Container, newNode: PIXI.Container) {
+  replacePixiChild(oldNode: PIXI.Container, newNode: PIXI.Container): void {
     this.pixiRef.swapChildren(oldNode, newNode);
   }
 
-  destroy() {
+  destroy(): void {
     this.pixiRef.destroy({ children: true });
   }
 }
@@ -139,7 +139,7 @@ export class GGraphics extends GElement {
   pixiRef: PIXI.Graphics = new PIXI.Graphics();
   drawfn: ((pixiRef: PIXI.GraphicsContext) => void) | null = null;
 
-  redraw() {
+  redraw(): void {
     if (!this.isDirty) return;
     if (this.drawfn) {
       this.drawfn(this.pixiRef.context);
@@ -147,7 +147,7 @@ export class GGraphics extends GElement {
     this.isDirty = false;
   }
 
-  patch(prop: string, prev: any, next: any) {
+  patch(prop: string, prev: any, next: any): void {
     super.patch(prop, prev, next);
     switch (prop) {
       case "drawfn":
@@ -168,11 +168,11 @@ export class GText extends GElement {
     this.pixiRef = new PIXI.BitmapText({ text: str });
   }
 
-  setText(str: string) {
+  setText(str: string): void {
     this.pixiRef.text = str;
   }
 
-  patch(prop: string, prev: any, next: any) {
+  patch(prop: string, prev: any, next: any): void {
     switch (prop) {
       case "fill":
         this.pixiRef.style.fill = next;
