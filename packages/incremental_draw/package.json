@@ -5,10 +5,12 @@
   "files": [
     "pkg/**/*"
   ],
-  "devDependencies": {},
   "scripts": {
     "dev": "wasm-pack build --target web",
     "build": "wasm-pack build --target web --release",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "vitest": "^2.1.8"
   }
 }
