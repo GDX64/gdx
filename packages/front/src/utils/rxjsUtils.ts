@@ -5,7 +5,6 @@ import {
   last,
   map,
   Observable,
-  pairwise,
   scan,
   skip,
   Subject,
@@ -14,7 +13,6 @@ import {
   takeUntil,
   takeWhile,
   tap,
-  toArray,
 } from 'rxjs';
 import {
   computed,
@@ -29,7 +27,10 @@ import {
   watchSyncEffect,
 } from 'vue';
 
-export function useDrag(start: Observable<any>) {
+export function useDrag(start: Observable<any>): {
+  pos: Ref<[number, number]>;
+  isDragging: Ref<boolean>;
+} {
   const pos = ref([0, 0] as [number, number]);
   const isDragging = ref(false);
   const sub = start
@@ -62,7 +63,7 @@ export function useDrag(start: Observable<any>) {
 
 export function useAnimationFrames(
   fn: (args: { elapsed: number; delta: number; count: number }) => void
-) {
+): void {
   let last = 0;
   let count = 0;
   const sub = animationFrames().subscribe(({ elapsed }) => {
@@ -74,12 +75,12 @@ export function useAnimationFrames(
   onUnmounted(() => sub.unsubscribe());
 }
 
-export function useInterval(fn: () => void, time: number) {
+export function useInterval(fn: () => void, time: number): void {
   const timer = setInterval(fn, time);
   onUnmounted(() => clearInterval(timer));
 }
 
-export function storageRef(name: string, initial = '') {
+export function storageRef(name: string, initial = ''): Ref<string> {
   const value = ref('');
   value.value = localStorage.getItem(name) ?? initial;
   watchEffect(() => {
@@ -88,7 +89,9 @@ export function storageRef(name: string, initial = '') {
   return value;
 }
 
-export function useVisibility(container: Ref<HTMLElement | null | undefined>) {
+export function useVisibility(container: Ref<HTMLElement | null | undefined>): {
+  isVisible: Ref<boolean>;
+} {
   const isVisible = ref(false);
   const observer = new IntersectionObserver((entries) => {
     isVisible.value = entries.at(-1)?.isIntersecting ?? false;
@@ -112,7 +115,10 @@ export function useVisibility(container: Ref<HTMLElement | null | undefined>) {
   return { isVisible };
 }
 
-export function useSize(container = ref<HTMLElement | null>()) {
+export function useSize(container: Ref<HTMLElement | null | undefined> = ref(null)): {
+  size: { width: number; height: number };
+  container: Ref<HTMLElement | null | undefined>;
+} {
   const size = reactive({ width: 0, height: 0 });
   const obs = new ResizeObserver((entries) => {
     updateSize();
@@ -136,7 +142,7 @@ export function useSize(container = ref<HTMLElement | null>()) {
   return { size, container };
 }
 
-export function useAsyncComputed<T>(fn: () => Promise<T>, initial: T) {
+export function useAsyncComputed<T>(fn: () => Promise<T>, initial: T): Ref<T> {
   const value = shallowRef(initial);
   watchEffect(async () => {
     const promise = fn();
@@ -145,20 +151,27 @@ export function useAsyncComputed<T>(fn: () => Promise<T>, initial: T) {
   return value;
 }
 
-export function awaitTime(time: number) {
+export function awaitTime(time: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, time));
 }
 
 /**
  * Result in Hz
  */
-export async function estimateRefreshRate(samples = 10) {
+export async function estimateRefreshRate(samples = 10): Promise<number> {
   const lastValue = await firstValueFrom(animationFrames().pipe(take(samples), last()));
   const avg = lastValue.elapsed / samples;
   return 1000 / avg;
 }
 
-export function useCanvasDPI(fixed?: { width: number; height: number }) {
+type CanvasDPIResult = {
+  canvas: Ref<HTMLCanvasElement | undefined>;
+  canvasPromise: Promise<HTMLCanvasElement>;
+  size: { width: number; height: number };
+  pixelSize: Ref<{ width: number; height: number }>;
+};
+
+export function useCanvasDPI(fixed?: { width: number; height: number }): CanvasDPIResult {
   const canvas = ref<HTMLCanvasElement>();
   const { size } = useSize(canvas);
   function updateValues() {
@@ -201,14 +214,14 @@ export function useCanvasDPI(fixed?: { width: number; height: number }) {
   };
 }
 
-export function animationProgress(duration: number) {
+export function animationProgress(duration: number): Observable<number> {
   return animationFrames().pipe(
     map(({ elapsed }) => Math.min(elapsed / duration, 1)),
     takeWhile((v) => v <= 1, true)
   );
 }
 
-export function lerpTime(a: number, b: number, t: number) {
+export function lerpTime(a: number, b: number, t: number): number {
   return a * (1 - t) + b * t;
 }
 
@@ -216,7 +229,7 @@ export function useInterpolation<T>(
   r: () => T,
   duration: number,
   interpolator: (initial: T, final: T, t: number) => T
-) {
+): Ref<T> {
   const subject = new Subject<T>();
   watchEffect(() => {
     subject.next(r());
