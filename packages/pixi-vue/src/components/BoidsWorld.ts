@@ -1,4 +1,4 @@
-import { Vec2 } from "../utils/Vec2";
+import { Vec2 } from "@gdx/utils";
 
 const SPEED = 50;
 

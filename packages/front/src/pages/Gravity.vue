@@ -17,7 +17,7 @@
 
 <script setup lang="ts">
 import { ref, watchEffect } from 'vue';
-import { useAnimationFrames, useCanvasDPI } from '../utils/rxjsUtils';
+import { useAnimationFrames, useCanvasDPI } from '@gdx/utils';
 import init, { random_world, ParticleWorld } from 'rust/pkg';
 const { canvas, pixelSize } = useCanvasDPI();
 const rotX = ref(30);

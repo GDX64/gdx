@@ -16,12 +16,12 @@
 
 <script lang="ts" setup>
 import { vec3 } from 'gl-matrix';
-import { useAnimationFrames, useCanvasDPI } from '../../utils/rxjsUtils';
+import { useAnimationFrames, useCanvasDPI } from '@gdx/utils';
 import { Camera, KiteDraw } from './HandDraw';
 import { onMounted, onUnmounted, ref, shallowRef } from 'vue';
-import { designConfig } from '../../../tailwind.config';
+import { primeColors } from '../../design/design';
 
-const prime = designConfig.theme.colors.prime;
+const prime = primeColors;
 const props = defineProps<{
   sampleRate: number;
 }>();

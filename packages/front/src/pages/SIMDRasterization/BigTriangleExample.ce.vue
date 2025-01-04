@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import init, { raster_triangle } from 'raytracer/pkg';
-import { useCanvasDPI } from '../../utils/rxjsUtils';
+import { useCanvasDPI } from '@gdx/utils';
 import { watchEffect } from 'vue';
 
 const { canvas, pixelSize } = useCanvasDPI();

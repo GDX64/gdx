@@ -1,28 +1,14 @@
 import colors from 'tailwindcss/colors';
 import plugin from 'tailwindcss/plugin';
 import resolveConfig from 'tailwindcss/resolveConfig';
-
-const prime = {
-  // '50': '#f0f9ff',
-  // '100': '#e0f2fe',
-  // '200': '#bae6fd',
-  // '300': '#9ee0ff',
-  // '400': '#4ab9e9',
-  // '500': '#2a9bcf',
-  // '600': '#17a6ee',
-  // '700': '#2689be',
-  // '800': '#22739e',
-  // '900': '#19587c',
-  // '950': '#16405c',
-  ...colors.sky,
-};
+import { primeColors } from './src/design/design';
 
 export const designConfig = resolveConfig({
   content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx,md}'],
   safelist: ['opacity-0', 'opacity-100'],
   theme: {
     colors: {
-      prime,
+      prime: primeColors,
       sec: {
         ...colors.neutral,
         50: '#fff5f5',
@@ -37,7 +23,7 @@ export const designConfig = resolveConfig({
         ...colors.neutral,
         1000: '#000000',
       },
-      hover: prime[500],
+      hover: primeColors[500],
       ...colors,
     },
     screens: {

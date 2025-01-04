@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import { vec2 } from 'gl-matrix';
-import { useAnimationFrames, useCanvasDPI } from '../../utils/rxjsUtils';
+import { useAnimationFrames, useCanvasDPI } from '@gdx/utils';
 import { nextTick, onMounted } from 'vue';
 import { v8_0_0 } from 'pixi.js';
 

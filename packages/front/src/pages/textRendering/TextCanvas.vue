@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { useAnimationFrames, useCanvasDPI } from '../../utils/rxjsUtils';
+import { useAnimationFrames, useCanvasDPI } from '@gdx/utils';
 
 const props = defineProps<{
   amountOfText: number;

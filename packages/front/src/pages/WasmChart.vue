@@ -31,7 +31,7 @@
 <script setup lang="ts">
 import init, { ChartToCommand } from 'incremental_draw/pkg/incremental_draw';
 import { onMounted, onUnmounted, ref, watchEffect } from 'vue';
-import { useSize, useAnimationFrames } from '../utils/rxjsUtils';
+import { useSize, useAnimationFrames } from '@gdx/utils';
 
 const canvas = ref<HTMLCanvasElement>();
 const chart = ref<ChartToCommand>();

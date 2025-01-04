@@ -4,7 +4,7 @@
 
 <script lang="ts" setup>
 import { onMounted } from 'vue';
-import { useCanvasDPI } from '../../utils/rxjsUtils';
+import { useCanvasDPI } from '@gdx/utils';
 import { Renderer } from '@gdx/pink-lemonade';
 
 const { canvas, canvasPromise } = useCanvasDPI();

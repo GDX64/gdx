@@ -15,7 +15,7 @@
 
 <script setup lang="ts">
 import { ShallowRef, computed, onUnmounted, reactive, ref, shallowRef } from 'vue';
-import { useCanvasDPI, useAnimationFrames } from '../utils/rxjsUtils';
+import { useCanvasDPI, useAnimationFrames } from '@gdx/utils';
 import { vec2 } from 'gl-matrix';
 
 const { canvas, size, pixelSize } = useCanvasDPI();

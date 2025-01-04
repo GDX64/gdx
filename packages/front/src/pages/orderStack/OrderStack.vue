@@ -45,7 +45,7 @@
 import { computed, ref } from 'vue';
 import { OrderStack, StackObject } from './OrderStack';
 import BackGround from '../BackGround.vue';
-import { useAnimationFrames } from '../../utils/rxjsUtils';
+import { useAnimationFrames } from '@gdx/utils';
 
 type DragObj = StackObject & { id: number; density: number };
 const dragging = ref<DragObj | null>(null);

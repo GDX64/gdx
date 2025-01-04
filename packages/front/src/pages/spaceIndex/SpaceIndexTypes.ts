@@ -1,5 +1,5 @@
 import { LinScale } from '../../utils/LinScale';
-import { Vec2 } from '../../utils/Vec2';
+import { Vec2 } from '@gdx/utils';
 
 export interface Entity {
   position(): Vec2;

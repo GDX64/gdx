@@ -28,11 +28,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watchEffect } from 'vue';
-import {
-  useAnimationFrames,
-  useCanvasDPI,
-  useInterpolation,
-} from '../../utils/rxjsUtils';
+import { useAnimationFrames, useCanvasDPI, useInterpolation } from '@gdx/utils';
 import * as d3 from 'd3';
 import { mat4, vec4, vec3 } from 'gl-matrix';
 

@@ -7,7 +7,7 @@
     "moduleResolution": "bundler",
     "useDefineForClassFields": true,
     "isolatedModules": true,
-    "isolatedDeclarations": true,
+    "isolatedDeclarations": false,
     "composite": true,
     "declaration": true,
     "declarationMap": true,

@@ -27,7 +27,7 @@
 
 <script lang="ts" setup>
 import { computed, ref, watchEffect } from 'vue';
-import { useAnimationFrames, useCanvasDPI } from '../../utils/rxjsUtils';
+import { useAnimationFrames, useCanvasDPI } from '@gdx/utils';
 import Yoga from 'yoga-layout';
 import { BoxEl } from './BoxEl';
 

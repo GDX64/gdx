@@ -13,7 +13,7 @@ import {
   takeUntil,
   takeWhile,
   tap,
-} from 'rxjs';
+} from "rxjs";
 import {
   computed,
   onMounted,
@@ -25,7 +25,7 @@ import {
   watch,
   watchEffect,
   watchSyncEffect,
-} from 'vue';
+} from "vue";
 
 export function useDrag(start: Observable<any>): {
   pos: Ref<[number, number]>;
@@ -36,7 +36,7 @@ export function useDrag(start: Observable<any>): {
   const sub = start
     .pipe(
       switchMap(() => {
-        return fromEvent<PointerEvent>(window, 'pointermove').pipe(
+        return fromEvent<PointerEvent>(window, "pointermove").pipe(
           tap({
             subscribe() {
               isDragging.value = true;
@@ -47,10 +47,13 @@ export function useDrag(start: Observable<any>): {
           }),
           scan(
             (acc, value) =>
-              [acc[0] + value.movementX, acc[1] + value.movementY] as [number, number],
+              [acc[0] + value.movementX, acc[1] + value.movementY] as [
+                number,
+                number
+              ],
             pos.value
           ),
-          takeUntil(fromEvent(window, 'pointerup'))
+          takeUntil(fromEvent(window, "pointerup"))
         );
       })
     )
@@ -80,8 +83,8 @@ export function useInterval(fn: () => void, time: number): void {
   onUnmounted(() => clearInterval(timer));
 }
 
-export function storageRef(name: string, initial = ''): Ref<string> {
-  const value = ref('');
+export function storageRef(name: string, initial = ""): Ref<string> {
+  const value = ref("");
   value.value = localStorage.getItem(name) ?? initial;
   watchEffect(() => {
     localStorage.setItem(name, value.value);
@@ -115,7 +118,9 @@ export function useVisibility(container: Ref<HTMLElement | null | undefined>): {
   return { isVisible };
 }
 
-export function useSize(container: Ref<HTMLElement | null | undefined> = ref(null)): {
+export function useSize(
+  container: Ref<HTMLElement | null | undefined> = ref(null)
+): {
   size: { width: number; height: number };
   container: Ref<HTMLElement | null | undefined>;
 } {
@@ -159,7 +164,9 @@ export function awaitTime(time: number): Promise<void> {
  * Result in Hz
  */
 export async function estimateRefreshRate(samples = 10): Promise<number> {
-  const lastValue = await firstValueFrom(animationFrames().pipe(take(samples), last()));
+  const lastValue = await firstValueFrom(
+    animationFrames().pipe(take(samples), last())
+  );
   const avg = lastValue.elapsed / samples;
   return 1000 / avg;
 }
@@ -171,7 +178,10 @@ type CanvasDPIResult = {
   pixelSize: Ref<{ width: number; height: number }>;
 };
 
-export function useCanvasDPI(fixed?: { width: number; height: number }): CanvasDPIResult {
+export function useCanvasDPI(fixed?: {
+  width: number;
+  height: number;
+}): CanvasDPIResult {
   const canvas = ref<HTMLCanvasElement>();
   const { size } = useSize(canvas);
   function updateValues() {

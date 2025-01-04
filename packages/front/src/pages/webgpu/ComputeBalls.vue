@@ -10,7 +10,7 @@
 
 <script lang="ts" setup>
 import { shallowRef } from 'vue';
-import { useCanvasDPI } from '../../utils/rxjsUtils';
+import { useCanvasDPI } from '@gdx/utils';
 import { start } from '../../webgpu/BallsSimulation';
 import { onUnmounted } from 'vue';
 import { GUI } from 'lil-gui';

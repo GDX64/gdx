@@ -28,14 +28,9 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import {
-  useAnimationFrames,
-  useCanvasDPI,
-  useSize,
-  useVisibility,
-} from '../../utils/rxjsUtils';
+import { useAnimationFrames, useCanvasDPI, useSize, useVisibility } from '@gdx/utils';
 import { GridIndex } from './GridIndex';
-import { Vec2 } from '../../utils/Vec2';
+import { Vec2 } from '@gdx/utils';
 import { Entity, SpaceIndex } from './SpaceIndexTypes';
 import { LinScale } from '../../utils/LinScale';
 import { measureTime } from '../../utils/benchMark';

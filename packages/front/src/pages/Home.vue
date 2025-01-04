@@ -16,7 +16,7 @@ import GithubRound from '../components/Contacts/GithubRound.vue';
 import InstagramRound from '../components/Contacts/InstagramRound.vue';
 import { CVLinks } from '../components/CV/glmachadoCVData';
 import Kite from '../components/kite/Kite.vue';
-import { estimateRefreshRate, useAsyncComputed } from '../utils/rxjsUtils';
+import { estimateRefreshRate, useAsyncComputed } from '@gdx/utils';
 import BorderContainer from '../components/BorderContainer.vue';
 
 const refreshRate = useAsyncComputed(async () => {

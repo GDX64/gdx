@@ -2,6 +2,9 @@
   "extends": "./tsconfig.common.json",
   "references": [
     {
+      "path": "./packages/utils"
+    },
+    {
       "path": "./packages/pixi-vue"
     },
     {
@@ -13,5 +16,6 @@
     {
       "path": "./packages/pink-lemonade"
     }
-  ]
+  ],
+  "include": []
 }

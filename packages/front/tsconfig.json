@@ -8,15 +8,12 @@
       "path": "../pixi-vue"
     },
     {
+      "path": "../utils"
+    },
+    {
       "path": "../pink-lemonade"
     }
   ],
-  "include": [
-    "./tailwind.config.ts",
-    "src/main.ts",
-    "src/**/*.ts",
-    "src/**/*.test.ts",
-    "src/**/*.vue"
-  ],
+  "include": ["./src/**/*.ts", "./src/**/*.test.ts", "./src/**/*.vue"],
   "exclude": ["./node_modules", "./dist", "./dist-ts"]
 }
