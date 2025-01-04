@@ -11,9 +11,6 @@
       "path": "./packages/front"
     },
     {
-      "path": "./packages/syncjs"
-    },
-    {
       "path": "./packages/pink-lemonade"
     }
   ],

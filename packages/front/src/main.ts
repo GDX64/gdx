@@ -16,7 +16,6 @@ const routes = [
   { path: '/gravity', component: () => import('./pages/Gravity.vue') },
   { path: '/projection', component: () => import('./pages/Projection/Projection.vue') },
   { path: '/libtest', component: () => import('./pages/LibTest.vue') },
-  { path: '/testWorker', component: () => import('./pages/TestWorkers.vue') },
   { path: '/canvas_game', component: () => import('./pages/CanvasGame.vue') },
   { path: '/stack', component: () => import('./pages/orderStack/OrderStack.vue') },
   { path: '/kite', component: () => import('./components/kite/Kite.vue') },
