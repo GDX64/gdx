@@ -7,34 +7,34 @@ const TOO_CLOSE = BOID_SIZE;
 
 const NEAR = BOID_SIZE * 2;
 export class Boid {
-  position = new Vec2(0, 0);
-  velocity = new Vec2(0, 0);
+  position: Vec2 = new Vec2(0, 0);
+  velocity: Vec2 = new Vec2(0, 0);
 
-  get rotation() {
+  get rotation(): number {
     return Math.atan2(this.velocity.y, this.velocity.x);
   }
 
-  isTooClose(other: Boid) {
+  isTooClose(other: Boid): boolean {
     return this.position.sub(other.position).length() < TOO_CLOSE;
   }
 
-  isNear(other: Boid) {
+  isNear(other: Boid): boolean {
     return this.position.sub(other.position).length() < NEAR;
   }
 }
 
 export class BoidsWorld {
-  boids = new Map<number, Boid>();
+  boids: Map<number, Boid> = new Map<number, Boid>();
   dt = 0.016;
   sceneWidth = 1;
   sceneHeight = 1;
   currentID = 0;
 
-  static TOO_CLOSE = TOO_CLOSE;
-  static NEAR = NEAR;
-  static BOID_SIZE = BOID_SIZE;
+  static TOO_CLOSE: number = TOO_CLOSE;
+  static NEAR: number = NEAR;
+  static BOID_SIZE: number = BOID_SIZE;
 
-  create(n: number) {
+  create(n: number): void {
     this.boids.clear();
     for (let i = 0; i < n; i++) {
       this.boids.set(this.currentID, this.createBoid());
@@ -51,11 +51,11 @@ export class BoidsWorld {
     return boid;
   }
 
-  findWithID(id: any) {
+  findWithID(id: any): Boid | null {
     return this.boids.get(id) ?? null;
   }
 
-  update() {
+  update(): void {
     const dt = this.dt;
     const boids = this.boids;
     boids.forEach((boid) => {
