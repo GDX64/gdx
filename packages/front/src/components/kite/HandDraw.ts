@@ -1,5 +1,5 @@
 import { mat4, vec2, vec3 } from 'gl-matrix';
-import { LinScale } from '../../utils/LinScale';
+import { LinScale } from '@gdx/utils';
 import R from 'roughjs';
 import { Options } from 'roughjs/bin/core';
 import { PBDRope } from './PDBRope';
