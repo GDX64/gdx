@@ -19,14 +19,14 @@
   },
   "dependencies": {
     "pixi.js": "^8.1.0",
-    "vue": "^3.3.4"
+    "vue": "^3.5.13"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^4.2.3",
+    "@vitejs/plugin-vue": "^5.2.1",
     "typescript": "~5.5.4",
-    "vite": "^4.4.5",
+    "vite": "^6.0.7",
     "vite-plugin-dts": "^3.6.3",
     "vitest": "^2.1.8",
-    "vue-tsc": "^2.1.10"
+    "vue-tsc": "^2.2.0"
   }
 }
