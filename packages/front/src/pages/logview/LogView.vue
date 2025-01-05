@@ -57,7 +57,7 @@
     </div>
     <div
       v-bind="filterContainerProps"
-      class="overflow-y-auto h-[150px] w-full border border-prime-600"
+      class="overflow-y-auto h-[300px] w-full border border-prime-600"
     >
       <div class="" v-bind="filterWrapperProps">
         <div
@@ -130,7 +130,7 @@ const timeFilteredLogs = computed(() => {
 const filteredLogs = computed(() => {
   if (showOnlySelected.value) {
     return [...selectedLogs.values()].map((index) => {
-      return timeFilteredLogs.value[index];
+      return rawLogs.value[index];
     });
   }
   const rgx = new RegExp(searchRegex.value, 'i');
@@ -185,7 +185,9 @@ function onLogSelect(log: LogEssentials, event: MouseEvent) {
 }
 
 function onLogDblClick(log: LogEssentials) {
-  scrollTo(log.index);
+  const index = timeFilteredLogs.value.findIndex((l) => l.index === log.index);
+  if (index === -1) return;
+  scrollTo(index);
 }
 
 function restartDateSelection() {
