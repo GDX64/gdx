@@ -2,7 +2,7 @@
   <div class="flex flex-col items-start gap-4 h-screen py-2">
     <div class="flex">
       <input type="file" @change="openLogFile" />
-      <div class="">loaded {{ logs.length }} logs</div>
+      <div class="">loaded {{ rawLogs.length }} logs</div>
     </div>
     <div
       v-bind="containerProps"
@@ -16,18 +16,25 @@
         </div>
       </div>
     </div>
-    <div class="w-full">
+    <div class="w-full flex gap-2 flex-wrap">
       <input
         type="text"
         v-model="searchRegex"
-        class="border border-prime-950 rounded-md w-full"
+        class="border border-prime-950 rounded-md grow min-w-[500px]"
       />
+      <div class="">results {{ filteredLogs.length }}</div>
+      <div class="" v-if="dateSelection" @click="dateSelection = null">
+        <p>
+          Selection {{ dateSelection.startDate.toISOString() }} ->
+          {{ dateSelection.endDate.toISOString() }}
+        </p>
+      </div>
     </div>
     <div
-      v-bind="filterVirtualScroll.containerProps"
+      v-bind="filterContainerProps"
       class="overflow-y-auto h-[150px] min-w-[1000px] max-w-[1000px] border border-prime-900 rounded-sm"
     >
-      <div class="" v-bind="filterVirtualScroll.wrapperProps">
+      <div class="" v-bind="filterWrapperProps">
         <div class="flex gap-2 whitespace-nowrap h-[25px]" v-for="log of filterList">
           <div>{{ log.data.date.toISOString() }}</div>
           <div>{{ log.data.level }}</div>
@@ -39,16 +46,17 @@
       <LogTimeline
         class="w-full h-full absolute top-0 left-0"
         :dates="filteredLogs"
-        :startDate="logs[0].date"
-        :endDate="logs[logs.length - 1].date"
+        :startDate="timeFilteredLogs[0].date"
+        :endDate="timeFilteredLogs[timeFilteredLogs.length - 1].date"
         v-if="filteredLogs.length"
+        @select="onSelect"
       />
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
+import { computed, ref, shallowRef } from 'vue';
 import { useVirtualList } from '@vueuse/core';
 import { LogsDatabase } from './LogsDatabase';
 import LogTimeline from './LogTimeline.vue';
@@ -61,24 +69,36 @@ type LogEssentials = {
 };
 
 const db = new LogsDatabase();
-const logs = ref<LogEssentials[]>([]);
+const rawLogs = shallowRef<LogEssentials[]>([]);
 const searchRegex = ref('');
+const dateSelection = ref<{ startDate: Date; endDate: Date } | null>(null);
+
+const timeFilteredLogs = computed(() => {
+  if (!dateSelection.value) return rawLogs.value;
+  const { startDate, endDate } = dateSelection.value;
+  return rawLogs.value.filter((log) => {
+    return log.date >= startDate && log.date <= endDate;
+  });
+});
+
 const filteredLogs = computed(() => {
   const rgx = new RegExp(searchRegex.value, 'i');
-  if (!searchRegex.value) return [];
-  return logs.value.filter((log) => {
+  return timeFilteredLogs.value.filter((log) => {
     return log.original.match(rgx);
   });
 });
 
-const { list, containerProps, wrapperProps } = useVirtualList(logs, {
+const { list, containerProps, wrapperProps } = useVirtualList(timeFilteredLogs, {
   itemHeight: 25,
 });
 
-const filterVirtualScroll = useVirtualList(filteredLogs, {
+const {
+  list: filterList,
+  containerProps: filterContainerProps,
+  wrapperProps: filterWrapperProps,
+} = useVirtualList(filteredLogs, {
   itemHeight: 25,
 });
-const filterList = filterVirtualScroll.list;
 
 loadLogs();
 
@@ -96,12 +116,16 @@ function neloParser(file: string): LogEssentials[] {
   return logs;
 }
 
+function onSelect(selection: { startDate: Date; endDate: Date }) {
+  dateSelection.value = selection;
+}
+
 async function loadLogs() {
-  const firstDbLog = await db.firstLog();
+  const firstDbLog = await db.lastFile();
   if (firstDbLog) {
-    logs.value = neloParser(firstDbLog.content);
+    rawLogs.value = neloParser(firstDbLog.content);
   } else {
-    logs.value = [];
+    rawLogs.value = [];
   }
 }
 
@@ -114,7 +138,7 @@ async function openLogFile(event: Event) {
 
   reader.onload = (e) => {
     const content = e.target?.result as string;
-    logs.value = neloParser(content);
+    rawLogs.value = neloParser(content);
     db.saveLogFile(file.name, content);
   };
   reader.readAsText(file);

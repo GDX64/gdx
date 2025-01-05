@@ -20,8 +20,8 @@ export class LogsDatabase extends Dexie {
     return this.logs.get({ name }).then((log) => log?.content ?? null);
   }
 
-  firstLog(): Promise<LogFile | undefined> {
-    return this.logs.orderBy(':id').first();
+  lastFile(): Promise<LogFile | undefined> {
+    return this.logs.orderBy(':id').last();
   }
 
   saveLogFile(name: string, content: string): Promise<number> {
