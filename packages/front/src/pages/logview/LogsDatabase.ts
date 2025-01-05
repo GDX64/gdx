@@ -1,4 +1,4 @@
-import Dexie from 'dexie';
+import Dexie, { liveQuery, Observable } from 'dexie';
 
 type LogFile = {
   name: string;
@@ -22,6 +22,13 @@ export class LogsDatabase extends Dexie {
 
   lastFile(): Promise<LogFile | undefined> {
     return this.logs.orderBy(':id').last();
+  }
+
+  filesObserver(): Observable<string[]> {
+    return liveQuery(async () => {
+      const keys = await this.logs.orderBy('name').keys();
+      return keys as string[];
+    });
   }
 
   saveLogFile(name: string, content: string): Promise<number> {

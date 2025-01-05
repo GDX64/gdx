@@ -283,3 +283,21 @@ export function useUTCAdjustedDate(start: Date): {
     },
   };
 }
+
+type SimpleObservable<T> = {
+  subscribe: (cb: (value: T) => void) => {
+    unsubscribe: () => void;
+  };
+};
+
+export function observableToRef<T>(
+  obs: SimpleObservable<T>,
+  initial: T
+): Ref<T> {
+  const thing = shallowRef(initial);
+  const sub = obs.subscribe((value) => {
+    thing.value = value;
+  });
+  onUnmounted(() => sub.unsubscribe());
+  return thing;
+}
