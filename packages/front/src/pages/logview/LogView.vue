@@ -82,6 +82,7 @@
         :dates="filteredLogs"
         :startDate="timeFilteredLogs[0].date"
         :endDate="timeFilteredLogs[timeFilteredLogs.length - 1].date"
+        :selectedLog="firstSelectedLog()?.date"
         v-if="filteredLogs.length"
         @select="onSelect"
       />
@@ -169,6 +170,14 @@ function neloParser(file: string): LogEssentials[] {
     };
   });
   return logs;
+}
+
+function firstSelectedLog() {
+  const index = selectedLogs.values().next();
+  if (!index.done) {
+    return rawLogs.value[index.value];
+  }
+  return undefined;
 }
 
 function onFileLoad(file: string) {

@@ -17,6 +17,7 @@ const props = defineProps<{
   dates: { date: Date }[];
   startDate: Date;
   endDate: Date;
+  selectedLog?: Date;
 }>();
 
 const emit = defineEmits({
@@ -87,6 +88,11 @@ function drawHistogram() {
   }
   if (mousePosRef.value && selectionStartRef.value) {
     drawSelectRect(ctx, selectionStartRef.value, mousePosRef.value);
+  }
+  if (props.selectedLog) {
+    const selectedLogX = dateScale().scale(props.selectedLog.getTime());
+    const point = new Vec2(selectedLogX, 0);
+    drawScalePoint(ctx, point);
   }
   ctx.restore();
 }
