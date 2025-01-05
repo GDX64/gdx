@@ -260,3 +260,26 @@ export function useInterpolation<T>(
   onUnmounted(() => sub.unsubscribe());
   return sRef;
 }
+
+export function useUTCAdjustedDate(start: Date): {
+  adjusted: Date;
+  original: Date;
+} {
+  const date = ref(start);
+  return {
+    get adjusted() {
+      const offset = date.value.getTimezoneOffset();
+      return new Date(date.value.getTime() + offset * 60 * 1000);
+    },
+    set adjusted(value: Date) {
+      const offset = value.getTimezoneOffset();
+      date.value = new Date(value.getTime() - offset * 60 * 1000);
+    },
+    get original() {
+      return date.value;
+    },
+    set original(value: Date) {
+      date.value = value;
+    },
+  };
+}

@@ -16,29 +16,30 @@
         </div>
       </div>
     </div>
-    <div class="w-full flex gap-2 flex-wrap">
-      <input
+    <div class="w-full flex gap-2 flex-wrap items-center">
+      <InputText
+        class="rounded-md grow min-w-[500px] bg-red-400"
         type="text"
         v-model="searchRegex"
-        class="border border-prime-950 rounded-md grow min-w-[500px]"
       />
-      <div class="">results {{ filteredLogs.length }}</div>
-      <input
-        type="time"
-        :value="selectionTimes.startDate"
-        class="bg-prime-100 rounded-md"
-      />
-      <input
-        type="time"
-        :value="selectionTimes.endDate"
-        class="bg-prime-100 rounded-md"
-      />
-      <button
-        class="bg-prime-500 px-2 text-white rounded-md"
-        @click="restartDateSelection"
-      >
-        Reset
-      </button>
+      <div class="">Results {{ filteredLogs.length }}</div>
+      <DatePicker
+        v-model="startDate.adjusted"
+        fluid
+        timeOnly
+        showSeconds
+        inputId="templatedisplay"
+        class="w-[100px]"
+      ></DatePicker>
+      <DatePicker
+        v-model="endDate.adjusted"
+        fluid
+        timeOnly
+        showSeconds
+        inputId="templatedisplay-2"
+        class="w-[100px]"
+      ></DatePicker>
+      <Button @click="restartDateSelection"> Reset </Button>
     </div>
     <div
       v-bind="filterContainerProps"
@@ -70,6 +71,10 @@ import { computed, ref, shallowRef } from 'vue';
 import { useVirtualList } from '@vueuse/core';
 import { LogsDatabase } from './LogsDatabase';
 import LogTimeline from './LogTimeline.vue';
+import InputText from 'primevue/inputtext';
+import DatePicker from 'primevue/datepicker';
+import Button from 'primevue/button';
+import { useUTCAdjustedDate } from '@gdx/utils';
 
 type LogEssentials = {
   date: Date;
@@ -81,26 +86,15 @@ type LogEssentials = {
 const db = new LogsDatabase();
 const rawLogs = shallowRef<LogEssentials[]>([]);
 const searchRegex = ref('');
-const dateSelection = ref<{ startDate: Date; endDate: Date }>({
-  startDate: new Date(0),
-  endDate: new Date(2030, 0, 1),
-});
 
-const selectionTimes = computed(() => {
-  function formatHHMMSS(date: Date) {
-    return date.toISOString().slice(11, 19);
-  }
-  return {
-    startDate: formatHHMMSS(dateSelection.value.startDate),
-    endDate: formatHHMMSS(dateSelection.value.endDate),
-  };
-});
+const startDate = useUTCAdjustedDate(new Date(0));
+const endDate = useUTCAdjustedDate(new Date());
 
 const timeFilteredLogs = computed(() => {
-  if (!dateSelection.value) return rawLogs.value;
-  const { startDate, endDate } = dateSelection.value;
+  const start = startDate.original;
+  const end = endDate.original;
   return rawLogs.value.filter((log) => {
-    return log.date >= startDate && log.date <= endDate;
+    return log.date >= start && log.date <= end;
   });
 });
 
@@ -140,14 +134,24 @@ function neloParser(file: string): LogEssentials[] {
 }
 
 function restartDateSelection() {
-  dateSelection.value = {
-    startDate: new Date(0),
-    endDate: new Date(2030, 0, 1),
-  };
+  const { minDate, maxDate } = minMaxDates();
+  startDate.original = minDate;
+  endDate.original = maxDate;
+}
+
+function minMaxDates() {
+  const minDate = rawLogs.value.reduce((acc, log) => {
+    return log.date < acc ? log.date : acc;
+  }, new Date());
+  const maxDate = rawLogs.value.reduce((acc, log) => {
+    return log.date > acc ? log.date : acc;
+  }, new Date(0));
+  return { minDate, maxDate };
 }
 
 function onSelect(selection: { startDate: Date; endDate: Date }) {
-  dateSelection.value = selection;
+  startDate.original = selection.startDate;
+  endDate.original = selection.endDate;
 }
 
 async function loadLogs() {
@@ -157,6 +161,7 @@ async function loadLogs() {
   } else {
     rawLogs.value = [];
   }
+  restartDateSelection();
 }
 
 async function openLogFile(event: Event) {
@@ -169,6 +174,7 @@ async function openLogFile(event: Event) {
   reader.onload = (e) => {
     const content = e.target?.result as string;
     rawLogs.value = neloParser(content);
+    restartDateSelection();
     db.saveLogFile(file.name, content);
   };
   reader.readAsText(file);
