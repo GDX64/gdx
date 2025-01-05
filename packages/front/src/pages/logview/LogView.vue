@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-start gap-4 h-screen py-2">
+  <div class="flex flex-col items-start gap-4 h-screen py-2 px-4">
     <div class="flex">
       <input type="file" @change="openLogFile" />
       <div class="">loaded {{ rawLogs.length }} logs</div>
@@ -23,16 +23,26 @@
         class="border border-prime-950 rounded-md grow min-w-[500px]"
       />
       <div class="">results {{ filteredLogs.length }}</div>
-      <div class="" v-if="dateSelection" @click="dateSelection = null">
-        <p>
-          Selection {{ dateSelection.startDate.toISOString() }} ->
-          {{ dateSelection.endDate.toISOString() }}
-        </p>
-      </div>
+      <input
+        type="time"
+        :value="selectionTimes.startDate"
+        class="bg-prime-100 rounded-md"
+      />
+      <input
+        type="time"
+        :value="selectionTimes.endDate"
+        class="bg-prime-100 rounded-md"
+      />
+      <button
+        class="bg-prime-500 px-2 text-white rounded-md"
+        @click="restartDateSelection"
+      >
+        Reset
+      </button>
     </div>
     <div
       v-bind="filterContainerProps"
-      class="overflow-y-auto h-[150px] min-w-[1000px] max-w-[1000px] border border-prime-900 rounded-sm"
+      class="overflow-y-auto h-[150px] min-w-[1000px] max-w-[1000px] border border-prime-900 rounded-md"
     >
       <div class="" v-bind="filterWrapperProps">
         <div class="flex gap-2 whitespace-nowrap h-[25px]" v-for="log of filterList">
@@ -71,7 +81,20 @@ type LogEssentials = {
 const db = new LogsDatabase();
 const rawLogs = shallowRef<LogEssentials[]>([]);
 const searchRegex = ref('');
-const dateSelection = ref<{ startDate: Date; endDate: Date } | null>(null);
+const dateSelection = ref<{ startDate: Date; endDate: Date }>({
+  startDate: new Date(0),
+  endDate: new Date(2030, 0, 1),
+});
+
+const selectionTimes = computed(() => {
+  function formatHHMMSS(date: Date) {
+    return date.toISOString().slice(11, 19);
+  }
+  return {
+    startDate: formatHHMMSS(dateSelection.value.startDate),
+    endDate: formatHHMMSS(dateSelection.value.endDate),
+  };
+});
 
 const timeFilteredLogs = computed(() => {
   if (!dateSelection.value) return rawLogs.value;
@@ -114,6 +137,13 @@ function neloParser(file: string): LogEssentials[] {
     };
   });
   return logs;
+}
+
+function restartDateSelection() {
+  dateSelection.value = {
+    startDate: new Date(0),
+    endDate: new Date(2030, 0, 1),
+  };
 }
 
 function onSelect(selection: { startDate: Date; endDate: Date }) {

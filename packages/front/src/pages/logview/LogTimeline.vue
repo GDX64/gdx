@@ -2,14 +2,14 @@
   <canvas
     ref="canvas"
     @pointermove="onPointerMove"
-    @pointerleave="onPointerLeave"
     @pointerdown="onPointerDown"
+    @pointerleave="onPointerLeave"
     @pointerup="onPointerUp"
   ></canvas>
 </template>
 
 <script lang="ts" setup>
-import { ref, watchEffect } from 'vue';
+import { onUnmounted, ref, watchEffect } from 'vue';
 import { LinScale, useCanvasDPI, Vec2 } from '@gdx/utils';
 import { primeColors } from '../../design/design';
 
@@ -27,13 +27,19 @@ const mousePosRef = ref<Vec2 | null>(null);
 const selectionStartRef = ref<Vec2 | null>(null);
 
 const { canvas, size } = useCanvasDPI();
+window.addEventListener('pointerup', onPointerUp);
+onUnmounted(() => {
+  window.removeEventListener('pointerup', onPointerUp);
+});
+
+function onPointerLeave() {
+  if (!selectionStartRef.value) {
+    mousePosRef.value = null;
+  }
+}
 
 function onPointerMove(event: PointerEvent) {
   mousePosRef.value = new Vec2(event.offsetX, event.offsetY);
-}
-
-function onPointerLeave() {
-  mousePosRef.value = null;
 }
 
 function onPointerDown(event: PointerEvent) {
@@ -41,14 +47,15 @@ function onPointerDown(event: PointerEvent) {
 }
 
 function onPointerUp(event: PointerEvent) {
-  const endPoint = new Vec2(event.offsetX, event.offsetY);
   if (selectionStartRef.value) {
-    const start = selectionStartRef.value;
-    const startDate = new Date(dateScale().invert(start.x));
-    const endDate = new Date(dateScale().invert(endPoint.x));
+    const startX = Math.min(selectionStartRef.value?.x ?? 0, mousePosRef.value?.x ?? 0);
+    const endX = Math.max(selectionStartRef.value?.x ?? 0, mousePosRef.value?.x ?? 0);
+    const startDate = new Date(dateScale().invert(startX));
+    const endDate = new Date(dateScale().invert(endX));
     emit('select', { startDate, endDate });
   }
   selectionStartRef.value = null;
+  mousePosRef.value = null;
 }
 
 function drawHistogram() {
@@ -75,22 +82,36 @@ function drawHistogram() {
   if (mousePosRef.value) {
     drawScalePoint(ctx, mousePosRef.value);
   }
+  if (selectionStartRef.value) {
+    drawScalePoint(ctx, selectionStartRef.value);
+  }
+  if (mousePosRef.value && selectionStartRef.value) {
+    drawSelectRect(ctx, selectionStartRef.value, mousePosRef.value);
+  }
   ctx.restore();
+}
+
+function drawSelectRect(ctx: CanvasRenderingContext2D, start: Vec2, end: Vec2) {
+  const xStart = Math.min(start.x, end.x);
+  const xEnd = Math.max(start.x, end.x);
+  ctx.fillStyle = primeColors[500];
+  ctx.globalAlpha = 0.5;
+  ctx.fillRect(xStart, 0, xEnd - xStart, size.height);
 }
 
 function drawScalePoint(ctx: CanvasRenderingContext2D, point: Vec2) {
   //draw mouse as a line
   const timeScale = dateScale();
-  if (mousePosRef.value) {
+  if (point) {
     ctx.strokeStyle = primeColors[900];
     ctx.beginPath();
     ctx.lineWidth = 2;
-    ctx.moveTo(mousePosRef.value.x, 0);
-    ctx.lineTo(mousePosRef.value.x, size.height);
+    ctx.moveTo(point.x, 0);
+    ctx.lineTo(point.x, size.height);
     ctx.stroke();
-    const dateOfMouse = timeScale.invert(mousePosRef.value.x);
+    const dateOfMouse = timeScale.invert(point.x);
     const date = new Date(dateOfMouse);
-    ctx.fillText(date.toISOString(), mousePosRef.value.x + 5, 10);
+    ctx.fillText(date.toISOString(), point.x + 5, 10);
   }
 }
 
@@ -108,7 +129,6 @@ function calcBeans() {
   const beans = Math.floor(size.width / beanWidth);
 
   const arrBeans = new Array(beans).fill(0);
-  const deltaTime = props.endDate.getTime() - props.startDate.getTime();
   const scale = LinScale.fromPoints(
     props.startDate.getTime(),
     0,
