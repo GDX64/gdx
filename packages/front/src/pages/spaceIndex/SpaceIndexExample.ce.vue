@@ -32,7 +32,7 @@ import { useAnimationFrames, useCanvasDPI, useSize, useVisibility } from '@gdx/u
 import { GridIndex } from './GridIndex';
 import { Vec2 } from '@gdx/utils';
 import { Entity, SpaceIndex } from './SpaceIndexTypes';
-import { LinScale } from '../../utils/LinScale';
+import { LinScale } from '@gdx/utils';
 import { measureTime } from '../../utils/benchMark';
 import { QuadTreeIndex } from './QuadTreeIndex';
 import { SpatialGridColors } from './SpatialGridColors';

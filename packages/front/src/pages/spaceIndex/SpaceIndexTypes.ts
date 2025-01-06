@@ -1,4 +1,4 @@
-import { LinScale } from '../../utils/LinScale';
+import { LinScale } from '@gdx/utils';
 import { Vec2 } from '@gdx/utils';
 
 export interface Entity {
