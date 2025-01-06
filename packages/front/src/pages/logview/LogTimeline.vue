@@ -70,8 +70,8 @@ function onPointerUp(event: PointerEvent) {
 function drawHistogram() {
   const ctx = canvas.value?.getContext('2d');
   if (!ctx) return;
-  const { arrBeans, beanWidth, max } = calcBeans();
-  const scaleX = LinScale.fromPoints(0, 0, arrBeans.length - 1, size.width - beanWidth);
+  const { arrbins, binWidth, max } = calcbins();
+  const scaleX = LinScale.fromPoints(0, 0, arrbins.length - 1, size.width - binWidth);
   const scaleY = LinScale.fromPoints(0, 0, max, size.height);
 
   ctx.save();
@@ -79,14 +79,14 @@ function drawHistogram() {
   ctx.clearRect(0, 0, size.width, size.height);
   const { height } = size;
   ctx.fillStyle = primeColors[500];
-  for (let i = 0; i < arrBeans.length; i++) {
+  for (let i = 0; i < arrbins.length; i++) {
     const x = scaleX.scale(i);
-    let barHeight = scaleY.scale(arrBeans[i]);
+    let barHeight = scaleY.scale(arrbins[i]);
     if (barHeight != 0) {
       const MIN_HEIGHT = 5;
       barHeight = Math.max(MIN_HEIGHT, barHeight);
     }
-    ctx.fillRect(x, height - barHeight, beanWidth, barHeight);
+    ctx.fillRect(x, height - barHeight, binWidth, barHeight);
   }
   if (mousePosRef.value) {
     drawScalePoint(ctx, mousePosRef.value);
@@ -125,7 +125,13 @@ function drawScalePoint(ctx: CanvasRenderingContext2D, point: Vec2) {
     ctx.stroke();
     const dateOfMouse = timeScale.invert(point.x);
     const date = new Date(dateOfMouse);
-    ctx.fillText(formatTime.format(date), point.x + 5, 10);
+    const isCloseToTheRight = point.x + 100 > size.width;
+    if (isCloseToTheRight) {
+      ctx.textAlign = 'right';
+      ctx.fillText(formatTime.format(date), point.x - 5, 10);
+    } else {
+      ctx.fillText(formatTime.format(date), point.x + 5, 10);
+    }
   }
 }
 
@@ -138,26 +144,22 @@ function dateScale() {
   );
 }
 
-function calcBeans() {
-  const beanWidth = 10;
-  const beans = Math.floor(size.width / beanWidth);
+function calcbins() {
+  const binWidth = 10;
+  const bins = Math.ceil(size.width / binWidth);
 
-  const arrBeans = new Array(beans).fill(0);
-  const scale = LinScale.fromPoints(
-    props.startDate.getTime(),
-    0,
-    props.endDate.getTime(),
-    beans - 1
-  );
+  const arrbins = new Array(bins).fill(0);
+  const scale = dateScale();
   let max = 0;
   for (const date of props.dates) {
-    const bean = Math.min(beans - 1, Math.floor(scale.scale(date.date.getTime())));
-    arrBeans[bean]++;
-    max = Math.max(max, arrBeans[bean]);
+    const x = scale.scale(date.date.getTime());
+    const bin = Math.floor(x / binWidth);
+    arrbins[bin]++;
+    max = Math.max(max, arrbins[bin]);
   }
   return {
-    arrBeans,
-    beanWidth,
+    arrbins,
+    binWidth,
     max,
   };
 }
