@@ -1,8 +1,14 @@
 <template>
   <div class="flex flex-col items-start gap-4 h-screen py-2 px-4 w-full">
-    <LoadMenu @load="onFileLoad" v-model:visible="loadVisible"></LoadMenu>
+    <PluginsDrawer
+      v-model:visible="isDrawerVisible"
+      :hightLightedLog="hightLightedLog"
+      :rawLogs="rawLogs"
+    ></PluginsDrawer>
+    <LoadMenu @load="onFileLoad" v-model:visible="isLoadVisible"></LoadMenu>
     <div class="flex gap-4 items-center">
-      <Button @click="loadVisible = true">Load</Button>
+      <Button @click="isLoadVisible = true">Load</Button>
+      <Button @click="isDrawerVisible = true">OpenState</Button>
       ({{ rawLogs.length }} logs)
     </div>
     <div
@@ -103,11 +109,13 @@ import LoadMenu from './LoadMenu.vue';
 import ToggleSwitch from 'primevue/toggleswitch';
 import { LogEssentials, LogStatePlugin } from './LogTypes';
 import { ConnectionStatePlugin } from './LogStatePlugins';
+import PluginsDrawer from './PluginsDrawer.vue';
 
 const db = new LogsDatabase();
 const rawLogs = shallowRef<LogEssentials[]>([]);
 const searchRegex = ref('');
-const loadVisible = ref(false);
+const isLoadVisible = ref(false);
+const isDrawerVisible = ref(false);
 const selectedLogs = reactive(new Set<number>());
 const showOnlySelected = ref(false);
 const hightLightedLog = ref<LogEssentials | null>(null);
@@ -186,7 +194,6 @@ function onLogSelect(log: LogEssentials, event: MouseEvent) {
 }
 
 function onLogDblClick(log: LogEssentials) {
-  calcPluginStates(log);
   const index = timeFilteredLogs.value.findIndex((l) => l.index === log.index);
   hightLightedLog.value = log;
   if (index === -1) return;
@@ -216,21 +223,6 @@ function onSelect(selection: { startDate: Date; endDate: Date }) {
 
 function isLogSelected(log: LogEssentials) {
   return selectedLogs.has(log.index);
-}
-
-function calcPluginStates(at: LogEssentials) {
-  const raw = rawLogs.value;
-  const plugins: LogStatePlugin[] = [new ConnectionStatePlugin()];
-  for (const log of raw) {
-    plugins.forEach((plugin) => {
-      plugin.onLog(log);
-    });
-    if (log.index === at.index) {
-      break;
-    }
-  }
-  const formats = plugins.map((p) => p.format());
-  console.log(formats);
 }
 
 async function loadLogs() {

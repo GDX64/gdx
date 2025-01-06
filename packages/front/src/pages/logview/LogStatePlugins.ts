@@ -1,4 +1,4 @@
-import { LogEssentials, LogStatePlugin } from './LogTypes';
+import { FormatNode, LogEssentials, LogStatePlugin } from './LogTypes';
 
 export class ConnectionStatePlugin implements LogStatePlugin {
   private serverStatus = new Map<string, boolean>();
@@ -19,11 +19,19 @@ export class ConnectionStatePlugin implements LogStatePlugin {
     }
   }
 
-  format(): string {
-    return [...this.serverStatus.entries()]
-      .map(([server, connected]) => {
-        return `${server} ${connected ? 'logged' : 'not logged'}`;
-      })
-      .join('\n\r');
+  format(): FormatNode {
+    const nodes = [...this.serverStatus.entries()].map(
+      ([server, connected]): FormatNode => {
+        return {
+          key: `connection, ${server}`,
+          label: `${server} ${connected ? 'Connected' : 'Disconnected'}`,
+        };
+      }
+    );
+    return {
+      key: 'connection',
+      label: 'Connection',
+      children: nodes,
+    };
   }
 }
