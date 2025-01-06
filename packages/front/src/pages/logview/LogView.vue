@@ -101,14 +101,8 @@ import Button from 'primevue/button';
 import { useUTCAdjustedDate } from '@gdx/utils';
 import LoadMenu from './LoadMenu.vue';
 import ToggleSwitch from 'primevue/toggleswitch';
-
-type LogEssentials = {
-  date: Date;
-  original: string;
-  level: string;
-  message: string;
-  index: number;
-};
+import { LogEssentials, LogStatePlugin } from './LogTypes';
+import { ConnectionStatePlugin } from './LogStatePlugins';
 
 const db = new LogsDatabase();
 const rawLogs = shallowRef<LogEssentials[]>([]);
@@ -192,6 +186,7 @@ function onLogSelect(log: LogEssentials, event: MouseEvent) {
 }
 
 function onLogDblClick(log: LogEssentials) {
+  calcPluginStates(log);
   const index = timeFilteredLogs.value.findIndex((l) => l.index === log.index);
   hightLightedLog.value = log;
   if (index === -1) return;
@@ -221,6 +216,21 @@ function onSelect(selection: { startDate: Date; endDate: Date }) {
 
 function isLogSelected(log: LogEssentials) {
   return selectedLogs.has(log.index);
+}
+
+function calcPluginStates(at: LogEssentials) {
+  const raw = rawLogs.value;
+  const plugins: LogStatePlugin[] = [new ConnectionStatePlugin()];
+  for (const log of raw) {
+    plugins.forEach((plugin) => {
+      plugin.onLog(log);
+    });
+    if (log.index === at.index) {
+      break;
+    }
+  }
+  const formats = plugins.map((p) => p.format());
+  console.log(formats);
 }
 
 async function loadLogs() {
