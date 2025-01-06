@@ -23,6 +23,7 @@
     "mitt": "^3.0.0",
     "pixi.js": "^8.1.5",
     "popmotion": "^11.0.5",
+    "primeicons": "^7.0.0",
     "primevue": "^4.2.5",
     "ramda": "^0.28.0",
     "roughjs": "^4.6.6",

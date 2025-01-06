@@ -8,7 +8,6 @@ import { defineConfig, searchForWorkspaceRoot } from 'vite';
 import { resolve } from 'path';
 
 const root = searchForWorkspaceRoot(process.cwd());
-const allowed = resolve(root, 'packages/front');
 
 // https://vitejs.dev/config/
 export default defineConfig((args) => {
@@ -32,8 +31,8 @@ export default defineConfig((args) => {
     css: getCssConfig(args.mode),
     server: {
       fs: {
-        allow: [allowed],
-        strict: true,
+        // allow: [allowed],
+        // strict: true,
       },
       host: true,
       headers: {

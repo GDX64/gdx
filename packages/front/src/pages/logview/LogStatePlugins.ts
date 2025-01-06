@@ -23,8 +23,9 @@ export class ConnectionStatePlugin implements LogStatePlugin {
     const nodes = [...this.serverStatus.entries()].map(
       ([server, connected]): FormatNode => {
         return {
-          key: `connection, ${server}`,
-          label: `${server} ${connected ? 'Connected' : 'Disconnected'}`,
+          key: `connection_${server}`,
+          label: `${server}`,
+          icon: connected ? 'pi pi-check pi-fw' : 'pi pi-times pi-fw',
         };
       }
     );

@@ -6,6 +6,7 @@ import PrimeVue from 'primevue/config';
 import Aura from '@primevue/themes/aura';
 import { definePreset } from '@primevue/themes';
 import './index.css';
+import 'primeicons/primeicons.css';
 
 console.log(Aura);
 

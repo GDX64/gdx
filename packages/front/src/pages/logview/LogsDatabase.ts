@@ -11,7 +11,7 @@ export class LogsDatabase extends Dexie {
   constructor() {
     super('LogsDatabase');
     this.version(1).stores({
-      logs: '++id, name',
+      logs: '++id, &name',
     });
     this.logs = this.table('logs');
   }
@@ -33,5 +33,9 @@ export class LogsDatabase extends Dexie {
 
   saveLogFile(name: string, content: string): Promise<number> {
     return this.logs.put({ name, content });
+  }
+
+  deleteFile(name: string): Promise<number> {
+    return this.logs.where('name').equals(name).delete();
   }
 }
