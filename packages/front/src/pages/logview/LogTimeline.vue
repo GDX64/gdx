@@ -26,6 +26,14 @@ const emit = defineEmits({
 
 const mousePosRef = ref<Vec2 | null>(null);
 const selectionStartRef = ref<Vec2 | null>(null);
+const formatTime = new Intl.DateTimeFormat('en-US', {
+  hour: 'numeric',
+  minute: 'numeric',
+  second: 'numeric',
+  hour12: false,
+  //UTC-0
+  timeZone: 'UTC',
+});
 
 const { canvas, size } = useCanvasDPI();
 window.addEventListener('pointerup', onPointerUp);
@@ -117,7 +125,7 @@ function drawScalePoint(ctx: CanvasRenderingContext2D, point: Vec2) {
     ctx.stroke();
     const dateOfMouse = timeScale.invert(point.x);
     const date = new Date(dateOfMouse);
-    ctx.fillText(date.toISOString(), point.x + 5, 10);
+    ctx.fillText(formatTime.format(date), point.x + 5, 10);
   }
 }
 

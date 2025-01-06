@@ -82,7 +82,7 @@
         :dates="filteredLogs"
         :startDate="timeFilteredLogs[0].date"
         :endDate="timeFilteredLogs[timeFilteredLogs.length - 1].date"
-        :selectedLog="firstSelectedLog()?.date"
+        :selectedLog="hightLightedLog?.date"
         v-if="filteredLogs.length"
         @select="onSelect"
       />
@@ -91,7 +91,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, reactive, ref, shallowRef } from 'vue';
+import { computed, reactive, ref, shallowRef, watch } from 'vue';
 import { useVirtualList } from '@vueuse/core';
 import { LogsDatabase } from './LogsDatabase';
 import LogTimeline from './LogTimeline.vue';
@@ -116,6 +116,7 @@ const searchRegex = ref('');
 const loadVisible = ref(false);
 const selectedLogs = reactive(new Set<number>());
 const showOnlySelected = ref(false);
+const hightLightedLog = ref<LogEssentials | null>(null);
 
 const startDate = useUTCAdjustedDate(new Date(0));
 const endDate = useUTCAdjustedDate(new Date());
@@ -151,8 +152,13 @@ const {
   list: filterList,
   containerProps: filterContainerProps,
   wrapperProps: filterWrapperProps,
+  scrollTo: scrollToFiltered,
 } = useVirtualList(filteredLogs, {
   itemHeight: 25,
+});
+
+watch(filteredLogs, () => {
+  scrollToFiltered(0);
 });
 
 loadLogs();
@@ -172,14 +178,6 @@ function neloParser(file: string): LogEssentials[] {
   return logs;
 }
 
-function firstSelectedLog() {
-  const index = selectedLogs.values().next();
-  if (!index.done) {
-    return rawLogs.value[index.value];
-  }
-  return undefined;
-}
-
 function onFileLoad(file: string) {
   rawLogs.value = neloParser(file);
   restartDateSelection();
@@ -195,6 +193,7 @@ function onLogSelect(log: LogEssentials, event: MouseEvent) {
 
 function onLogDblClick(log: LogEssentials) {
   const index = timeFilteredLogs.value.findIndex((l) => l.index === log.index);
+  hightLightedLog.value = log;
   if (index === -1) return;
   scrollTo(index);
 }
