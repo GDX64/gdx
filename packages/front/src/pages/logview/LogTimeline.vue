@@ -108,14 +108,17 @@ function drawHistogram() {
 function drawSelectRect(ctx: CanvasRenderingContext2D, start: Vec2, end: Vec2) {
   const xStart = Math.min(start.x, end.x);
   const xEnd = Math.max(start.x, end.x);
+  ctx.save();
   ctx.fillStyle = primeColors[500];
-  ctx.globalAlpha = 0.5;
+  ctx.globalAlpha = 0.2;
   ctx.fillRect(xStart, 0, xEnd - xStart, size.height);
+  ctx.restore();
 }
 
 function drawScalePoint(ctx: CanvasRenderingContext2D, point: Vec2) {
   //draw mouse as a line
   const timeScale = dateScale();
+  ctx.save();
   if (point) {
     ctx.strokeStyle = primeColors[900];
     ctx.beginPath();
@@ -133,6 +136,7 @@ function drawScalePoint(ctx: CanvasRenderingContext2D, point: Vec2) {
       ctx.fillText(formatTime.format(date), point.x + 5, 10);
     }
   }
+  ctx.restore();
 }
 
 function dateScale() {
