@@ -29,6 +29,10 @@ const routes = [
   { path: '/yoga', component: () => import('./pages/YogaTest/YogaTest.vue') },
   { path: '/webgpu', component: () => import('./pages/webgpu/Webgpu.vue') },
   { path: '/logs', component: () => import('./pages/logview/LogView.vue') },
+  {
+    path: '/relative-imports-fix',
+    component: () => import('./pages/RelativeImportFixer/RelativeImportsFixer.vue'),
+  },
   { path: '/space-index', component: () => import('./pages/spaceIndex/SpaceIndex.vue') },
   {
     path: '/audio-things',
@@ -57,7 +61,14 @@ const router = createRouter({
 
 const { MyPreset } = makeTheme();
 const app = createApp(App);
-app.use(PrimeVue, { theme: { preset: MyPreset } });
+app.use(PrimeVue, {
+  theme: {
+    preset: MyPreset,
+    options: {
+      darkModeSelector: '.dark-mode',
+    },
+  },
+});
 app.use(router);
 app.mount('#app');
 

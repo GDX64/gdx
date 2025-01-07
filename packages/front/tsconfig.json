@@ -14,6 +14,6 @@
       "path": "../pink-lemonade"
     }
   ],
-  "include": ["./src/**/*.ts", "./src/**/*.test.ts", "./src/**/*.vue"],
+  "include": ["./src/**/*.ts", "./src/**/*.test.ts", "./src/**/*.vue", "./tests"],
   "exclude": ["./node_modules", "./dist", "./dist-ts"]
 }
