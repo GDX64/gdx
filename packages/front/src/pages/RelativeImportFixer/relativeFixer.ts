@@ -2,6 +2,10 @@
  * Resolve paths like nodejs path.resolve
  */
 function pathResolve(...paths: string[]): string {
+  const isLastAbsolute = !paths[paths.length - 1].startsWith('.');
+  if (isLastAbsolute) {
+    return paths[paths.length - 1];
+  }
   const resolvedPath = paths.reduce((acc, path) => {
     if (path.startsWith('/')) {
       // If the path is absolute, reset the accumulator
