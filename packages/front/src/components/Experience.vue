@@ -1,6 +1,7 @@
 <template>
   <BorderContainer
-    class="w-full flex flex-col gap-1 p-3 cursor-pointer hover:-translate-x-1"
+    class="w-full flex flex-col gap-1 p-3 cursor-pointer"
+    :class="isOpen ? '' : 'hover:translate-x-1'"
     @click="isOpen = !isOpen"
   >
     <div class="w-full flex justify-between text-lg">
@@ -8,7 +9,7 @@
       <h3 class="">{{ company }}</h3>
     </div>
     <div class="text-text-label font-semibold">{{ date }}</div>
-    <div class="transition-all w-full overflow-hidden" :class="isOpen ? 'h-24' : 'h-0'">
+    <div class="transition-all w-full overflow-hidden" :class="isOpen ? 'h-28' : 'h-0'">
       {{ description }}
     </div>
     <div class="flex gap-2">
