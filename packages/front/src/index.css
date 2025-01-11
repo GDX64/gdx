@@ -8,7 +8,7 @@
 }
 
 #app {
-  @apply text-text-prime bg-bg-0;
+  @apply text-text-prime bg-bg-50;
   font-family: 'Lato', sans-serif;
   font-optical-sizing: auto;
   width: 100%;

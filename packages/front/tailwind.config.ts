@@ -19,8 +19,11 @@ export const designConfig = resolveConfig({
         contrast: '#ffffff',
       },
       bg: {
-        0: '#FAF2EB',
-        ...colors.neutral,
+        ...colors.stone,
+        0: '#FFFFFF',
+        '50': '#FAF2EB',
+        '100': '#f5f5f4',
+        '200': '#e7e5e4',
         1000: '#000000',
       },
       hover: primeColors[500],

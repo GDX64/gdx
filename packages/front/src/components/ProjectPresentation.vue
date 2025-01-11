@@ -11,7 +11,7 @@
           loading="lazy"
           :src="url"
           alt="Project image"
-          class="absolute top-0 left-0 w-full h-full object-cover bg-prime-950 cursor-pointer"
+          class="absolute top-0 left-0 w-full h-full object-cover bg-bg-950 cursor-pointer"
           @click="goToLink"
         />
       </div>
