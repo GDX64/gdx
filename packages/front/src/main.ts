@@ -29,6 +29,10 @@ const routes = [
   { path: '/yoga', component: () => import('./pages/YogaTest/YogaTest.vue') },
   { path: '/webgpu', component: () => import('./pages/webgpu/Webgpu.vue') },
   { path: '/logs', component: () => import('./pages/logview/LogView.vue') },
+  {
+    path: '/more-fun-stuff',
+    component: () => import('./pages/MoreFunStuff/MoreFunStuff.vue'),
+  },
   { path: '/space-index', component: () => import('./pages/spaceIndex/SpaceIndex.vue') },
   {
     path: '/audio-things',

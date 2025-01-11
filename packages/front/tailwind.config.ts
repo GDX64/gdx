@@ -19,7 +19,7 @@ export const designConfig = resolveConfig({
         contrast: '#ffffff',
       },
       bg: {
-        0: '#fffff6',
+        0: '#FAF2EB',
         ...colors.neutral,
         1000: '#000000',
       },

@@ -1,6 +1,6 @@
 <template>
   <BackGround>
-    <h1>What is that?</h1>
+    <h1 class="font-bold text-xl mb-4">What is that?</h1>
     <div class="">
       This is a layout algorithm stacks objects in a way that they don't overlap.
       It works by grouping the boxes recursively while keeping the center of mass 
@@ -12,14 +12,14 @@
       <div class="">Dragged weight {{ draggedFactor.toFixed(2) }}</div>
     </div>
     <div
-      class="w-full bg-sec-900 flex flex-col relative select-none mt-5 touch-none"
+      class="w-full bg-bg-200 flex flex-col relative select-none mt-5 touch-none rounded-sm"
       :style="{ height: height + 'px' }"
       @pointerup="onPointerUp"
       @pointermove="onPointerMove"
       ref="container"
     >
       <div
-        class="absolute bg-prime-600 w-36 border border-white left-5"
+        class="absolute bg-prime-400 w-36 border border-text-prime left-5"
         v-for="obj of objects"
         :class="[obj.id === dragging?.id ? 'animate-pulse !bg-prime-400': '']"
         @pointerdown="onPointerDown(obj)"
@@ -32,7 +32,7 @@
         class="absolute left-36 flex items-center -translate-y-1/2 gap-2 pointer-events-none"
         :style="{ top: obj.position + obj.size / 2 + 'px' }"
       >
-        <div class="w-56 h-[1px] bg-white"></div>
+        <div class="w-56 h-[1px] bg-text-prime"></div>
         <div class="">
           {{ obj.id }}
         </div>

@@ -208,7 +208,7 @@ const refreshRate = useAsyncComputed(async () => {
           description="Random cool projects with little context I like to keep around to show to my friends."
           :tags="['WebgGL', 'WebAssembly', 'Rust', 'Typescript']"
           :imgURL="birdsURL"
-          url="/fun-stuff"
+          url="/more-fun-stuff"
         ></ProjectPresentation>
         <ProjectPresentation
           title="SIMD Rasterization"
