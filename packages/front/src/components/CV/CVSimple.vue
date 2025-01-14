@@ -16,7 +16,11 @@
         </div>
         <h2 class="text-prime-800 text-xl mb-4">{{ cvData.title }}</h2>
         <div
-          class="w-full grid justify-start sm:grid-cols-3 grid-cols-[min-content_min-content] gap-2 text-xs mb-2"
+          class="w-full grid justify-start grid-cols-[min-content_min-content] gap-2 text-xs mb-2"
+          :class="{
+            'sm:grid-cols-3': cvData.arrUserInfo.length > 5,
+            'sm:grid-cols-4': cvData.arrUserInfo.length === 4,
+          }"
         >
           <template v-for="userInfo of cvData.arrUserInfo">
             <div class="flex w-max pr-2">
