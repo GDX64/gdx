@@ -1,8 +1,6 @@
 <template>
   <div
     class="flex w-full justify-center items-center leading-relaxed text-sec-950 relative"
-    tabindex="-1"
-    @keydown="onkeydown"
   >
     <div class="cv-container px-4 py-4 flex flex-col">
       <header class="flex items-start flex-col text-sm">
@@ -41,13 +39,6 @@
             :main="data.title"
             :date-and-place="data.schoolPlaceDate"
             :description="data.description"
-            @update:main="onUpdate($event, categoryIndex, fieldIndex, 'title')"
-            @update:dateAndPlace="
-              onUpdate($event, categoryIndex, fieldIndex, 'schoolPlaceDate')
-            "
-            @update:description="
-              onUpdate($event, categoryIndex, fieldIndex, 'description')
-            "
             class="mb-2"
           ></FieldVue>
         </template>
@@ -65,11 +56,11 @@ import Envelope from '../../assets/envelope-solid.svg';
 import Location from '../../assets/location-pin-solid.svg';
 import Mobile from '../../assets/mobile-solid.svg';
 import Linkedin from '../../assets/linkedin-brands.svg';
-import { Field, Icons } from './SimpleCVTypes';
+import { Icons } from './SimpleCVTypes';
 import { injectCV } from './CVStore';
 import Download from '../../assets/download.svg?component';
 
-const { data: cvData, doUndo, undo, doAgain } = injectCV();
+const { data: cvData } = injectCV();
 
 const componentMap = {
   [Icons.Globe]: Globe,
@@ -79,31 +70,6 @@ const componentMap = {
   [Icons.Location]: Location,
   [Icons.Linkedin]: Linkedin,
 };
-
-function onUpdate(value: string, category: number, field: number, kind: keyof Field) {
-  const valueNow = cvData.value.categories[category].fields[field][kind];
-  doUndo({
-    doFn: (cv) => {
-      cv.categories[category].fields[field][kind] = value;
-    },
-    undo: (cv) => {
-      if (kind !== 'title') {
-        cv.categories[category].fields[field][kind] = valueNow;
-      } else if (valueNow != null) {
-        cv.categories[category].fields[field][kind] = valueNow;
-      }
-    },
-  });
-}
-
-function onkeydown(event: KeyboardEvent) {
-  if (event.ctrlKey && event.key === 'z') {
-    undo();
-  }
-  if (event.ctrlKey && event.key === 'y') {
-    doAgain();
-  }
-}
 </script>
 
 <style>
@@ -111,7 +77,7 @@ function onkeydown(event: KeyboardEvent) {
 
 @media screen and (min-width: 800px) {
   .cv-container {
-    max-height: 1123px;
+    min-height: 1123px;
   }
 }
 

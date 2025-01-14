@@ -1,5 +1,5 @@
 <template>
-  <div class="h-full overflow-y-auto bg-white">
+  <div class="bg-white min-h-full">
     <CVSimpleVue></CVSimpleVue>
   </div>
 </template>
