@@ -1,4 +1,4 @@
 import colors from 'tailwindcss/colors';
 export const primeColors = {
-  ...colors.sky,
+  ...colors.pink,
 };
