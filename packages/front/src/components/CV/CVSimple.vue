@@ -6,7 +6,11 @@
       <header class="flex items-start flex-col text-sm">
         <div class="flex items-start justify-between w-full">
           <h1 class="text-prime-800 text-xl sm:text-3xl mb-2">{{ cvData.name }}</h1>
-          <a href="/CV_Gabriel_Machado.pdf" download="cv_gabriel_machado.pdf">
+          <a
+            href="/CV_Gabriel_Machado.pdf"
+            download="cv_gabriel_machado.pdf"
+            v-if="hasDownload"
+          >
             <Download
               class="w-9 h-9 text-prime-800 rounded-md border-2 border-prime-800 p-1 hover:bg-prime-200 cursor-pointer"
             ></Download>
@@ -61,6 +65,9 @@ import { injectCV } from './CVStore';
 import Download from '../../assets/download.svg?component';
 
 const { data: cvData } = injectCV();
+defineProps<{
+  hasDownload: boolean;
+}>();
 
 const componentMap = {
   [Icons.Globe]: Globe,
