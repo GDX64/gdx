@@ -61,7 +61,12 @@ const router = createRouter({
 
 const { MyPreset } = makeTheme();
 const app = createApp(App);
-app.use(PrimeVue, { theme: { preset: MyPreset } });
+app.use(PrimeVue, {
+  theme: { preset: MyPreset },
+  options: {
+    darkModeSelector: '.dark-mode',
+  },
+});
 app.use(router);
 app.mount('#app');
 
