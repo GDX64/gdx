@@ -5,23 +5,50 @@ type LogFile = {
   content: string;
 };
 
+export type ColorRule = {
+  regex: string;
+  color: string;
+  name: string;
+};
+
 export class LogsDatabase extends Dexie {
   private logs: Dexie.Table<LogFile, number>;
+  private colorRules: Dexie.Table<ColorRule, number>;
 
   constructor() {
     super('LogsDatabase');
     this.version(1).stores({
       logs: '++id, &name',
+      colorRules: '++id, &name',
     });
     this.logs = this.table('logs');
+    this.colorRules = this.table('colorRules');
   }
 
   loadLogFile(name: string): Promise<string | null> {
     return this.logs.get({ name }).then((log) => log?.content ?? null);
   }
 
+  saveColorRule(rule: ColorRule): Promise<number> {
+    return this.colorRules.put(rule);
+  }
+
+  deleteColorRule(name: string): Promise<number> {
+    return this.colorRules.where('name').equals(name).delete();
+  }
+
   lastFile(): Promise<LogFile | undefined> {
     return this.logs.orderBy(':id').last();
+  }
+
+  loadColorRules(): Promise<ColorRule[]> {
+    return this.colorRules.toArray();
+  }
+
+  colorRulesObserver(): Observable<ColorRule[]> {
+    return liveQuery(async () => {
+      return this.colorRules.toArray();
+    });
   }
 
   filesObserver(): Observable<string[]> {

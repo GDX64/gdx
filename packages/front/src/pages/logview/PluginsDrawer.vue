@@ -2,7 +2,7 @@
   <div>
     <Tree
       :value="treeNodes"
-      class="w-full md:w-[30rem] rounded-md !bg-transparent"
+      class="!w-full md:w-[30rem] rounded-md !bg-transparent"
     ></Tree>
   </div>
 </template>

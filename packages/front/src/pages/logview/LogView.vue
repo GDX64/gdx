@@ -2,9 +2,11 @@
   <div class="h-screen w-full flex py-2 px-4 gap-2 overflow-hidden">
     <div class="flex flex-col items-start gap-4 flex-1 overflow-hidden h-full">
       <LoadMenu @load="onFileLoad" v-model:visible="isLoadVisible"></LoadMenu>
+      <ColorRulesDialog v-model:visible="isColorRulesVisible"></ColorRulesDialog>
       <div class="flex gap-4 items-center">
         <Button @click="isLoadVisible = true">Load</Button>
         <Button @click="isDrawerVisible = !isDrawerVisible">OpenState</Button>
+        <Button @click="isColorRulesVisible = true">Color Rules</Button>
         ({{ rawLogs.length }} logs)
       </div>
       <div
@@ -113,12 +115,14 @@ import ToggleSwitch from 'primevue/toggleswitch';
 import { LogEssentials, LogStatePlugin } from './LogTypes';
 import { ConnectionStatePlugin } from './LogStatePlugins';
 import PluginsDrawer from './PluginsDrawer.vue';
+import ColorRulesDialog from './ColorRulesDialog.vue';
 
 const db = new LogsDatabase();
 const rawLogs = shallowRef<LogEssentials[]>([]);
 const searchRegex = ref('');
 const isLoadVisible = ref(false);
 const isDrawerVisible = ref(false);
+const isColorRulesVisible = ref(false);
 const selectedLogs = reactive(new Set<number>());
 const showOnlySelected = ref(false);
 const hightLightedLog = ref<LogEssentials | null>(null);
