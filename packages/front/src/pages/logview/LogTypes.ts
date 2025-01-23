@@ -12,6 +12,7 @@ export type LogEssentials = {
   level: string;
   message: string;
   index: number;
+  color: string | null;
 };
 
 export type FormatNode = TreeNode;

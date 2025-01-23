@@ -17,12 +17,12 @@ export class LogsDatabase extends Dexie {
 
   constructor() {
     super('LogsDatabase');
-    this.version(1).stores({
+    this.version(2).stores({
       logs: '++id, &name',
-      colorRules: '++id, &name',
+      colorRules: '&name',
     });
-    this.logs = this.table('logs');
     this.colorRules = this.table('colorRules');
+    this.logs = this.table('logs');
   }
 
   loadLogFile(name: string): Promise<string | null> {
@@ -30,7 +30,8 @@ export class LogsDatabase extends Dexie {
   }
 
   saveColorRule(rule: ColorRule): Promise<number> {
-    return this.colorRules.put(rule);
+    console.log({ ...rule });
+    return this.colorRules.put({ ...rule });
   }
 
   deleteColorRule(name: string): Promise<number> {

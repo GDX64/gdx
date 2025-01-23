@@ -2,13 +2,22 @@
   <Dialog v-model:visible="visible" modal header="Files" class="w-[500px]">
     <div class="flex flex-col gap-4">
       <label>New Rule:</label>
-      <div class="flex flex-col items-start gap-2">
+      <div class="grid grid-cols-[min-content_1fr] items-center gap-2">
+        <label>Name:</label>
         <InputText v-model="currentRule.name" placeholder="Rule Name"></InputText>
+        <label>Regex:</label>
         <InputText v-model="currentRule.regex" placeholder="Rule Regex"></InputText>
-        <InputText v-model="currentRule.color" placeholder="Rule Color"></InputText>
+        <label for="">Color:</label>
+        <Colorpicker
+          :model-value="currentRule.color"
+          @update:model-value="onColorChange"
+          placeholder="Rule Color"
+          format="hex"
+        />
       </div>
       <label>Rules:</label>
       <Listbox
+        @update:model-value="onRuleClick"
         v-model="selectedRule"
         :options="options"
         optionLabel="name"
@@ -31,7 +40,8 @@ import Dialog from 'primevue/dialog';
 import Listbox from 'primevue/listbox';
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
-import { computed, ref, toRaw } from 'vue';
+import Colorpicker from 'primevue/colorpicker';
+import { computed, ref } from 'vue';
 import { observableToRef } from '@gdx/utils';
 
 const emit = defineEmits({
@@ -42,9 +52,9 @@ const visible = defineModel('visible', { default: false });
 const db = new LogsDatabase();
 
 const currentRule = ref<ColorRule>({
-  color: '#ff0000',
+  color: '#f34343',
   name: 'hello',
-  regex: '/hello/',
+  regex: '.*',
 });
 
 const selectedRule = ref<string>();
@@ -56,8 +66,23 @@ const options = computed(() => {
   });
 });
 
+function onRuleClick(rule: string) {
+  const ruleObj = rules.value.find((r) => r.name === rule);
+  if (ruleObj) {
+    currentRule.value = {
+      color: ruleObj.color,
+      name: ruleObj.name,
+      regex: ruleObj.regex,
+    };
+  }
+}
+
+function onColorChange(color: string) {
+  currentRule.value.color = `#${color}`;
+}
+
 function saveRule() {
-  db.saveColorRule({ ...currentRule.value });
+  db.saveColorRule(currentRule.value);
 }
 
 function deleteRule() {

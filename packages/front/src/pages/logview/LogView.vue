@@ -18,6 +18,7 @@
             class="flex gap-2 whitespace-nowrap h-[25px] items-center px-1"
             v-for="log of list"
             :class="isLogSelected(log.data) ? 'bg-prime-200' : ''"
+            :style="{ color: log.data.color ?? 'unset' }"
           >
             <div
               @click="onLogSelect(log.data, $event)"
@@ -68,6 +69,7 @@
             class="flex gap-2 whitespace-nowrap h-[25px] items-center px-1"
             @dblclick="onLogDblClick(log.data)"
             v-for="log of filterList"
+            :style="{ color: log.data.color ?? 'unset' }"
           >
             <div
               @click="onLogSelect(log.data, $event)"
@@ -109,16 +111,14 @@ import LogTimeline from './LogTimeline.vue';
 import InputText from 'primevue/inputtext';
 import DatePicker from 'primevue/datepicker';
 import Button from 'primevue/button';
-import { useUTCAdjustedDate } from '@gdx/utils';
+import { observableToRef, useUTCAdjustedDate } from '@gdx/utils';
 import LoadMenu from './LoadMenu.vue';
 import ToggleSwitch from 'primevue/toggleswitch';
-import { LogEssentials, LogStatePlugin } from './LogTypes';
-import { ConnectionStatePlugin } from './LogStatePlugins';
+import { LogEssentials } from './LogTypes';
 import PluginsDrawer from './PluginsDrawer.vue';
 import ColorRulesDialog from './ColorRulesDialog.vue';
 
 const db = new LogsDatabase();
-const rawLogs = shallowRef<LogEssentials[]>([]);
 const searchRegex = ref('');
 const isLoadVisible = ref(false);
 const isDrawerVisible = ref(false);
@@ -127,8 +127,28 @@ const selectedLogs = reactive(new Set<number>());
 const showOnlySelected = ref(false);
 const hightLightedLog = ref<LogEssentials | null>(null);
 
+const colorRules = observableToRef(db.colorRulesObserver(), []);
+const baseFile = ref<string>('');
+
 const startDate = useUTCAdjustedDate(new Date(0));
 const endDate = useUTCAdjustedDate(new Date());
+
+const rawLogs = computed<LogEssentials[]>(() => {
+  const logs = neloParser(baseFile.value);
+  const regexes = colorRules.value.map((rule) => {
+    return {
+      regex: new RegExp(rule.regex, 'i'),
+      color: rule.color,
+    };
+  });
+  logs.forEach((log) => {
+    log.color =
+      regexes.find((rule) => {
+        return rule.regex.test(log.original);
+      })?.color ?? null;
+  });
+  return logs;
+});
 
 const timeFilteredLogs = computed(() => {
   const start = startDate.original;
@@ -182,13 +202,14 @@ function neloParser(file: string): LogEssentials[] {
       message: `${message} | ${val1} | ${val2}`,
       original: line,
       index,
+      color: null,
     };
   });
   return logs;
 }
 
 function onFileLoad(file: string) {
-  rawLogs.value = neloParser(file);
+  baseFile.value = file;
   restartDateSelection();
 }
 
@@ -235,9 +256,9 @@ function isLogSelected(log: LogEssentials) {
 async function loadLogs() {
   const firstDbLog = await db.lastFile();
   if (firstDbLog) {
-    rawLogs.value = neloParser(firstDbLog.content);
+    baseFile.value = firstDbLog.content;
   } else {
-    rawLogs.value = [];
+    baseFile.value = '';
   }
   restartDateSelection();
 }
