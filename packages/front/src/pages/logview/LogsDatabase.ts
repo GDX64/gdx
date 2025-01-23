@@ -30,7 +30,6 @@ export class LogsDatabase extends Dexie {
   }
 
   saveColorRule(rule: ColorRule): Promise<number> {
-    console.log({ ...rule });
     return this.colorRules.put({ ...rule });
   }
 

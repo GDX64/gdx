@@ -160,9 +160,13 @@ const timeFilteredLogs = computed(() => {
 
 const filteredLogs = computed(() => {
   if (showOnlySelected.value) {
-    return [...selectedLogs.values()].map((index) => {
-      return rawLogs.value[index];
-    });
+    return [...selectedLogs.values()]
+      .sort((a, b) => {
+        return a - b;
+      })
+      .map((index) => {
+        return rawLogs.value[index];
+      });
   }
   const rgx = new RegExp(searchRegex.value, 'i');
   return timeFilteredLogs.value.filter((log) => {
@@ -188,6 +192,7 @@ const {
 
 watch(filteredLogs, () => {
   scrollToFiltered(0);
+  scrollTo(0);
 });
 
 loadLogs();
