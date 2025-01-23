@@ -1,7 +1,10 @@
 <template>
-  <Drawer v-model:visible="visible" header="States" class="!w-[600px]">
-    <Tree :value="treeNodes" class="w-full md:w-[30rem]"></Tree>
-  </Drawer>
+  <div>
+    <Tree
+      :value="treeNodes"
+      class="w-full md:w-[30rem] rounded-md !bg-transparent"
+    ></Tree>
+  </div>
 </template>
 
 <script lang="ts" setup>

@@ -1,98 +1,101 @@
 <template>
-  <div class="flex flex-col items-start gap-4 h-screen py-2 px-4 w-full">
+  <div class="h-screen w-full flex py-2 px-4 gap-2 overflow-hidden">
+    <div class="flex flex-col items-start gap-4 flex-1 overflow-hidden h-full">
+      <LoadMenu @load="onFileLoad" v-model:visible="isLoadVisible"></LoadMenu>
+      <div class="flex gap-4 items-center">
+        <Button @click="isLoadVisible = true">Load</Button>
+        <Button @click="isDrawerVisible = !isDrawerVisible">OpenState</Button>
+        ({{ rawLogs.length }} logs)
+      </div>
+      <div
+        v-bind="containerProps"
+        class="overflow-y-auto h-[300px] w-full border border-prime-600 grow"
+      >
+        <div class="" v-bind="wrapperProps">
+          <div
+            class="flex gap-2 whitespace-nowrap h-[25px] items-center px-1"
+            v-for="log of list"
+            :class="isLogSelected(log.data) ? 'bg-prime-200' : ''"
+          >
+            <div
+              @click="onLogSelect(log.data, $event)"
+              class="min-w-4 h-4 border border-prime-500 rounded-full cursor-pointer"
+              :class="isLogSelected(log.data) ? 'bg-prime-500' : ''"
+            ></div>
+            <div>{{ log.data.date.toISOString() }}</div>
+            <div>{{ log.data.level }}</div>
+            <div>{{ log.data.message }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="w-full flex gap-2 flex-wrap items-center">
+        <InputText
+          class="rounded-md grow min-w-[500px] bg-red-400"
+          type="text"
+          v-model="searchRegex"
+        />
+        <div class="">Results {{ filteredLogs.length }}</div>
+        <DatePicker
+          v-model="startDate.adjusted"
+          fluid
+          timeOnly
+          showSeconds
+          inputId="templatedisplay"
+          class="w-[100px]"
+        ></DatePicker>
+        <DatePicker
+          v-model="endDate.adjusted"
+          fluid
+          timeOnly
+          showSeconds
+          inputId="templatedisplay-2"
+          class="w-[100px]"
+        ></DatePicker>
+        <Button @click="restartDateSelection"> Reset </Button>
+        <div class="flex items-center gap-2">
+          <label for="switch1">Only Selected</label>
+          <ToggleSwitch inputId="switch1" v-model="showOnlySelected"> </ToggleSwitch>
+        </div>
+      </div>
+      <div
+        v-bind="filterContainerProps"
+        class="overflow-y-auto h-[300px] w-full border border-prime-600"
+      >
+        <div class="" v-bind="filterWrapperProps">
+          <div
+            class="flex gap-2 whitespace-nowrap h-[25px] items-center px-1"
+            @dblclick="onLogDblClick(log.data)"
+            v-for="log of filterList"
+          >
+            <div
+              @click="onLogSelect(log.data, $event)"
+              class="min-w-4 h-4 border border-prime-500 rounded-full cursor-pointer"
+              :class="isLogSelected(log.data) ? 'bg-prime-500' : ''"
+            ></div>
+            <div>{{ log.data.date.toISOString() }}</div>
+            <div>{{ log.data.level }}</div>
+            <div>{{ log.data.message }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="w-full h-32 relative">
+        <LogTimeline
+          class="w-full h-full absolute top-0 left-0"
+          :dates="filteredLogs"
+          :startDate="timeFilteredLogs[0].date"
+          :endDate="timeFilteredLogs[timeFilteredLogs.length - 1].date"
+          :selectedLog="hightLightedLog?.date"
+          v-if="filteredLogs.length"
+          @select="onSelect"
+        />
+      </div>
+    </div>
     <PluginsDrawer
-      v-model:visible="isDrawerVisible"
+      v-if="isDrawerVisible"
+      class="w-72 h-screen overflow-x-hidden overflow-y-auto border-l border-bg-500"
       :hightLightedLog="hightLightedLog"
       :rawLogs="rawLogs"
     ></PluginsDrawer>
-    <LoadMenu @load="onFileLoad" v-model:visible="isLoadVisible"></LoadMenu>
-    <div class="flex gap-4 items-center">
-      <Button @click="isLoadVisible = true">Load</Button>
-      <Button @click="isDrawerVisible = true">OpenState</Button>
-      ({{ rawLogs.length }} logs)
-    </div>
-    <div
-      v-bind="containerProps"
-      class="overflow-y-auto h-[300px] w-full border border-prime-600 grow"
-    >
-      <div class="" v-bind="wrapperProps">
-        <div
-          class="flex gap-2 whitespace-nowrap h-[25px] items-center px-1"
-          v-for="log of list"
-          :class="isLogSelected(log.data) ? 'bg-prime-200' : ''"
-        >
-          <div
-            @click="onLogSelect(log.data, $event)"
-            class="min-w-4 h-4 border border-prime-500 rounded-full cursor-pointer"
-            :class="isLogSelected(log.data) ? 'bg-prime-500' : ''"
-          ></div>
-          <div>{{ log.data.date.toISOString() }}</div>
-          <div>{{ log.data.level }}</div>
-          <div>{{ log.data.message }}</div>
-        </div>
-      </div>
-    </div>
-    <div class="w-full flex gap-2 flex-wrap items-center">
-      <InputText
-        class="rounded-md grow min-w-[500px] bg-red-400"
-        type="text"
-        v-model="searchRegex"
-      />
-      <div class="">Results {{ filteredLogs.length }}</div>
-      <DatePicker
-        v-model="startDate.adjusted"
-        fluid
-        timeOnly
-        showSeconds
-        inputId="templatedisplay"
-        class="w-[100px]"
-      ></DatePicker>
-      <DatePicker
-        v-model="endDate.adjusted"
-        fluid
-        timeOnly
-        showSeconds
-        inputId="templatedisplay-2"
-        class="w-[100px]"
-      ></DatePicker>
-      <Button @click="restartDateSelection"> Reset </Button>
-      <div class="flex items-center gap-2">
-        <label for="switch1">Only Selected</label>
-        <ToggleSwitch inputId="switch1" v-model="showOnlySelected"> </ToggleSwitch>
-      </div>
-    </div>
-    <div
-      v-bind="filterContainerProps"
-      class="overflow-y-auto h-[300px] w-full border border-prime-600"
-    >
-      <div class="" v-bind="filterWrapperProps">
-        <div
-          class="flex gap-2 whitespace-nowrap h-[25px] items-center px-1"
-          @dblclick="onLogDblClick(log.data)"
-          v-for="log of filterList"
-        >
-          <div
-            @click="onLogSelect(log.data, $event)"
-            class="min-w-4 h-4 border border-prime-500 rounded-full cursor-pointer"
-            :class="isLogSelected(log.data) ? 'bg-prime-500' : ''"
-          ></div>
-          <div>{{ log.data.date.toISOString() }}</div>
-          <div>{{ log.data.level }}</div>
-          <div>{{ log.data.message }}</div>
-        </div>
-      </div>
-    </div>
-    <div class="w-full h-32 relative">
-      <LogTimeline
-        class="w-full h-full absolute top-0 left-0"
-        :dates="filteredLogs"
-        :startDate="timeFilteredLogs[0].date"
-        :endDate="timeFilteredLogs[timeFilteredLogs.length - 1].date"
-        :selectedLog="hightLightedLog?.date"
-        v-if="filteredLogs.length"
-        @select="onSelect"
-      />
-    </div>
   </div>
 </template>
 
