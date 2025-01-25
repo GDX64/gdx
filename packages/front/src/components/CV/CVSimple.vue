@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex w-full justify-center items-center leading-relaxed text-sec-950 relative"
+    class="flex w-full justify-center items-center leading-relaxed text-sec-950 relative group/cv"
   >
     <div class="cv-container px-4 py-4 flex flex-col">
       <header class="flex items-start flex-col text-sm">
@@ -9,6 +9,7 @@
           <a
             href="/CV_Gabriel_Machado.pdf"
             download="cv_gabriel_machado.pdf"
+            class="group-hover/cv:opacity-100 group-hover/cv:scale-100 opacity-0 scale-75 transition-all"
             v-if="hasDownload"
           >
             <Download

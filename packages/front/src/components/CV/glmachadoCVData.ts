@@ -52,7 +52,8 @@ const glmachadoCVData: CVData = {
         {
           schoolPlaceDate: 'UBA - Buenos Aires, AR. 2019',
           title: 'Electronic Engineering Interchange',
-          description: `In my course of study, I took master's classes in signal processing and machine learning, including speech and pattern recognition.`,
+          description: `I took master's classes: speech recognition, pattern recognition,
+           biomedical signal processing, adaptive filtering.`,
         },
       ],
     },
@@ -60,28 +61,34 @@ const glmachadoCVData: CVData = {
       title: 'Experiences',
       fields: [
         {
-          title: 'Nelogica - Software Developer I',
-          description: `Nelogica is the biggest trading software company in Brazil, and has several trading platforms. 
-          During my first years in the company I worked as a web developer in the homebrokers, [profit web](${CVLinks.profitWeb}) and [vector web](${CVLinks.vectorWeb}) applications.`,
-          schoolPlaceDate: '(Remote) 2020-2021',
-        },
-        {
-          title: 'Nelogica - Software Developer II',
-          description: `In 2021 I started to work focusing on performance improvements and I integrated typescript and build improvements in to the web projects.`,
-          schoolPlaceDate: '(Remote) 2021-2022',
-        },
-        {
-          title: 'Nelogica - Software Developer III',
-          description: `In 2022 I led the technical direction and implementation of the product into the [MacOS](${CVLinks.profitChartMacOS}) using electron, bringing the company to the MacOS users.`,
-          schoolPlaceDate: '(Remote) 2022-2023',
+          title: 'Nelogica - Software Development Lead',
+          description: `
+          Nelogica is the biggest trading software company in Brazil, and has several trading platforms. 
+          I came to the company I to work as a web developer in the homebrokers, 
+          [profit web](${CVLinks.profitWeb}) and [vector web](${CVLinks.vectorWeb}) applications using vue and javascript.
+          Later on I started to guide my work towards performance improvements and async operations handling.
+          As the project grew we started to work with typescript and ported our product to [MacOS](${CVLinks.profitChartMacOS}) using electron, bringing the company to the MacOS users.
+          In 2023 I was invited to work in the company's headquarters in Porto Alegre and started to work with the mobile team, and
+          led technically the development of native mobile apps using the core web code. Now we target web, [Android](${CVLinks.profitChartAndroid}),
+          [iOS](${CVLinks.IOS}) and MacOS with the same main codebase and some native adjusts.
+          In late 2024 I started a new role as the team leader of our web and macOS products, as well as the core web code.`,
+          schoolPlaceDate: 'Porto Alegre - RS, BR. 2024-(Now)',
         },
         {
           title: 'Nelogica - Software Developer IV',
-          description: `In 2023 I was invited to work in the company's headquarters in Porto Alegre to be closer to the mobile team, and again
-                        led technically the development of native mobile apps using the core web code. Now we target web, [Android](${CVLinks.profitChartAndroid}),
-                        [iOS](${CVLinks.IOS}) and MacOS with
-                        the same main codebase and some native adjusts.`,
           schoolPlaceDate: 'Porto Alegre - RS, BR. 2023-(Now)',
+        },
+        {
+          title: 'Nelogica - Software Developer III',
+          schoolPlaceDate: '(Remote) 2022-2023',
+        },
+        {
+          title: 'Nelogica - Software Developer II',
+          schoolPlaceDate: '(Remote) 2021-2022',
+        },
+        {
+          title: 'Nelogica - Software Developer I',
+          schoolPlaceDate: '(Remote) 2020-2021',
         },
       ],
     },
