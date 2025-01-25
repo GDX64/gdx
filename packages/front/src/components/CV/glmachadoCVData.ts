@@ -40,10 +40,6 @@ const glmachadoCVData: CVData = {
       title: 'Education',
       fields: [
         {
-          title: 'Electro-Mechanical Technician',
-          schoolPlaceDate: 'ETPC - Volta Redonda, RJ. 2011-2013',
-        },
-        {
           title: 'Electronic Engineering Bachelor',
           schoolPlaceDate: 'UFJF - Juiz de fora, MG. 2014-2019',
           description:
@@ -54,6 +50,10 @@ const glmachadoCVData: CVData = {
           title: 'Electronic Engineering Interchange',
           description: `I took master's classes: speech recognition, pattern recognition,
            biomedical signal processing, adaptive filtering.`,
+        },
+        {
+          title: 'Electro-Mechanical Technician',
+          schoolPlaceDate: 'ETPC - Volta Redonda, RJ. 2011-2013',
         },
       ],
     },
