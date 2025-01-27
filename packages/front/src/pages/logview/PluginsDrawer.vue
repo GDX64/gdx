@@ -8,40 +8,47 @@
 </template>
 
 <script lang="ts" setup>
-import Drawer from 'primevue/drawer';
-import { LogEssentials, LogStatePlugin } from './LogTypes';
-import { ConnectionStatePlugin } from './LogStatePlugins';
+import { LogEssentials } from './LogTypes';
 import Tree from 'primevue/tree';
-import { shallowRef, watch } from 'vue';
-import { TreeNode } from 'primevue/treenode';
+import { computed, ref } from 'vue';
+import { observableToRef } from '../../../../utils/src/misc';
+import { loadLogPlugins } from './LogPluginsLoad';
+import { useToast } from 'primevue/usetoast';
+
+const toast = useToast();
 
 const props = defineProps<{
   rawLogs: LogEssentials[];
   hightLightedLog: LogEssentials | null;
 }>();
-const visible = defineModel('visible', { default: false });
-const treeNodes = shallowRef<TreeNode[]>([]);
+const constructors = observableToRef(loadLogPlugins(), []);
 
 function calcPluginStates(at: LogEssentials) {
   const raw = props.rawLogs;
-  const plugins: LogStatePlugin[] = [new ConnectionStatePlugin()];
-  for (const log of raw) {
-    plugins.forEach((plugin) => {
-      plugin.onLog(log);
-    });
-    if (log.index === at.index) {
-      break;
+  const plugins = constructors.value.map((c) => new c());
+  plugins.forEach((plugin) => {
+    try {
+      for (const log of raw) {
+        plugin.onLog(log);
+        if (log.index === at.index) {
+          break;
+        }
+      }
+    } catch (error) {
+      toast.add({
+        severity: 'error',
+        summary: `Error on Plugin: ${plugin.constructor.name}`,
+        detail: (error as Error).message,
+      });
     }
-  }
-  treeNodes.value = plugins.map((p) => p.format());
+  });
+  return plugins.map((p) => p.format());
 }
 
-watch(
-  () => props.hightLightedLog,
-  (log) => {
-    if (log) {
-      calcPluginStates(log);
-    }
+const treeNodes = computed(() => {
+  if (props.hightLightedLog) {
+    return calcPluginStates(props.hightLightedLog);
   }
-);
+  return [];
+});
 </script>

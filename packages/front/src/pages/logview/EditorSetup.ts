@@ -46,7 +46,5 @@ export function startEditor(container: HTMLElement) {
 
 export function loadMod(code: string) {
   const asUrl = URL.createObjectURL(new Blob([code], { type: 'text/javascript' }));
-  import(asUrl).then((mod) => {
-    console.log(mod);
-  });
+  return import(asUrl);
 }

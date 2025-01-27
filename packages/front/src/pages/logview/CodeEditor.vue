@@ -38,7 +38,6 @@ import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
 import Listbox from 'primevue/listbox';
 import { LogsDatabase } from './LogsDatabase';
-import { LogStatePlugin } from './LogTypes';
 import * as monaco from 'monaco-editor';
 import { observableToRef } from '../../../../utils/src/misc';
 
@@ -66,7 +65,7 @@ watch(editorContainer, (container) => {
 });
 
 function sampleCode() {
-  return `export class LastOpenPlugin {
+  return `export default class LastOpenPlugin {
    lastOpen = new Date(0)
 	
 	/**

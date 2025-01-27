@@ -5,6 +5,7 @@ import Home from './pages/Home.vue';
 import PrimeVue from 'primevue/config';
 import Aura from '@primevue/themes/aura';
 import { definePreset } from '@primevue/themes';
+import ToastService from 'primevue/toastservice';
 import './index.css';
 import 'primeicons/primeicons.css';
 
@@ -68,6 +69,7 @@ app.use(PrimeVue, {
   },
 });
 app.use(router);
+app.use(ToastService);
 app.mount('#app');
 
 function makeTheme() {

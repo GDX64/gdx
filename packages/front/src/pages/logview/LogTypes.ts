@@ -2,8 +2,11 @@ import { TreeNode } from 'primevue/treenode';
 
 export interface LogStatePlugin {
   onLog(log: LogEssentials): void;
-
   format(): FormatNode;
+}
+
+export interface PluginConstructor {
+  new (): LogStatePlugin;
 }
 
 export type LogEssentials = {
