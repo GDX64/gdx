@@ -35,10 +35,18 @@ export function startEditor(container: HTMLElement) {
     roundedSelection: false,
     scrollBeyondLastLine: false,
     readOnly: false,
-    theme: 'vs-dark',
+    theme: 'vs-light',
+    tabSize: 2,
   });
   editor.updateOptions({
     lineNumbers: 'on',
   });
   return editor;
+}
+
+export function loadMod(code: string) {
+  const asUrl = URL.createObjectURL(new Blob([code], { type: 'text/javascript' }));
+  import(asUrl).then((mod) => {
+    console.log(mod);
+  });
 }
