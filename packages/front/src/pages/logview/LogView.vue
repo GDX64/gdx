@@ -3,10 +3,15 @@
     <div class="flex flex-col items-start gap-4 flex-1 overflow-hidden h-full">
       <LoadMenu @load="onFileLoad" v-model:visible="isLoadVisible"></LoadMenu>
       <ColorRulesDialog v-model:visible="isColorRulesVisible"></ColorRulesDialog>
+      <CodeEditor
+        v-model:visible="isCodeEditorVisible"
+        v-if="isCodeEditorVisible"
+      ></CodeEditor>
       <div class="flex gap-4 items-center">
         <Button @click="isLoadVisible = true">Load</Button>
         <Button @click="isDrawerVisible = !isDrawerVisible">OpenState</Button>
         <Button @click="isColorRulesVisible = true">Color Rules</Button>
+        <Button @click="isCodeEditorVisible = true">Code Editor</Button>
         ({{ rawLogs.length }} logs)
       </div>
       <div
@@ -117,12 +122,14 @@ import ToggleSwitch from 'primevue/toggleswitch';
 import { LogEssentials } from './LogTypes';
 import PluginsDrawer from './PluginsDrawer.vue';
 import ColorRulesDialog from './ColorRulesDialog.vue';
+import CodeEditor from './CodeEditor.vue';
 
 const db = new LogsDatabase();
 const searchRegex = ref('');
 const isLoadVisible = ref(false);
 const isDrawerVisible = ref(false);
 const isColorRulesVisible = ref(false);
+const isCodeEditorVisible = ref(false);
 const selectedLogs = reactive(new Set<number>());
 const showOnlySelected = ref(false);
 const hightLightedLog = ref<LogEssentials | null>(null);

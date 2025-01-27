@@ -21,6 +21,7 @@
     "highlight.js": "^11.9.0",
     "lil-gui": "^0.20.0",
     "mitt": "^3.0.0",
+    "monaco-editor": "^0.52.2",
     "pixi.js": "^8.1.5",
     "popmotion": "^11.0.5",
     "primeicons": "^7.0.0",
