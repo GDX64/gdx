@@ -11,9 +11,7 @@
         <div class="flex gap-2 items-center">
           <label>File Name</label>
           <InputText v-model="fileName"></InputText>
-          <Button class="w-fit" @click="saveOnDB" :disabled="!hasContentChanged()"
-            >Save</Button
-          >
+          <Button class="w-fit" @click="saveOnDB">Save</Button>
           <Button class="w-fit" @click="newPlugin()">New</Button>
           <Button class="w-fit" @click="loadFromDB()">Load</Button>
           <Button class="w-fit" @click="deletePlugin()">Delete</Button>
@@ -45,6 +43,7 @@ import { LogsDatabase } from './LogsDatabase';
 import * as monaco from 'monaco-editor';
 import { observableToRef } from '../../../../utils/src/misc';
 import { useToast } from 'primevue/usetoast';
+import rawPluginSample from './LogStatePlugins?raw';
 
 const db = new LogsDatabase();
 const toast = useToast();
@@ -62,6 +61,7 @@ const visible = defineModel<boolean>('visible');
 const fileName = ref('MyPlugin.js');
 const editorRef = shallowRef<monaco.editor.IStandaloneCodeEditor>();
 const currentContent = ref('');
+
 watch(editorContainer, (container, _, clear) => {
   if (!container) {
     return;
@@ -74,37 +74,12 @@ watch(editorContainer, (container, _, clear) => {
   editorRef.value = editor;
   clear(() => {
     removeEvent.dispose();
+    editor.dispose();
   });
 });
 
 function sampleCode() {
-  return `export default class LastOpenPlugin {
-   lastOpen = new Date(0)
-	
-	/**
-	 * @param {{ date: Date;
-  	original: string;
-  	level: string;
-  	message: string;
-  	index: number;
-  	color: string | null}} log
-	 */
-  onLog(log) {
-		if(log.level === 'ProductOpen'){
-			this.lastOpen = log.date
-		}
-  }
-
-  format() {
-    
-    return {
-      key: 'opening',
-      label: \`last open at \${this.lastOpen.toTimeString()}\`,
-      children: [],
-    };
-  }
-}
-  `;
+  return rawPluginSample;
 }
 
 async function saveOnDB() {
@@ -120,6 +95,7 @@ async function saveOnDB() {
   toast.add({
     severity: 'success',
     summary: 'Plugin Saved',
+    life: 2000,
   });
 }
 
@@ -172,11 +148,16 @@ async function deletePlugin() {
   toast.add({
     severity: 'success',
     summary: 'Plugin Deleted',
+    life: 2000,
   });
 }
 
 function newPlugin() {
-  fileName.value = 'MyPlugin.js';
+  const hasThisFileName = !!currentPlugins.value.find((p) => p.name === fileName.value);
+  if (hasThisFileName) {
+    fileName.value = 'newPlugin.js';
+  }
   editorRef.value?.setValue(sampleCode());
+  saveOnDB();
 }
 </script>

@@ -10,7 +10,7 @@
 <script lang="ts" setup>
 import { LogEssentials } from './LogTypes';
 import Tree from 'primevue/tree';
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import { observableToRef } from '../../../../utils/src/misc';
 import { loadLogPlugins } from './LogPluginsLoad';
 import { useToast } from 'primevue/usetoast';
@@ -39,6 +39,7 @@ function calcPluginStates(at: LogEssentials) {
         severity: 'error',
         summary: `Error on Plugin: ${plugin.constructor.name}`,
         detail: (error as Error).message,
+        life: 2000,
       });
     }
   });

@@ -3,6 +3,7 @@
     "target": "esnext",
     "module": "esnext",
     "allowSyntheticDefaultImports": true,
+    "allowJs": true,
     "esModuleInterop": true,
     "moduleResolution": "bundler",
     "useDefineForClassFields": true,
