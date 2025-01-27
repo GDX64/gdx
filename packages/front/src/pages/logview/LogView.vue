@@ -3,10 +3,7 @@
     <div class="flex flex-col items-start gap-4 flex-1 overflow-hidden h-full">
       <LoadMenu @load="onFileLoad" v-model:visible="isLoadVisible"></LoadMenu>
       <ColorRulesDialog v-model:visible="isColorRulesVisible"></ColorRulesDialog>
-      <CodeEditor
-        v-model:visible="isCodeEditorVisible"
-        v-if="isCodeEditorVisible"
-      ></CodeEditor>
+      <CodeEditor v-model:visible="isCodeEditorVisible"></CodeEditor>
       <div class="flex gap-4 items-center">
         <Button @click="isLoadVisible = true">Load</Button>
         <Button @click="isDrawerVisible = !isDrawerVisible">OpenState</Button>

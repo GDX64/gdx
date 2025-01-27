@@ -46,6 +46,10 @@ export class LogsDatabase extends Dexie {
     return this.plugins.put(plugin);
   }
 
+  deletePlugin(name: string): Promise<number> {
+    return this.plugins.where('name').equals(name).delete();
+  }
+
   deleteColorRule(name: string): Promise<number> {
     return this.colorRules.where('name').equals(name).delete();
   }

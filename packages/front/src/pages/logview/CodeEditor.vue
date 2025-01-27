@@ -11,8 +11,12 @@
         <div class="flex gap-2 items-center">
           <label>File Name</label>
           <InputText v-model="fileName"></InputText>
-          <Button class="w-fit" @click="saveOnDB">Save</Button>
+          <Button class="w-fit" @click="saveOnDB" :disabled="!hasContentChanged()"
+            >Save</Button
+          >
+          <Button class="w-fit" @click="newPlugin()">New</Button>
           <Button class="w-fit" @click="loadFromDB()">Load</Button>
+          <Button class="w-fit" @click="deletePlugin()">Delete</Button>
         </div>
       </div>
       <Listbox
@@ -40,8 +44,10 @@ import Listbox from 'primevue/listbox';
 import { LogsDatabase } from './LogsDatabase';
 import * as monaco from 'monaco-editor';
 import { observableToRef } from '../../../../utils/src/misc';
+import { useToast } from 'primevue/usetoast';
 
 const db = new LogsDatabase();
+const toast = useToast();
 
 const currentPlugins = observableToRef(db.pluginsObserver(), []);
 const options = computed(() => {
@@ -55,13 +61,20 @@ const editorContainer = ref<HTMLElement | null>(null);
 const visible = defineModel<boolean>('visible');
 const fileName = ref('MyPlugin.js');
 const editorRef = shallowRef<monaco.editor.IStandaloneCodeEditor>();
-watch(editorContainer, (container) => {
+const currentContent = ref('');
+watch(editorContainer, (container, _, clear) => {
   if (!container) {
     return;
   }
   const editor = startEditor(container);
+  const removeEvent = editor.onDidChangeModelContent((e) => {
+    currentContent.value = editor.getValue();
+  });
   editor.setValue(sampleCode());
   editorRef.value = editor;
+  clear(() => {
+    removeEvent.dispose();
+  });
 });
 
 function sampleCode() {
@@ -94,27 +107,28 @@ function sampleCode() {
   `;
 }
 
-function saveOnDB() {
+async function saveOnDB() {
   if (!editorContainer.value) {
     return;
   }
-  const code = editorRef.value?.getValue();
-  if (!code) {
-    return;
-  }
-  db.savePlugin({
+  await db.savePlugin({
     name: fileName.value,
-    code,
+    code: currentContent.value,
     saveDate: Date.now(),
+  });
+
+  toast.add({
+    severity: 'success',
+    summary: 'Plugin Saved',
   });
 }
 
 function loadFromDB(selected = selectedPlugin.value) {
-  console.log(selected);
+  selectedPlugin.value = selected;
   if (!selected) {
     return;
   }
-  const plugin = currentPlugins.value.find((p) => p.name === selected);
+  const plugin = currentSelectedStored(selected);
   if (!plugin) {
     return;
   }
@@ -126,10 +140,43 @@ function onVisibleChange(value: boolean) {
   if (value) {
     visible.value = value;
   } else {
-    const close = window.confirm('Are you sure you want to close?');
+    let close;
+    if (hasContentChanged()) {
+      close = window.confirm('Are you sure you want to close?');
+    } else {
+      close = true;
+    }
     if (close) {
       visible.value = value;
     }
   }
+}
+
+function currentSelectedStored(name: string = selectedPlugin.value) {
+  return currentPlugins.value.find((p) => p.name === selectedPlugin.value);
+}
+
+function hasContentChanged() {
+  const stored = currentSelectedStored();
+  if (!stored) {
+    return false;
+  }
+  return stored.code !== currentContent.value;
+}
+
+async function deletePlugin() {
+  if (!selectedPlugin.value) {
+    return;
+  }
+  await db.deletePlugin(selectedPlugin.value);
+  toast.add({
+    severity: 'success',
+    summary: 'Plugin Deleted',
+  });
+}
+
+function newPlugin() {
+  fileName.value = 'MyPlugin.js';
+  editorRef.value?.setValue(sampleCode());
 }
 </script>
