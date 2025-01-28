@@ -4,12 +4,24 @@
       <LoadMenu @load="onFileLoad" v-model:visible="isLoadVisible"></LoadMenu>
       <ColorRulesDialog v-model:visible="isColorRulesVisible"></ColorRulesDialog>
       <CodeEditor v-model:visible="isCodeEditorVisible"></CodeEditor>
-      <div class="flex gap-4 items-center">
+      <div class="flex gap-4 items-center justify-start w-full">
         <Button @click="isLoadVisible = true">Load</Button>
         <Button @click="isDrawerVisible = !isDrawerVisible">OpenState</Button>
         <Button @click="isColorRulesVisible = true">Color Rules</Button>
         <Button @click="isCodeEditorVisible = true">Code Editor</Button>
-        ({{ rawLogs.length }} logs)
+        <div class="flex items-center gap-2">
+          <label for="switch1">LocalTime</label>
+          <ToggleSwitch inputId="switch1" v-model="showLocalTime"> </ToggleSwitch>
+        </div>
+        <div class="flex items-center gap-2">
+          <label for="switch1">TimeOnly</label>
+          <ToggleSwitch inputId="switch1" v-model="timeOnly"> </ToggleSwitch>
+        </div>
+        <span> ({{ rawLogs.length }} logs) </span>
+        <div class="grow bg-prime-400"></div>
+        <i
+          class="ml-auto pi pi-cog !text-xl cursor-pointer hover:scale-125 transition-all hover:text-prime-600 mr-1"
+        ></i>
       </div>
       <div
         v-bind="containerProps"
@@ -27,7 +39,7 @@
               class="min-w-4 h-4 border border-prime-500 rounded-full cursor-pointer"
               :class="isLogSelected(log.data) ? 'bg-prime-500' : ''"
             ></div>
-            <div>{{ log.data.date.toISOString() }}</div>
+            <div>{{ formatDate(log.data.date) }}</div>
             <div>{{ log.data.level }}</div>
             <div>{{ log.data.message }}</div>
           </div>
@@ -61,6 +73,10 @@
           <label for="switch1">Only Selected</label>
           <ToggleSwitch inputId="switch1" v-model="showOnlySelected"> </ToggleSwitch>
         </div>
+        <div class="flex items-center gap-2">
+          <label for="switch1">Histogram</label>
+          <ToggleSwitch inputId="switch1" v-model="showHistogram"> </ToggleSwitch>
+        </div>
       </div>
       <div
         v-bind="filterContainerProps"
@@ -78,13 +94,13 @@
               class="min-w-4 h-4 border border-prime-500 rounded-full cursor-pointer"
               :class="isLogSelected(log.data) ? 'bg-prime-500' : ''"
             ></div>
-            <div>{{ log.data.date.toISOString() }}</div>
+            <div>{{ formatDate(log.data.date) }}</div>
             <div>{{ log.data.level }}</div>
             <div>{{ log.data.message }}</div>
           </div>
         </div>
       </div>
-      <div class="w-full h-32 relative">
+      <div class="w-full h-32 relative" v-if="showHistogram">
         <LogTimeline
           class="w-full h-full absolute top-0 left-0"
           :dates="filteredLogs"
@@ -129,6 +145,10 @@ const isColorRulesVisible = ref(false);
 const isCodeEditorVisible = ref(false);
 const selectedLogs = reactive(new Set<number>());
 const showOnlySelected = ref(false);
+const showHistogram = ref(true);
+const showLocalTime = ref(false);
+const timeOnly = ref(false);
+
 const hightLightedLog = ref<LogEssentials | null>(null);
 
 const colorRules = observableToRef(db.colorRulesObserver(), []);
@@ -194,6 +214,58 @@ const {
   itemHeight: 25,
 });
 
+const dateFormatter = computed(() => {
+  if (showLocalTime.value) {
+    if (timeOnly.value) {
+      const intl = new Intl.DateTimeFormat('en-US', {
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric',
+        fractionalSecondDigits: 3,
+        hour12: false,
+      });
+      return (date: Date) => intl.format(date);
+    } else {
+      const intl = new Intl.DateTimeFormat('en-US', {
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric',
+        fractionalSecondDigits: 3,
+        hour12: false,
+      });
+      return (date: Date) => intl.format(date);
+    }
+  } else {
+    if (timeOnly.value) {
+      const intl = new Intl.DateTimeFormat('en-US', {
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric',
+        hour12: false,
+        timeZone: 'UTC',
+        fractionalSecondDigits: 3,
+      });
+      return (date: Date) => intl.format(date);
+    } else {
+      const intl = new Intl.DateTimeFormat('en-US', {
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric',
+        fractionalSecondDigits: 3,
+        hour12: false,
+        timeZone: 'UTC',
+      });
+      return (date: Date) => intl.format(date);
+    }
+  }
+});
+
 watch(filteredLogs, () => {
   scrollToFiltered(0);
   scrollTo(0);
@@ -220,6 +292,10 @@ function neloParser(file: string): LogEssentials[] {
 function onFileLoad(file: string) {
   baseFile.value = file;
   restartDateSelection();
+}
+
+function formatDate(date: Date) {
+  return dateFormatter.value(date);
 }
 
 function onLogSelect(log: LogEssentials, event: MouseEvent) {
