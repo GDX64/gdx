@@ -45,7 +45,7 @@
               :class="isLogSelected(log.data) ? 'bg-prime-500' : ''"
             ></div>
             <div>{{ formatDate(log.data.date) }}</div>
-            <div class="font-bold">{{ log.data.level }}</div>
+            <div class="font-bold pr-1">{{ log.data.level }}</div>
             <div>{{ log.data.message }}</div>
           </div>
         </div>
@@ -89,7 +89,7 @@
         :style="{ height: downLogViewSize + 'px' }"
       >
         <div
-          class="resize-handler w-full cursor-ns-resize top-0 sticky h-1"
+          class="resize-handler w-full cursor-ns-resize top-0 sticky h-2"
           @pointerdown.stop.prevent="resizeStart$.next($event)"
         ></div>
         <div class="" v-bind="filterWrapperProps">
