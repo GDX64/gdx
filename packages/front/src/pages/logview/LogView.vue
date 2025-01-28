@@ -156,8 +156,8 @@ const isCodeEditorVisible = ref(false);
 const selectedLogs = reactive(new Set<number>());
 const showOnlySelected = ref(false);
 const showHistogram = ref(true);
-const showLocalTime = ref(false);
-const timeOnly = ref(false);
+const showLocalTime = ref(true);
+const timeOnly = ref(true);
 const downLogViewSize = ref(300);
 
 const hightLightedLog = ref<LogEssentials | null>(null);
@@ -228,7 +228,7 @@ const {
 const dateFormatter = computed(() => {
   if (showLocalTime.value) {
     if (timeOnly.value) {
-      const intl = new Intl.DateTimeFormat('en-US', {
+      const intl = new Intl.DateTimeFormat('pt-BR', {
         hour: 'numeric',
         minute: 'numeric',
         second: 'numeric',
@@ -237,7 +237,7 @@ const dateFormatter = computed(() => {
       });
       return (date: Date) => intl.format(date);
     } else {
-      const intl = new Intl.DateTimeFormat('en-US', {
+      const intl = new Intl.DateTimeFormat('pt-BR', {
         year: 'numeric',
         month: 'numeric',
         day: 'numeric',
@@ -251,7 +251,7 @@ const dateFormatter = computed(() => {
     }
   } else {
     if (timeOnly.value) {
-      const intl = new Intl.DateTimeFormat('en-US', {
+      const intl = new Intl.DateTimeFormat('pt-BR', {
         hour: 'numeric',
         minute: 'numeric',
         second: 'numeric',
@@ -261,7 +261,7 @@ const dateFormatter = computed(() => {
       });
       return (date: Date) => intl.format(date);
     } else {
-      const intl = new Intl.DateTimeFormat('en-US', {
+      const intl = new Intl.DateTimeFormat('pt-BR', {
         year: 'numeric',
         month: 'numeric',
         day: 'numeric',
