@@ -45,7 +45,7 @@
               :class="isLogSelected(log.data) ? 'bg-prime-500' : ''"
             ></div>
             <div>{{ formatDate(log.data.date) }}</div>
-            <div>{{ log.data.level }}</div>
+            <div class="font-bold">{{ log.data.level }}</div>
             <div>{{ log.data.message }}</div>
           </div>
         </div>
@@ -105,7 +105,7 @@
               :class="isLogSelected(log.data) ? 'bg-prime-500' : ''"
             ></div>
             <div>{{ formatDate(log.data.date) }}</div>
-            <div>{{ log.data.level }}</div>
+            <div class="font-bold">{{ log.data.level }}</div>
             <div>{{ log.data.message }}</div>
           </div>
         </div>
@@ -297,11 +297,15 @@ loadLogs();
 function neloParser(file: string): LogEssentials[] {
   const lines = file.trim().split('\n');
   const logs = lines.map((line, index) => {
-    const [date, level, message, val1, val2] = line.split(' | ');
+    const firsPipeIndex = line.indexOf('|');
+    const secondPipeIndex = line.indexOf('|', firsPipeIndex + 1);
+    const date = line.slice(0, firsPipeIndex).trim();
+    const level = line.slice(firsPipeIndex + 1, secondPipeIndex).trim();
+    const message = line.slice(secondPipeIndex + 1).trim();
     return {
       date: new Date(date),
       level,
-      message: `${message} | ${val1} | ${val2}`,
+      message,
       original: line,
       index,
       color: null,
