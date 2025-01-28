@@ -9,7 +9,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onUnmounted, ref, watchEffect } from 'vue';
+import { computed, onUnmounted, ref, watchEffect } from 'vue';
 import { LinScale, useCanvasDPI, Vec2 } from '@gdx/utils';
 import { primeColors } from '../../design/design';
 
@@ -34,6 +34,8 @@ const formatTime = new Intl.DateTimeFormat('en-US', {
   //UTC-0
   timeZone: 'UTC',
 });
+
+const bins = computed(() => calcbins());
 
 const { canvas, size } = useCanvasDPI();
 window.addEventListener('pointerup', onPointerUp);
@@ -70,7 +72,7 @@ function onPointerUp(event: PointerEvent) {
 function drawHistogram() {
   const ctx = canvas.value?.getContext('2d');
   if (!ctx) return;
-  const { arrbins, binWidth, max } = calcbins();
+  const { arrbins, binWidth, max } = bins.value;
   const scaleX = LinScale.fromPoints(0, 0, arrbins.length - 1, size.width - binWidth);
   const scaleY = LinScale.fromPoints(0, 0, max, size.height);
 
