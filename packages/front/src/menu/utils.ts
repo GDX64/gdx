@@ -1,4 +1,3 @@
-import { lastIndexOf } from 'ramda';
 import { Item } from './interfaces';
 
 export function findSelectedPath(

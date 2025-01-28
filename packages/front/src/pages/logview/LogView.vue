@@ -25,7 +25,7 @@
       </div>
       <div
         v-bind="containerProps"
-        class="overflow-y-auto h-[300px] w-full border border-prime-600 grow"
+        class="overflow-y-auto h-[100px] w-full border border-prime-600 grow"
       >
         <div class="" v-bind="wrapperProps">
           <div
@@ -80,8 +80,13 @@
       </div>
       <div
         v-bind="filterContainerProps"
-        class="overflow-y-auto h-[300px] w-full border border-prime-600"
+        class="overflow-y-auto w-full min-h-[100px] max-h-[70%] border border-prime-600"
+        :style="{ height: downLogViewSize + 'px' }"
       >
+        <div
+          class="resize-handler w-full cursor-ns-resize top-0 sticky h-1"
+          @pointerdown.stop.prevent="resizeStart$.next($event)"
+        ></div>
         <div class="" v-bind="filterWrapperProps">
           <div
             class="flex gap-2 whitespace-nowrap h-[25px] items-center px-1"
@@ -129,7 +134,7 @@ import LogTimeline from './LogTimeline.vue';
 import InputText from 'primevue/inputtext';
 import DatePicker from 'primevue/datepicker';
 import Button from 'primevue/button';
-import { observableToRef, useUTCAdjustedDate } from '@gdx/utils';
+import { observableToRef, useMakeYResizeHandler, useUTCAdjustedDate } from '@gdx/utils';
 import LoadMenu from './LoadMenu.vue';
 import ToggleSwitch from 'primevue/toggleswitch';
 import { LogEssentials } from './LogTypes';
@@ -148,6 +153,7 @@ const showOnlySelected = ref(false);
 const showHistogram = ref(true);
 const showLocalTime = ref(false);
 const timeOnly = ref(false);
+const downLogViewSize = ref(300);
 
 const hightLightedLog = ref<LogEssentials | null>(null);
 
@@ -264,6 +270,16 @@ const dateFormatter = computed(() => {
       return (date: Date) => intl.format(date);
     }
   }
+});
+
+const resizeStart$ = useMakeYResizeHandler({
+  onEnd() {},
+  onMove(y) {
+    downLogViewSize.value = y;
+  },
+  onStart() {
+    return downLogViewSize.value;
+  },
 });
 
 watch(filteredLogs, () => {
