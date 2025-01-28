@@ -60,8 +60,8 @@ const options = computed(() =>
 async function loadSelected() {
   if (!selectedFile.value) return;
   const fileContent = await db.loadLogFile(selectedFile.value);
-  if (!fileContent) return;
-  emit('load', fileContent);
+  if (!fileContent?.content) return;
+  emit('load', fileContent.content);
   visible.value = false;
 }
 

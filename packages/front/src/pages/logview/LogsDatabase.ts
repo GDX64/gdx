@@ -3,6 +3,7 @@ import Dexie, { liveQuery, Observable } from 'dexie';
 type LogFile = {
   name: string;
   content: string;
+  id?: number;
 };
 
 export type ColorRule = {
@@ -34,12 +35,22 @@ export class LogsDatabase extends Dexie {
     this.plugins = this.table('plugins');
   }
 
-  loadLogFile(name: string): Promise<string | null> {
-    return this.logs.get({ name }).then((log) => log?.content ?? null);
+  loadLogFile(name: string): Promise<LogFile | undefined> {
+    return this.logs.get({ name });
   }
 
   saveColorRule(rule: ColorRule): Promise<number> {
     return this.colorRules.put({ ...rule });
+  }
+
+  async saveRawFile(file: File) {
+    const name = file.name;
+    const content = await file.text();
+    const existing = await this.logs.get({ name });
+    if (existing) {
+      return this.logs.update(existing.id!, { content });
+    }
+    return this.logs.put({ name, content });
   }
 
   savePlugin(plugin: PluginStored): Promise<number> {

@@ -1,5 +1,10 @@
 <template>
-  <div class="h-screen w-full flex py-2 px-4 gap-2 overflow-hidden">
+  <div
+    class="h-screen w-full flex py-2 px-4 gap-2 overflow-hidden"
+    @drop.stop.prevent.capture="onDrop"
+    @drag.stop.prevent.capture
+    @dragover.stop.prevent.capture=""
+  >
     <div class="flex flex-col items-start gap-4 flex-1 overflow-hidden h-full">
       <LoadMenu @load="onFileLoad" v-model:visible="isLoadVisible"></LoadMenu>
       <ColorRulesDialog v-model:visible="isColorRulesVisible"></ColorRulesDialog>
@@ -354,13 +359,26 @@ function isLogSelected(log: LogEssentials) {
   return selectedLogs.has(log.index);
 }
 
-async function loadLogs() {
-  const firstDbLog = await db.lastFile();
-  if (firstDbLog) {
-    baseFile.value = firstDbLog.content;
+async function loadLogs(name?: string) {
+  let logFile;
+  if (name) {
+    logFile = await db.loadLogFile(name);
+  } else {
+    logFile = await db.lastFile();
+  }
+  if (logFile) {
+    baseFile.value = logFile.content;
   } else {
     baseFile.value = '';
   }
   restartDateSelection();
+}
+
+async function onDrop(event: DragEvent) {
+  const file = event.dataTransfer?.files[0];
+  if (file) {
+    await db.saveRawFile(file);
+    loadLogs(file.name);
+  }
 }
 </script>
