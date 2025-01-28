@@ -5,7 +5,7 @@
     @drag.stop.prevent.capture
     @dragover.stop.prevent.capture=""
   >
-    <div class="flex flex-col items-start gap-4 flex-1 overflow-hidden h-full">
+    <div class="flex flex-col items-start gap-2 flex-1 overflow-hidden h-full">
       <LoadMenu @load="onFileLoad" v-model:visible="isLoadVisible"></LoadMenu>
       <ColorRulesDialog v-model:visible="isColorRulesVisible"></ColorRulesDialog>
       <CodeEditor v-model:visible="isCodeEditorVisible"></CodeEditor>
