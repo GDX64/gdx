@@ -4,12 +4,12 @@
       ref="header"
       class="flex justify-between sm:items-start w-full mb-1 flex-col sm:flex-row"
     >
-      <div class="">{{ main }}</div>
+      <div class="font-semibold text-sec-800">{{ main }}</div>
       <div class="text-sm text-sec-700">{{ dateAndPlace }}</div>
     </header>
-    <div class="text-sec-800 pl-2" ref="descriptionEl" v-if="description">
-      <div class="rounded-full w-[6px] h-[6px] bg-sec-800 mr-2 inline-block"></div>
-      <LinkProcess :text="description"></LinkProcess>
+    <div class="text-sec-800 pl-2 text-justify" ref="descriptionEl" v-if="description">
+      •
+      <LinkProcess :text="description" class="text-sm"></LinkProcess>
     </div>
   </div>
 </template>

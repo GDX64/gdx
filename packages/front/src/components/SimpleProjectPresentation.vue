@@ -1,6 +1,6 @@
 <template>
   <BorderContainer
-    class="rounded-md p-3 pb-5 transition-transform flex flex-col min-h-[400px] group"
+    class="rounded-md p-3 pb-5 transition-transform flex flex-col min-h-[450px] group"
   >
     <div class="w-full grow flex flex-col gap-2 overflow-hidden">
       <div
@@ -26,24 +26,20 @@
         ></Arrow>
       </button>
     </div>
-    <div class="grid grid-cols-2 gap-2">
-      <h4 class="text-text-label font-semibold">Tags</h4>
+    <div class="flex flex-col gap-2">
       <h4 class="text-text-label font-semibold">Description</h4>
-      <TagList :tags="tags" class="flex-wrap h-min" />
       <p>{{ description }}</p>
     </div>
   </BorderContainer>
 </template>
 
 <script setup lang="ts">
-import TagList from './TagList.vue';
 import Arrow from '../assets/arrow-ne.svg?component';
 import { useRouter } from 'vue-router';
 import BorderContainer from './BorderContainer.vue';
 
 const props = defineProps<{
   title: string;
-  tags: string[];
   description: string;
   imgURL: string | string[];
   url: string;

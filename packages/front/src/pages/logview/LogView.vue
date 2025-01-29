@@ -1,98 +1,133 @@
 <template>
-  <div class="flex flex-col items-start gap-4 h-screen py-2 px-4 w-full">
+  <div
+    class="h-screen w-full flex py-2 px-4 gap-2 overflow-hidden"
+    @drop.stop.prevent.capture="onDrop"
+    @drag.stop.prevent.capture
+    @dragover.stop.prevent.capture=""
+  >
+    <div class="flex flex-col items-start gap-2 flex-1 overflow-hidden h-full">
+      <LoadMenu @load="onFileLoad" v-model:visible="isLoadVisible"></LoadMenu>
+      <ColorRulesDialog v-model:visible="isColorRulesVisible"></ColorRulesDialog>
+      <CodeEditor v-model:visible="isCodeEditorVisible"></CodeEditor>
+      <div class="flex gap-4 items-center justify-start w-full">
+        <Button @click="isLoadVisible = true">Load</Button>
+        <Button @click="isDrawerVisible = !isDrawerVisible">OpenState</Button>
+        <Button @click="isColorRulesVisible = true">Color Rules</Button>
+        <Button @click="isCodeEditorVisible = true">Code Editor</Button>
+        <div class="flex items-center gap-2">
+          <label for="switch1">LocalTime</label>
+          <ToggleSwitch inputId="switch1" v-model="showLocalTime"> </ToggleSwitch>
+        </div>
+        <div class="flex items-center gap-2">
+          <label for="switch1">TimeOnly</label>
+          <ToggleSwitch inputId="switch1" v-model="timeOnly"> </ToggleSwitch>
+        </div>
+        <span> ({{ rawLogs.length }} logs) </span>
+        <div class="grow bg-prime-400"></div>
+        <i
+          class="ml-auto pi pi-cog !text-xl cursor-pointer hover:scale-125 transition-all hover:text-prime-600 mr-1"
+        ></i>
+      </div>
+      <div
+        v-bind="containerProps"
+        class="overflow-y-auto h-[100px] w-full border border-prime-600 grow"
+      >
+        <div class="" v-bind="wrapperProps">
+          <div
+            class="flex gap-2 whitespace-nowrap h-[25px] items-center px-1"
+            v-for="log of list"
+            :class="isLogSelected(log.data) ? 'bg-prime-200' : ''"
+            :style="{ color: log.data.color ?? 'unset' }"
+          >
+            <div
+              @click="onLogSelect(log.data, $event)"
+              class="min-w-4 h-4 border border-prime-500 rounded-full cursor-pointer"
+              :class="isLogSelected(log.data) ? 'bg-prime-500' : ''"
+            ></div>
+            <div>{{ formatDate(log.data.date) }}</div>
+            <div class="font-bold pr-1">{{ log.data.level }}</div>
+            <div>{{ log.data.message }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="w-full flex gap-2 flex-wrap items-center">
+        <InputText
+          class="rounded-md grow min-w-[500px] bg-red-400"
+          type="text"
+          v-model="searchRegex"
+        />
+        <div class="">Results {{ filteredLogs.length }}</div>
+        <DatePicker
+          v-model="startDate.adjusted"
+          fluid
+          timeOnly
+          showSeconds
+          inputId="templatedisplay"
+          class="w-[100px]"
+        ></DatePicker>
+        <DatePicker
+          v-model="endDate.adjusted"
+          fluid
+          timeOnly
+          showSeconds
+          inputId="templatedisplay-2"
+          class="w-[100px]"
+        ></DatePicker>
+        <Button @click="restartDateSelection"> Reset </Button>
+        <div class="flex items-center gap-2">
+          <label for="switch1">Only Selected</label>
+          <ToggleSwitch inputId="switch1" v-model="showOnlySelected"> </ToggleSwitch>
+        </div>
+        <div class="flex items-center gap-2">
+          <label for="switch1">Histogram</label>
+          <ToggleSwitch inputId="switch1" v-model="showHistogram"> </ToggleSwitch>
+        </div>
+      </div>
+      <div
+        v-bind="filterContainerProps"
+        class="overflow-y-auto w-full min-h-[100px] max-h-[70%] border border-prime-600"
+        :style="{ height: downLogViewSize + 'px' }"
+      >
+        <div
+          class="resize-handler w-full cursor-ns-resize top-0 sticky h-2"
+          @pointerdown.stop.prevent="resizeStart$.next($event)"
+        ></div>
+        <div class="" v-bind="filterWrapperProps">
+          <div
+            class="flex gap-2 whitespace-nowrap h-[25px] items-center px-1"
+            @dblclick="onLogDblClick(log.data)"
+            v-for="log of filterList"
+            :style="{ color: log.data.color ?? 'unset' }"
+          >
+            <div
+              @click="onLogSelect(log.data, $event)"
+              class="min-w-4 h-4 border border-prime-500 rounded-full cursor-pointer"
+              :class="isLogSelected(log.data) ? 'bg-prime-500' : ''"
+            ></div>
+            <div>{{ formatDate(log.data.date) }}</div>
+            <div class="font-bold">{{ log.data.level }}</div>
+            <div>{{ log.data.message }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="w-full h-32 relative" v-if="showHistogram">
+        <LogTimeline
+          class="w-full h-full absolute top-0 left-0"
+          :dates="filteredLogs"
+          :startDate="timeFilteredLogs[0].date"
+          :endDate="timeFilteredLogs[timeFilteredLogs.length - 1].date"
+          :selectedLog="hightLightedLog?.date"
+          v-if="filteredLogs.length"
+          @select="onSelect"
+        />
+      </div>
+    </div>
     <PluginsDrawer
-      v-model:visible="isDrawerVisible"
+      v-if="isDrawerVisible"
+      class="w-72 h-screen overflow-x-hidden overflow-y-auto border-l border-bg-500"
       :hightLightedLog="hightLightedLog"
       :rawLogs="rawLogs"
     ></PluginsDrawer>
-    <LoadMenu @load="onFileLoad" v-model:visible="isLoadVisible"></LoadMenu>
-    <div class="flex gap-4 items-center">
-      <Button @click="isLoadVisible = true">Load</Button>
-      <Button @click="isDrawerVisible = true">OpenState</Button>
-      ({{ rawLogs.length }} logs)
-    </div>
-    <div
-      v-bind="containerProps"
-      class="overflow-y-auto h-[300px] w-full border border-prime-600 grow"
-    >
-      <div class="" v-bind="wrapperProps">
-        <div
-          class="flex gap-2 whitespace-nowrap h-[25px] items-center px-1"
-          v-for="log of list"
-          :class="isLogSelected(log.data) ? 'bg-prime-200' : ''"
-        >
-          <div
-            @click="onLogSelect(log.data, $event)"
-            class="min-w-4 h-4 border border-prime-500 rounded-full cursor-pointer"
-            :class="isLogSelected(log.data) ? 'bg-prime-500' : ''"
-          ></div>
-          <div>{{ log.data.date.toISOString() }}</div>
-          <div>{{ log.data.level }}</div>
-          <div>{{ log.data.message }}</div>
-        </div>
-      </div>
-    </div>
-    <div class="w-full flex gap-2 flex-wrap items-center">
-      <InputText
-        class="rounded-md grow min-w-[500px] bg-red-400"
-        type="text"
-        v-model="searchRegex"
-      />
-      <div class="">Results {{ filteredLogs.length }}</div>
-      <DatePicker
-        v-model="startDate.adjusted"
-        fluid
-        timeOnly
-        showSeconds
-        inputId="templatedisplay"
-        class="w-[100px]"
-      ></DatePicker>
-      <DatePicker
-        v-model="endDate.adjusted"
-        fluid
-        timeOnly
-        showSeconds
-        inputId="templatedisplay-2"
-        class="w-[100px]"
-      ></DatePicker>
-      <Button @click="restartDateSelection"> Reset </Button>
-      <div class="flex items-center gap-2">
-        <label for="switch1">Only Selected</label>
-        <ToggleSwitch inputId="switch1" v-model="showOnlySelected"> </ToggleSwitch>
-      </div>
-    </div>
-    <div
-      v-bind="filterContainerProps"
-      class="overflow-y-auto h-[300px] w-full border border-prime-600"
-    >
-      <div class="" v-bind="filterWrapperProps">
-        <div
-          class="flex gap-2 whitespace-nowrap h-[25px] items-center px-1"
-          @dblclick="onLogDblClick(log.data)"
-          v-for="log of filterList"
-        >
-          <div
-            @click="onLogSelect(log.data, $event)"
-            class="min-w-4 h-4 border border-prime-500 rounded-full cursor-pointer"
-            :class="isLogSelected(log.data) ? 'bg-prime-500' : ''"
-          ></div>
-          <div>{{ log.data.date.toISOString() }}</div>
-          <div>{{ log.data.level }}</div>
-          <div>{{ log.data.message }}</div>
-        </div>
-      </div>
-    </div>
-    <div class="w-full h-32 relative">
-      <LogTimeline
-        class="w-full h-full absolute top-0 left-0"
-        :dates="filteredLogs"
-        :startDate="timeFilteredLogs[0].date"
-        :endDate="timeFilteredLogs[timeFilteredLogs.length - 1].date"
-        :selectedLog="hightLightedLog?.date"
-        v-if="filteredLogs.length"
-        @select="onSelect"
-      />
-    </div>
   </div>
 </template>
 
@@ -104,24 +139,51 @@ import LogTimeline from './LogTimeline.vue';
 import InputText from 'primevue/inputtext';
 import DatePicker from 'primevue/datepicker';
 import Button from 'primevue/button';
-import { useUTCAdjustedDate } from '@gdx/utils';
+import { observableToRef, useMakeYResizeHandler, useUTCAdjustedDate } from '@gdx/utils';
 import LoadMenu from './LoadMenu.vue';
 import ToggleSwitch from 'primevue/toggleswitch';
-import { LogEssentials, LogStatePlugin } from './LogTypes';
-import { ConnectionStatePlugin } from './LogStatePlugins';
+import { LogEssentials } from './LogTypes';
 import PluginsDrawer from './PluginsDrawer.vue';
+import ColorRulesDialog from './ColorRulesDialog.vue';
+import CodeEditor from './CodeEditor.vue';
 
 const db = new LogsDatabase();
-const rawLogs = shallowRef<LogEssentials[]>([]);
 const searchRegex = ref('');
 const isLoadVisible = ref(false);
 const isDrawerVisible = ref(false);
+const isColorRulesVisible = ref(false);
+const isCodeEditorVisible = ref(false);
 const selectedLogs = reactive(new Set<number>());
 const showOnlySelected = ref(false);
+const showHistogram = ref(true);
+const showLocalTime = ref(true);
+const timeOnly = ref(true);
+const downLogViewSize = ref(300);
+
 const hightLightedLog = ref<LogEssentials | null>(null);
+
+const colorRules = observableToRef(db.colorRulesObserver(), []);
+const baseFile = ref<string>('');
 
 const startDate = useUTCAdjustedDate(new Date(0));
 const endDate = useUTCAdjustedDate(new Date());
+
+const rawLogs = computed<LogEssentials[]>(() => {
+  const logs = neloParser(baseFile.value);
+  const regexes = colorRules.value.map((rule) => {
+    return {
+      regex: new RegExp(rule.regex, 'i'),
+      color: rule.color,
+    };
+  });
+  logs.forEach((log) => {
+    log.color =
+      regexes.find((rule) => {
+        return rule.regex.test(log.original);
+      })?.color ?? null;
+  });
+  return logs;
+});
 
 const timeFilteredLogs = computed(() => {
   const start = startDate.original;
@@ -133,9 +195,13 @@ const timeFilteredLogs = computed(() => {
 
 const filteredLogs = computed(() => {
   if (showOnlySelected.value) {
-    return [...selectedLogs.values()].map((index) => {
-      return rawLogs.value[index];
-    });
+    return [...selectedLogs.values()]
+      .sort((a, b) => {
+        return a - b;
+      })
+      .map((index) => {
+        return rawLogs.value[index];
+      });
   }
   const rgx = new RegExp(searchRegex.value, 'i');
   return timeFilteredLogs.value.filter((log) => {
@@ -159,8 +225,71 @@ const {
   itemHeight: 25,
 });
 
+const dateFormatter = computed(() => {
+  if (showLocalTime.value) {
+    if (timeOnly.value) {
+      const intl = new Intl.DateTimeFormat('pt-BR', {
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric',
+        fractionalSecondDigits: 3,
+        hour12: false,
+      });
+      return (date: Date) => intl.format(date);
+    } else {
+      const intl = new Intl.DateTimeFormat('pt-BR', {
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric',
+        fractionalSecondDigits: 3,
+        hour12: false,
+      });
+      return (date: Date) => intl.format(date);
+    }
+  } else {
+    if (timeOnly.value) {
+      const intl = new Intl.DateTimeFormat('pt-BR', {
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric',
+        hour12: false,
+        timeZone: 'UTC',
+        fractionalSecondDigits: 3,
+      });
+      return (date: Date) => intl.format(date);
+    } else {
+      const intl = new Intl.DateTimeFormat('pt-BR', {
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric',
+        fractionalSecondDigits: 3,
+        hour12: false,
+        timeZone: 'UTC',
+      });
+      return (date: Date) => intl.format(date);
+    }
+  }
+});
+
+const resizeStart$ = useMakeYResizeHandler({
+  onEnd() {},
+  onMove(y) {
+    downLogViewSize.value = y;
+  },
+  onStart() {
+    return downLogViewSize.value;
+  },
+});
+
 watch(filteredLogs, () => {
   scrollToFiltered(0);
+  scrollTo(0);
 });
 
 loadLogs();
@@ -168,21 +297,30 @@ loadLogs();
 function neloParser(file: string): LogEssentials[] {
   const lines = file.trim().split('\n');
   const logs = lines.map((line, index) => {
-    const [date, level, message, val1, val2] = line.split(' | ');
+    const firsPipeIndex = line.indexOf('|');
+    const secondPipeIndex = line.indexOf('|', firsPipeIndex + 1);
+    const date = line.slice(0, firsPipeIndex).trim();
+    const level = line.slice(firsPipeIndex + 1, secondPipeIndex).trim();
+    const message = line.slice(secondPipeIndex + 1).trim();
     return {
       date: new Date(date),
       level,
-      message: `${message} | ${val1} | ${val2}`,
+      message,
       original: line,
       index,
+      color: null,
     };
   });
   return logs;
 }
 
 function onFileLoad(file: string) {
-  rawLogs.value = neloParser(file);
+  baseFile.value = file;
   restartDateSelection();
+}
+
+function formatDate(date: Date) {
+  return dateFormatter.value(date);
 }
 
 function onLogSelect(log: LogEssentials, event: MouseEvent) {
@@ -225,13 +363,26 @@ function isLogSelected(log: LogEssentials) {
   return selectedLogs.has(log.index);
 }
 
-async function loadLogs() {
-  const firstDbLog = await db.lastFile();
-  if (firstDbLog) {
-    rawLogs.value = neloParser(firstDbLog.content);
+async function loadLogs(name?: string) {
+  let logFile;
+  if (name) {
+    logFile = await db.loadLogFile(name);
   } else {
-    rawLogs.value = [];
+    logFile = await db.lastFile();
+  }
+  if (logFile) {
+    baseFile.value = logFile.content;
+  } else {
+    baseFile.value = '';
   }
   restartDateSelection();
+}
+
+async function onDrop(event: DragEvent) {
+  const file = event.dataTransfer?.files[0];
+  if (file) {
+    await db.saveRawFile(file);
+    loadLogs(file.name);
+  }
 }
 </script>

@@ -5,15 +5,15 @@ import Home from './pages/Home.vue';
 import PrimeVue from 'primevue/config';
 import Aura from '@primevue/themes/aura';
 import { definePreset } from '@primevue/themes';
+import ToastService from 'primevue/toastservice';
 import './index.css';
 import 'primeicons/primeicons.css';
-
-console.log(Aura);
+import { primeColors } from './design/design';
 
 const routes = [
   { path: '/', component: Home },
   { path: '/grid', component: () => import('./components/Grid.vue') },
-  { path: '/cv', component: () => import('./pages/CV.vue') },
+  { path: '/cv', component: () => import('./pages/CVs/CVGabriel.vue') },
   { path: '/tippy', component: () => import('./pages/TippyTest.vue') },
   { path: '/layers', component: () => import('./pages/Layers.vue') },
   { path: '/noise', component: () => import('./pages/Noise/PerlinNoise.vue') },
@@ -32,6 +32,10 @@ const routes = [
   {
     path: '/relative-imports-fix',
     component: () => import('./pages/RelativeImportFixer/RelativeImportsFixer.vue'),
+  },
+  {
+    path: '/more-fun-stuff',
+    component: () => import('./pages/MoreFunStuff/MoreFunStuff.vue'),
   },
   { path: '/space-index', component: () => import('./pages/spaceIndex/SpaceIndex.vue') },
   {
@@ -70,23 +74,14 @@ app.use(PrimeVue, {
   },
 });
 app.use(router);
+app.use(ToastService);
 app.mount('#app');
 
 function makeTheme() {
   const MyPreset = definePreset(Aura, {
     semantic: {
       primary: {
-        50: '{sky.50}',
-        100: '{sky.100}',
-        200: '{sky.200}',
-        300: '{sky.300}',
-        400: '{sky.400}',
-        500: '{sky.500}',
-        600: '{sky.600}',
-        700: '{sky.700}',
-        800: '{sky.800}',
-        900: '{sky.900}',
-        950: '{sky.950}',
+        ...primeColors,
       },
     },
   });
