@@ -14,6 +14,7 @@ const routes = [
   { path: '/', component: Home },
   { path: '/grid', component: () => import('./components/Grid.vue') },
   { path: '/cv', component: () => import('./pages/CVs/CVGabriel.vue') },
+  { path: '/cv_silvia', component: () => import('./pages/CVs/CVSilvia.vue') },
   { path: '/tippy', component: () => import('./pages/TippyTest.vue') },
   { path: '/layers', component: () => import('./pages/Layers.vue') },
   { path: '/noise', component: () => import('./pages/Noise/PerlinNoise.vue') },

@@ -55,7 +55,8 @@ const glmachadoCVData: CVData = {
         },
         {
           title: 'Estágio em Farmácia Satélite da UTI',
-          description: ``,
+          description: `Farmácia clínica no Centro de Terapia Intensiva e Unidades de Internação. Validação e conciliação de medicamentos. 
+          Experiência com NoHarm.ai e Soul MV®.`,
           schoolPlaceDate: 'Hospital Mãe de Deus - Porto Alegre, Presente',
         },
         {
