@@ -31,6 +31,10 @@ const routes = [
   { path: '/webgpu', component: () => import('./pages/webgpu/Webgpu.vue') },
   { path: '/logs', component: () => import('./pages/logview/LogView.vue') },
   {
+    path: '/relative-imports-fix',
+    component: () => import('./pages/RelativeImportFixer/RelativeImportsFixer.vue'),
+  },
+  {
     path: '/more-fun-stuff',
     component: () => import('./pages/MoreFunStuff/MoreFunStuff.vue'),
   },
