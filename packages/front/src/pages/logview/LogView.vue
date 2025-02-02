@@ -28,28 +28,14 @@
           class="ml-auto pi pi-cog !text-xl cursor-pointer hover:scale-125 transition-all hover:text-prime-600 mr-1"
         ></i>
       </div>
-      <div
-        v-bind="containerProps"
-        class="overflow-y-auto h-[100px] w-full border border-prime-600 grow"
-      >
-        <div class="" v-bind="wrapperProps">
-          <div
-            class="flex gap-2 whitespace-nowrap h-[25px] items-center px-1"
-            v-for="log of list"
-            :class="isLogSelected(log.data) ? 'bg-prime-200' : ''"
-            :style="{ color: log.data.color ?? 'unset' }"
-          >
-            <div
-              @click="onLogSelect(log.data, $event)"
-              class="min-w-4 h-4 border border-prime-500 rounded-full cursor-pointer"
-              :class="isLogSelected(log.data) ? 'bg-prime-500' : ''"
-            ></div>
-            <div>{{ formatDate(log.data.date) }}</div>
-            <div class="font-bold pr-1">{{ log.data.level }}</div>
-            <div>{{ log.data.message }}</div>
-          </div>
-        </div>
-      </div>
+      <LogWindow
+        ref="timeFilteredLogsRef"
+        class="grow"
+        :time-only="timeOnly"
+        :logs="timeFilteredLogs"
+        :showLocalTime="showLocalTime"
+        :selectedLogs="selectedLogs"
+      ></LogWindow>
       <div class="w-full flex gap-2 flex-wrap items-center">
         <InputText
           class="rounded-md grow min-w-[500px] bg-red-400"
@@ -83,33 +69,15 @@
           <ToggleSwitch inputId="switch1" v-model="showHistogram"> </ToggleSwitch>
         </div>
       </div>
-      <div
-        v-bind="filterContainerProps"
-        class="overflow-y-auto w-full min-h-[100px] max-h-[70%] border border-prime-600"
-        :style="{ height: downLogViewSize + 'px' }"
-      >
-        <div
-          class="resize-handler w-full cursor-ns-resize top-0 sticky h-2"
-          @pointerdown.stop.prevent="resizeStart$.next($event)"
-        ></div>
-        <div class="" v-bind="filterWrapperProps">
-          <div
-            class="flex gap-2 whitespace-nowrap h-[25px] items-center px-1"
-            @dblclick="onLogDblClick(log.data)"
-            v-for="log of filterList"
-            :style="{ color: log.data.color ?? 'unset' }"
-          >
-            <div
-              @click="onLogSelect(log.data, $event)"
-              class="min-w-4 h-4 border border-prime-500 rounded-full cursor-pointer"
-              :class="isLogSelected(log.data) ? 'bg-prime-500' : ''"
-            ></div>
-            <div>{{ formatDate(log.data.date) }}</div>
-            <div class="font-bold">{{ log.data.level }}</div>
-            <div>{{ log.data.message }}</div>
-          </div>
-        </div>
-      </div>
+      <LogWindow
+        ref="filteredLogsRef"
+        @on-line-dbl-click="onLogDblClick"
+        :logs="filteredLogs"
+        :selected-logs="selectedLogs"
+        :show-local-time="showLocalTime"
+        :time-only="timeOnly"
+        :resize="true"
+      ></LogWindow>
       <div class="w-full h-32 relative" v-if="showHistogram">
         <LogTimeline
           class="w-full h-full absolute top-0 left-0"
@@ -139,13 +107,14 @@ import LogTimeline from './LogTimeline.vue';
 import InputText from 'primevue/inputtext';
 import DatePicker from 'primevue/datepicker';
 import Button from 'primevue/button';
-import { observableToRef, useMakeYResizeHandler, useUTCAdjustedDate } from '@gdx/utils';
+import { observableToRef, useUTCAdjustedDate } from '@gdx/utils';
 import LoadMenu from './LoadMenu.vue';
 import ToggleSwitch from 'primevue/toggleswitch';
 import { LogEssentials } from './LogTypes';
 import PluginsDrawer from './PluginsDrawer.vue';
 import ColorRulesDialog from './ColorRulesDialog.vue';
 import CodeEditor from './CodeEditor.vue';
+import LogWindow from './LogWindow.vue';
 
 const db = new LogsDatabase();
 const searchRegex = ref('');
@@ -158,7 +127,9 @@ const showOnlySelected = ref(false);
 const showHistogram = ref(true);
 const showLocalTime = ref(true);
 const timeOnly = ref(true);
-const downLogViewSize = ref(300);
+
+const filteredLogsRef = shallowRef<InstanceType<typeof LogWindow>>();
+const timeFilteredLogsRef = shallowRef<InstanceType<typeof LogWindow>>();
 
 const hightLightedLog = ref<LogEssentials | null>(null);
 
@@ -209,87 +180,16 @@ const filteredLogs = computed(() => {
   });
 });
 
-const { list, containerProps, wrapperProps, scrollTo } = useVirtualList(
-  timeFilteredLogs,
-  {
-    itemHeight: 25,
-  }
-);
-
-const {
-  list: filterList,
-  containerProps: filterContainerProps,
-  wrapperProps: filterWrapperProps,
-  scrollTo: scrollToFiltered,
-} = useVirtualList(filteredLogs, {
-  itemHeight: 25,
-});
-
-const dateFormatter = computed(() => {
-  if (showLocalTime.value) {
-    if (timeOnly.value) {
-      const intl = new Intl.DateTimeFormat('pt-BR', {
-        hour: 'numeric',
-        minute: 'numeric',
-        second: 'numeric',
-        fractionalSecondDigits: 3,
-        hour12: false,
-      });
-      return (date: Date) => intl.format(date);
-    } else {
-      const intl = new Intl.DateTimeFormat('pt-BR', {
-        year: 'numeric',
-        month: 'numeric',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: 'numeric',
-        second: 'numeric',
-        fractionalSecondDigits: 3,
-        hour12: false,
-      });
-      return (date: Date) => intl.format(date);
-    }
-  } else {
-    if (timeOnly.value) {
-      const intl = new Intl.DateTimeFormat('pt-BR', {
-        hour: 'numeric',
-        minute: 'numeric',
-        second: 'numeric',
-        hour12: false,
-        timeZone: 'UTC',
-        fractionalSecondDigits: 3,
-      });
-      return (date: Date) => intl.format(date);
-    } else {
-      const intl = new Intl.DateTimeFormat('pt-BR', {
-        year: 'numeric',
-        month: 'numeric',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: 'numeric',
-        second: 'numeric',
-        fractionalSecondDigits: 3,
-        hour12: false,
-        timeZone: 'UTC',
-      });
-      return (date: Date) => intl.format(date);
-    }
-  }
-});
-
-const resizeStart$ = useMakeYResizeHandler({
-  onEnd() {},
-  onMove(y) {
-    downLogViewSize.value = y;
-  },
-  onStart() {
-    return downLogViewSize.value;
-  },
-});
+function onLogDblClick(log: LogEssentials) {
+  const index = timeFilteredLogs.value.findIndex((l) => l.index === log.index);
+  hightLightedLog.value = log;
+  if (index === -1) return;
+  timeFilteredLogsRef.value?.scrollTo(index);
+}
 
 watch(filteredLogs, () => {
-  scrollToFiltered(0);
-  scrollTo(0);
+  filteredLogsRef.value?.scrollTo(0);
+  timeFilteredLogsRef.value?.scrollTo(0);
 });
 
 loadLogs();
@@ -319,25 +219,6 @@ function onFileLoad(file: string) {
   restartDateSelection();
 }
 
-function formatDate(date: Date) {
-  return dateFormatter.value(date);
-}
-
-function onLogSelect(log: LogEssentials, event: MouseEvent) {
-  if (selectedLogs.has(log.index)) {
-    selectedLogs.delete(log.index);
-  } else {
-    selectedLogs.add(log.index);
-  }
-}
-
-function onLogDblClick(log: LogEssentials) {
-  const index = timeFilteredLogs.value.findIndex((l) => l.index === log.index);
-  hightLightedLog.value = log;
-  if (index === -1) return;
-  scrollTo(index);
-}
-
 function restartDateSelection() {
   const { minDate, maxDate } = minMaxDates();
   startDate.original = minDate;
@@ -357,10 +238,6 @@ function minMaxDates() {
 function onSelect(selection: { startDate: Date; endDate: Date }) {
   startDate.original = selection.startDate;
   endDate.original = selection.endDate;
-}
-
-function isLogSelected(log: LogEssentials) {
-  return selectedLogs.has(log.index);
 }
 
 async function loadLogs(name?: string) {
