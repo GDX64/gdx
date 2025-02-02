@@ -12,6 +12,11 @@ export type ColorRule = {
   name: string;
 };
 
+export type LogSearchRegex = {
+  regex: string;
+  name: string;
+};
+
 export type PluginStored = {
   name: string;
   code: string;
@@ -22,6 +27,7 @@ export class LogsDatabase extends Dexie {
   private logs: Dexie.Table<LogFile, number>;
   private colorRules: Dexie.Table<ColorRule, number>;
   private plugins: Dexie.Table<PluginStored, number>;
+  private searches: Dexie.Table<LogSearchRegex, number>;
 
   constructor() {
     super('LogsDatabase');
@@ -29,10 +35,12 @@ export class LogsDatabase extends Dexie {
       logs: '++id, &name',
       colorRules: '&name',
       plugins: '&name',
+      searches: '&name',
     });
     this.colorRules = this.table('colorRules');
     this.logs = this.table('logs');
     this.plugins = this.table('plugins');
+    this.searches = this.table('searches');
   }
 
   loadLogFile(name: string): Promise<LogFile | undefined> {
@@ -57,8 +65,16 @@ export class LogsDatabase extends Dexie {
     return this.plugins.put(plugin);
   }
 
+  saveSearch(search: LogSearchRegex): Promise<number> {
+    return this.searches.put(search);
+  }
+
   deletePlugin(name: string): Promise<number> {
     return this.plugins.where('name').equals(name).delete();
+  }
+
+  deleteSearch(name: string): Promise<number> {
+    return this.searches.where('name').equals(name).delete();
   }
 
   deleteColorRule(name: string): Promise<number> {
@@ -73,6 +89,10 @@ export class LogsDatabase extends Dexie {
     return this.colorRules.toArray();
   }
 
+  loadSearches(): Promise<LogSearchRegex[]> {
+    return this.searches.toArray();
+  }
+
   loadPlugins(): Promise<PluginStored[]> {
     return this.plugins.toArray();
   }
@@ -80,6 +100,12 @@ export class LogsDatabase extends Dexie {
   colorRulesObserver(): Observable<ColorRule[]> {
     return liveQuery(async () => {
       return this.colorRules.toArray();
+    });
+  }
+
+  searchObservable(): Observable<LogSearchRegex[]> {
+    return liveQuery(async () => {
+      return this.searches.toArray();
     });
   }
 

@@ -9,10 +9,15 @@
       <LoadMenu @load="onFileLoad" v-model:visible="isLoadVisible"></LoadMenu>
       <ColorRulesDialog v-model:visible="isColorRulesVisible"></ColorRulesDialog>
       <CodeEditor v-model:visible="isCodeEditorVisible"></CodeEditor>
+      <SearchDialog
+        v-model:visible="isSearchEditorVisible"
+        @load="onLoadSeach"
+      ></SearchDialog>
       <div class="flex gap-4 items-center justify-start w-full">
         <Button @click="isLoadVisible = true">Load</Button>
         <Button @click="isDrawerVisible = !isDrawerVisible">OpenState</Button>
         <Button @click="isColorRulesVisible = true">Color Rules</Button>
+        <Button @click="isSearchEditorVisible = true">Searches</Button>
         <Button @click="isCodeEditorVisible = true">Code Editor</Button>
         <div class="flex items-center gap-2">
           <label for="switch1">LocalTime</label>
@@ -115,11 +120,13 @@ import PluginsDrawer from './PluginsDrawer.vue';
 import ColorRulesDialog from './ColorRulesDialog.vue';
 import CodeEditor from './CodeEditor.vue';
 import LogWindow from './LogWindow.vue';
+import SearchDialog from './SearchDialog.vue';
 
 const db = new LogsDatabase();
 const searchRegex = ref('');
 const isLoadVisible = ref(false);
 const isDrawerVisible = ref(false);
+const isSearchEditorVisible = ref(false);
 const isColorRulesVisible = ref(false);
 const isCodeEditorVisible = ref(false);
 const selectedLogs = reactive(new Set<number>());
@@ -193,6 +200,11 @@ watch(filteredLogs, () => {
 });
 
 loadLogs();
+
+function onLoadSeach(regex: string) {
+  console.log('loading', regex);
+  searchRegex.value = regex;
+}
 
 function neloParser(file: string): LogEssentials[] {
   const lines = file.trim().split('\n');
