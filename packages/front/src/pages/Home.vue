@@ -18,10 +18,109 @@ import { CVLinks } from '../components/CV/glmachadoCVData';
 import Kite from '../components/kite/Kite.vue';
 import { estimateRefreshRate, useAsyncComputed } from '@gdx/utils';
 import BorderContainer from '../components/BorderContainer.vue';
+import { computed, ref, watchEffect } from 'vue';
 
 const refreshRate = useAsyncComputed(async () => {
   return estimateRefreshRate();
 }, null);
+
+enum DisplayMode {
+  EXPERIENCE,
+  EDUCATION,
+}
+const displayOption = ref(DisplayMode.EXPERIENCE);
+const experienceContainer = ref<HTMLElement>();
+const educationContainer = ref<HTMLElement>();
+
+watchEffect(() => {
+  if (displayOption.value === DisplayMode.EXPERIENCE) {
+    console.log(experienceContainer.value, educationContainer.value);
+    experienceContainer.value?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  } else {
+    educationContainer.value?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+});
+
+const experiences = [
+  {
+    company: 'Nelogica',
+    date: '2024 - Now',
+    description:
+      'In late 2024 I became tech lead of the Profit Web team to focus again on the Profit Web project as well as web front end libraries and APIs.',
+    title: 'Tech Lead',
+    tags: ['Web', 'FrontEnd'],
+  },
+  {
+    company: 'Nelogica',
+    date: '2023 - 2024',
+    title: 'Software Developer IV',
+    description:
+      'In 2023 I moved to Porto Alegre to work in office with the mobile team using our typescript codebase to target the mobile platforms. Today we have hundreds of thousands active users of the Profit Android and IOS apps monthly.',
+    tags: ['iOS', 'Android', 'CapacitorJS'],
+  },
+  {
+    company: 'Nelogica',
+    date: '2022 - 2023',
+    title: 'Software Developer III',
+    description:
+      'In late 2022 we developed the Profit Mac project using web technologies and electron, briging our products to thousands of MacOS users.',
+    tags: ['Electron', 'MacOS'],
+  },
+  {
+    company: 'Nelogica',
+    date: '2021 - 2022',
+    title: 'Software Developer II',
+    description:
+      'As I acquired more skills and experience, I started to guide my work towards the aplication performance and developer tools. In this year I introduced typescript to the web projects.',
+    tags: ['Typescript', 'VueJS', 'WebSockets'],
+  },
+  {
+    company: 'Nelogica',
+    date: '2020 - 2021',
+    title: 'Software Developer I',
+    description:
+      'In my first year at Nelogica, I worked on the Homebroker and ProfitWeb projects, using vuejs. The homebroker is a trading platform used by thousands of traders every day in several brazilian exchanges.',
+    tags: ['Javascript', 'HTML', 'CSS'],
+  },
+  {
+    company: 'PSA (Peugeot Citroën)',
+    date: '2019',
+    title: 'Engineering Intern',
+    description:
+      'I worked in the maintenance department, where I helped with spare parts management and maintenance planning.',
+    tags: ['Excel'],
+  },
+];
+
+const education = [
+  {
+    company: 'Federal University of Juiz de Fora',
+    date: '2014 - 2020',
+    title: 'Electrical Engineering',
+    description:
+      'I graduated in Electrical Engineering at the Federal University of Juiz de Fora. My bachelor thesis was about signal processing techniques to identify harmonic distortion in power systems.',
+    tags: ['DSP', 'Matlab', 'Electronics'],
+  },
+  {
+    company: 'University of Buenos Aires',
+    date: '2019 - 2020',
+    title: 'Electronic Engineering Interchange',
+    description:
+      "I took master's classes: speech recognition, pattern recognition, biomedical signal processing, adaptive filtering. It was a great experience to study in another country and take the classes I was most interested in.",
+    tags: ['DSP', 'Matlab'],
+  },
+  {
+    company: 'Escola Técnica Pandiá Calógeras',
+    date: '2011 - 2014',
+    title: 'Electromechnical Technician',
+    description: `I did high school and technical school at the same time, where I learned about electronics, mechanics, and automation. I also had my first contact with programming, using relays and logic gates.`,
+    tags: ['Electronics', 'Mechanics', 'Automation'],
+  },
+];
+
+const selectedExperienceGroup = computed(() => {
+  return displayOption.value === DisplayMode.EXPERIENCE ? experiences : education;
+});
 </script>
 
 <template>
@@ -118,51 +217,53 @@ const refreshRate = useAsyncComputed(async () => {
           </p>
         </div>
         <div class="max-w-[600px] grow">
-          <h3 class="text-xl text-text-label font-semibold pb-4">Experiences</h3>
-          <div class="flex flex-col gap-2">
-            <Experience
-              company="Nelogica"
-              date="2024 - Now"
-              description="In late 2024 I became tech lead of the Profit Web team to focus again on the Profit Web project as well as web front end libraries and APIs."
-              title="Tech Lead"
-              :tags="['Web', 'FrontEnd']"
-            ></Experience>
-            <Experience
-              company="Nelogica"
-              date="2023 - 2024"
-              title="Software Developer IV"
-              description="In 2023 I moved to Porto Alegre to work in office with the mobile team using our typescript codebase to target the mobile platforms. Today we have hundreds of thousands active users of the Profit Android and IOS apps monthly."
-              :tags="['iOS', 'Android', 'CapacitorJS']"
-            ></Experience>
-            <Experience
-              company="Nelogica"
-              date="2022 - 2023"
-              title="Software Developer III"
-              description="In late 2022 we developed the Profit Mac project using web technologies and electron, briging our products to thousands of MacOS users."
-              :tags="['Electron', 'MacOS']"
-            ></Experience>
-            <Experience
-              company="Nelogica"
-              date="2021 - 2022"
-              title="Software Developer II"
-              description="As I acquired more skills and experience, I started to guide my work towards the aplication performance and developer tools.
-              In this year I introduced typescript to the web projects."
-              :tags="['Typescript', 'VueJS', 'WebSockets']"
-            ></Experience>
-            <Experience
-              company="Nelogica"
-              date="2020 - 2021"
-              title="Software Developer I"
-              description="In my first year at Nelogica, I worked on the Homebroker and ProfitWeb projects, using vuejs. The homebroker is a trading platform used by thousands of traders every day in several brazilian exchanges."
-              :tags="['Javascript', 'HTML', 'CSS']"
-            ></Experience>
-            <Experience
-              company="PSA (Peugeot Citroën)"
-              date="2019"
-              title="Engineering Intern"
-              description="I worked in the maintenance department, where I helped with spare parts management and maintenance planning."
-              :tags="['Excel']"
-            ></Experience>
+          <div
+            class="flex gap-4 cursor-pointer mb-4 items-center text-xl text-text-label font-semibold h-10"
+          >
+            <h3
+              :class="displayOption === DisplayMode.EXPERIENCE ? 'bg-prime-200' : ''"
+              @click="displayOption = DisplayMode.EXPERIENCE"
+              class="px-2 py-1 rounded-md"
+            >
+              Experiences
+            </h3>
+            <h3
+              @click="displayOption = DisplayMode.EDUCATION"
+              :class="displayOption === DisplayMode.EDUCATION ? 'bg-prime-200' : ''"
+              class="px-2 py-1 rounded-md"
+            >
+              Education
+            </h3>
+          </div>
+          <div class="overflow-x-auto flex gap-4 no-scrollbar snap-x snap-mandatory">
+            <div
+              class="flex flex-col gap-2 w-full shrink-0 px-2 snap-start"
+              ref="experienceContainer"
+            >
+              <Experience
+                v-for="exp in experiences"
+                :company="exp.company"
+                :date="exp.date"
+                :title="exp.title"
+                :description="exp.description"
+                :tags="exp.tags"
+                :key="exp.title"
+              ></Experience>
+            </div>
+            <div
+              class="flex flex-col gap-2 w-full shrink-0 px-2 snap-start"
+              ref="educationContainer"
+            >
+              <Experience
+                v-for="exp in education"
+                :company="exp.company"
+                :date="exp.date"
+                :title="exp.title"
+                :description="exp.description"
+                :tags="exp.tags"
+                :key="exp.title"
+              ></Experience>
+            </div>
           </div>
         </div>
       </div>
@@ -240,4 +341,8 @@ const refreshRate = useAsyncComputed(async () => {
   </main>
 </template>
 
-<style></style>
+<style scoped>
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+</style>
