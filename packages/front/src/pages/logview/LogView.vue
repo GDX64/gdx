@@ -40,6 +40,7 @@
         :logs="timeFilteredLogs"
         :showLocalTime="showLocalTime"
         :selectedLogs="selectedLogs"
+        :search="searchRegex"
       ></LogWindow>
       <div class="w-full flex gap-2 flex-wrap items-center">
         <InputText
@@ -81,6 +82,7 @@
         :selected-logs="selectedLogs"
         :show-local-time="showLocalTime"
         :time-only="timeOnly"
+        :search="searchRegex"
         :resize="true"
       ></LogWindow>
       <div class="w-full h-32 relative" v-if="showHistogram">

@@ -22,8 +22,12 @@
           :class="isLogSelected(log.data) ? 'bg-prime-500' : ''"
         ></div>
         <div>{{ formatDate(log.data.date) }}</div>
-        <div class="font-bold">{{ log.data.level }}</div>
-        <div>{{ log.data.message }}</div>
+        <HighlitableText
+          class="font-bold"
+          :value="log.data.level"
+          :search="search"
+        ></HighlitableText>
+        <HighlitableText :value="log.data.message" :search="search"></HighlitableText>
       </div>
     </div>
   </div>
@@ -34,6 +38,7 @@ import { useVirtualList } from '@vueuse/core';
 import { computed, ref, toRef } from 'vue';
 import { LogEssentials } from './LogTypes';
 import { useMakeYResizeHandler } from '@gdx/utils';
+import HighlitableText from './HighlitableText.vue';
 
 const props = defineProps<{
   logs: LogEssentials[];
@@ -41,6 +46,7 @@ const props = defineProps<{
   timeOnly: boolean;
   selectedLogs: Set<number>;
   resize?: boolean;
+  search?: string;
 }>();
 
 const emit = defineEmits({
