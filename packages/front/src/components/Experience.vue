@@ -9,7 +9,7 @@
       <h3 class="">{{ company }}</h3>
     </div>
     <div class="text-text-label font-semibold">{{ date }}</div>
-    <div class="transition-all w-full overflow-hidden" :class="isOpen ? 'h-28' : 'h-0'">
+    <div class="transition-all w-full overflow-hidden" :class="isOpen ? 'h-32' : 'h-0'">
       {{ description }}
     </div>
     <div class="flex gap-2">

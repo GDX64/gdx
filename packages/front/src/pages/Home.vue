@@ -34,7 +34,6 @@ const educationContainer = ref<HTMLElement>();
 
 watchEffect(() => {
   if (displayOption.value === DisplayMode.EXPERIENCE) {
-    console.log(experienceContainer.value, educationContainer.value);
     experienceContainer.value?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   } else {
     educationContainer.value?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -216,26 +215,32 @@ const selectedExperienceGroup = computed(() => {
             like Webassembly and WebGPU, and from time to time I write about it.
           </p>
         </div>
-        <div class="max-w-[600px] grow">
+        <div class="max-w-[min(600px,100%)] grow">
           <div
-            class="flex gap-4 cursor-pointer mb-4 items-center text-xl text-text-label font-semibold h-10"
+            class="flex gap-4 cursor-pointer mb-4 items-center text-xl text-text-label font-semibold h-10 underline-offset-4 justify-between"
           >
             <h3
-              :class="displayOption === DisplayMode.EXPERIENCE ? 'bg-prime-200' : ''"
+              :class="
+                displayOption === DisplayMode.EXPERIENCE ? '!decoration-prime-300' : ''
+              "
               @click="displayOption = DisplayMode.EXPERIENCE"
-              class="px-2 py-1 rounded-md"
+              class="px-2 py-1 rounded-md transition-all decoration-bg-300 underline"
             >
               Experiences
             </h3>
             <h3
               @click="displayOption = DisplayMode.EDUCATION"
-              :class="displayOption === DisplayMode.EDUCATION ? 'bg-prime-200' : ''"
-              class="px-2 py-1 rounded-md"
+              :class="
+                displayOption === DisplayMode.EDUCATION ? '!decoration-prime-300' : ''
+              "
+              class="px-2 py-1 rounded-md transition-all decoration-bg-300 underline"
             >
               Education
             </h3>
           </div>
-          <div class="overflow-x-auto flex gap-4 no-scrollbar snap-x snap-mandatory">
+          <div
+            class="overflow-x-auto flex gap-4 no-scrollbar snap-x snap-mandatory max-w-full"
+          >
             <div
               class="flex flex-col gap-2 w-full shrink-0 px-2 snap-start"
               ref="experienceContainer"
