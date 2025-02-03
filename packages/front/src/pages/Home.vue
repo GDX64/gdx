@@ -25,7 +25,7 @@ const refreshRate = useAsyncComputed(async () => {
 </script>
 
 <template>
-  <NavBar class="animate-appear animate-delay-[4s]"></NavBar>
+  <NavBar class="animate-appear animate-delay-[3s]"></NavBar>
   <main
     class="flex flex-col items-center px-2 md:px-10 text-text-prime pb-10 max-w-[1420px] w-full"
   >
@@ -41,29 +41,27 @@ const refreshRate = useAsyncComputed(async () => {
       <div class="grow flex flex-col justify-center py-10">
         <div class="w-full flex justify-between">
           <div class="">
-            <label
-              for=""
-              class="text-text-label text-xl font-semibold animate-appear animate-delay-[1s]"
+            <label for="" class="text-text-label text-xl font-semibold animate-appear"
               >Hi! My name is</label
             >
             <h1
-              class="md:text-6xl text-3xl font-extrabold mb-6 animate-appear animate-delay-[2s]"
+              class="md:text-6xl text-3xl font-extrabold mb-6 animate-appear animate-delay-[1s]"
             >
               Gabriel Machado
             </h1>
             <label
               for=""
-              class="text-text-label text-xl font-semibold animate-appear animate-delay-[3s]"
+              class="text-text-label text-xl font-semibold animate-appear animate-delay-[2s]"
               >And I am a</label
             >
             <h1
-              class="md:text-6xl text-3xl font-extrabold animate-appear animate-delay-[4s]"
+              class="md:text-6xl text-3xl font-extrabold animate-appear animate-delay-[3s]"
             >
-              Cross-platform Developer
+              Software Engineer
             </h1>
           </div>
           <div
-            class="flex flex-col justify-between md:visible invisible animate-appear animate-delay-[4s]"
+            class="flex flex-col justify-between md:visible invisible animate-appear animate-delay-[3s]"
           >
             <LinkedinRound></LinkedinRound>
             <GithubRound></GithubRound>
@@ -72,7 +70,7 @@ const refreshRate = useAsyncComputed(async () => {
         </div>
       </div>
 
-      <div class="flex justify-center w-full pb-16 animate-appear animate-delay-[4s]">
+      <div class="flex justify-center w-full pb-16 animate-appear animate-delay-[3s]">
         <a href="#about-me">
           <Button class="flex items-center gap-2"><span>About Me</span> <ADown /></Button>
         </a>
