@@ -15,7 +15,7 @@
       ></SearchDialog>
       <div class="flex gap-4 items-center justify-start w-full">
         <Button @click="isLoadVisible = true">Load</Button>
-        <Button @click="isDrawerVisible = !isDrawerVisible">OpenState</Button>
+        <Button @click="isDrawerVisible = !isDrawerVisible">Plugins</Button>
         <Button @click="isColorRulesVisible = true">Color Rules</Button>
         <Button @click="isSearchEditorVisible = true">Searches</Button>
         <Button @click="isCodeEditorVisible = true">Code Editor</Button>
