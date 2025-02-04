@@ -5,7 +5,7 @@
     @drag.stop.prevent.capture
     @dragover.stop.prevent.capture=""
   >
-    <div class="flex flex-col items-start gap-2 flex-1 overflow-hidden h-full">
+    <div class="flex flex-col items-start gap-1 flex-1 overflow-hidden h-full">
       <LoadMenu @load="onFileLoad" v-model:visible="isLoadVisible"></LoadMenu>
       <ColorRulesDialog v-model:visible="isColorRulesVisible"></ColorRulesDialog>
       <CodeEditor v-model:visible="isCodeEditorVisible"></CodeEditor>
@@ -42,6 +42,10 @@
         :selectedLogs="selectedLogs"
         :search="searchRegex"
       ></LogWindow>
+      <div
+        class="h-1 bg-prime-400 transition-all rounded-md"
+        :style="{ width: progress * 100 + '%' }"
+      ></div>
       <div class="w-full flex gap-2 flex-wrap items-center">
         <InputText
           class="rounded-md grow min-w-[500px] bg-red-400"
@@ -108,13 +112,12 @@
 
 <script lang="ts" setup>
 import { computed, reactive, ref, shallowRef, watch } from 'vue';
-import { useVirtualList } from '@vueuse/core';
 import { LogsDatabase } from './LogsDatabase';
 import LogTimeline from './LogTimeline.vue';
 import InputText from 'primevue/inputtext';
 import DatePicker from 'primevue/datepicker';
 import Button from 'primevue/button';
-import { observableToRef, useUTCAdjustedDate } from '@gdx/utils';
+import { observableToRef, useComputedGenerator, useUTCAdjustedDate } from '@gdx/utils';
 import LoadMenu from './LoadMenu.vue';
 import ToggleSwitch from 'primevue/toggleswitch';
 import { LogEssentials } from './LogTypes';
@@ -137,8 +140,8 @@ const showHistogram = ref(true);
 const showLocalTime = ref(true);
 const timeOnly = ref(true);
 
-const filteredLogsRef = shallowRef<InstanceType<typeof LogWindow>>();
 const timeFilteredLogsRef = shallowRef<InstanceType<typeof LogWindow>>();
+const filteredLogsRef = shallowRef<InstanceType<typeof LogWindow>>();
 
 const hightLightedLog = ref<LogEssentials | null>(null);
 
@@ -173,8 +176,9 @@ const timeFilteredLogs = computed(() => {
   });
 });
 
-const filteredLogs = computed(() => {
+const { comp: filteredLogs, progress } = useComputedGenerator(function* () {
   if (showOnlySelected.value) {
+    yield 1;
     return [...selectedLogs.values()]
       .sort((a, b) => {
         return a - b;
@@ -183,11 +187,27 @@ const filteredLogs = computed(() => {
         return rawLogs.value[index];
       });
   }
+  if (!searchRegex.value) {
+    yield 1;
+    return timeFilteredLogs.value;
+  }
+  const filtered: LogEssentials[] = [];
   const rgx = new RegExp(searchRegex.value, 'i');
-  return timeFilteredLogs.value.filter((log) => {
-    return log.original.match(rgx);
-  });
-});
+
+  const length = timeFilteredLogs.value.length;
+  const logsArr = timeFilteredLogs.value;
+  for (let i = 0; i < length; i++) {
+    const log = logsArr[i];
+    if (log.original.match(rgx)) {
+      filtered.push(log);
+    }
+    if (i % 30_000 === 0) {
+      yield i / length;
+    }
+  }
+  yield 1;
+  return filtered;
+}, []);
 
 function onLogDblClick(log: LogEssentials) {
   const index = timeFilteredLogs.value.findIndex((l) => l.index === log.index);

@@ -301,3 +301,41 @@ export function observableToRef<T>(
   onUnmounted(() => sub.unsubscribe());
   return thing;
 }
+
+export function useComputedGenerator<T>(
+  genFn: () => Generator<number, T>,
+  initial: T
+): { comp: Ref<T>; progress: Ref<number> } {
+  const currentValue = shallowRef<T>(initial) as Ref<T>;
+  const progress = ref(0);
+  watchEffect(async (clear) => {
+    const gen = genFn();
+    clear(() => {
+      gen.return(initial);
+    });
+
+    try {
+      while (true) {
+        const { value, done } = gen.next();
+        if (done) {
+          if (value != null) {
+            currentValue.value = value;
+          }
+          break;
+        } else {
+          progress.value = value;
+        }
+        await raf();
+      }
+    } catch (e) {
+      console.log("Cancelled");
+    }
+  });
+  return { progress, comp: currentValue };
+}
+
+function raf() {
+  return new Promise<number>((resolve) => {
+    requestAnimationFrame(resolve);
+  });
+}
