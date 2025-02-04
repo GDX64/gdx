@@ -334,6 +334,30 @@ export function useComputedGenerator<T>(
   return { progress, comp: currentValue };
 }
 
+export function useComputedGeneratorState<T>(
+  genFn: () => Generator<T>,
+  initial: T
+): Ref<T> {
+  const currentValue = shallowRef<T>(initial) as Ref<T>;
+  watchEffect(async (clear) => {
+    const gen = genFn();
+    clear(() => {
+      gen.return(initial);
+    });
+
+    while (true) {
+      const { value, done } = gen.next();
+      if (done) {
+        break;
+      } else {
+        currentValue.value = value;
+      }
+      await raf();
+    }
+  });
+  return currentValue;
+}
+
 function raf() {
   return new Promise<number>((resolve) => {
     requestAnimationFrame(resolve);

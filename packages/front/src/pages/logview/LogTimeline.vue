@@ -10,7 +10,7 @@
 
 <script lang="ts" setup>
 import { computed, onUnmounted, ref, watchEffect } from 'vue';
-import { LinScale, useCanvasDPI, Vec2 } from '@gdx/utils';
+import { LinScale, useCanvasDPI, useComputedGeneratorState, Vec2 } from '@gdx/utils';
 import { primeColors } from '../../design/design';
 
 const props = defineProps<{
@@ -35,9 +35,14 @@ const formatTime = new Intl.DateTimeFormat('en-US', {
   timeZone: 'UTC',
 });
 
-const bins = computed(() => calcbins());
-
 const { canvas, size } = useCanvasDPI();
+
+const bins = useComputedGeneratorState(calcbins, {
+  arrbins: [],
+  binWidth: 0,
+  max: 0,
+});
+
 window.addEventListener('pointerup', onPointerUp);
 onUnmounted(() => {
   window.removeEventListener('pointerup', onPointerUp);
@@ -150,24 +155,28 @@ function dateScale() {
   );
 }
 
-function calcbins() {
+function* calcbins() {
   const binWidth = 10;
   const bins = Math.ceil(size.width / binWidth);
 
   const arrbins = new Array(bins).fill(0);
   const scale = dateScale();
   let max = 0;
+  let index = 0;
   for (const date of props.dates) {
+    index += 1;
     const x = scale.scale(date.date.getTime());
     const bin = Math.floor(x / binWidth);
     arrbins[bin]++;
     max = Math.max(max, arrbins[bin]);
+    if (index % 50_000 === 0) {
+      yield {
+        arrbins,
+        binWidth,
+        max,
+      };
+    }
   }
-  return {
-    arrbins,
-    binWidth,
-    max,
-  };
 }
 
 watchEffect(() => {
