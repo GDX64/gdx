@@ -1,9 +1,10 @@
 import Dexie, { liveQuery, Observable } from 'dexie';
 
-type LogFile = {
+export type LogFile = {
   name: string;
   content: string;
   id?: number;
+  lastOpen: Date;
 };
 
 export type ColorRule = {
@@ -31,12 +32,16 @@ export class LogsDatabase extends Dexie {
 
   constructor() {
     super('LogsDatabase');
-    this.version(3).stores({
-      logs: '++id, &name',
-      colorRules: '&name',
-      plugins: '&name',
-      searches: '&name',
-    });
+    this.version(4)
+      .stores({
+        logs: '++id, &name, lastOpen',
+        colorRules: '&name',
+        plugins: '&name',
+        searches: '&name',
+      })
+      .upgrade(async () => {
+        await this.logs.clear();
+      });
     this.colorRules = this.table('colorRules');
     this.logs = this.table('logs');
     this.plugins = this.table('plugins');
@@ -58,7 +63,7 @@ export class LogsDatabase extends Dexie {
     if (existing) {
       return this.logs.update(existing.id!, { content });
     }
-    return this.logs.put({ name, content });
+    return this.logs.put({ name, content, lastOpen: new Date() });
   }
 
   savePlugin(plugin: PluginStored): Promise<number> {
@@ -82,7 +87,7 @@ export class LogsDatabase extends Dexie {
   }
 
   lastFile(): Promise<LogFile | undefined> {
-    return this.logs.orderBy(':id').last();
+    return this.logs.orderBy('lastOpen').last();
   }
 
   loadColorRules(): Promise<ColorRule[]> {
@@ -123,7 +128,11 @@ export class LogsDatabase extends Dexie {
   }
 
   saveLogFile(name: string, content: string): Promise<number> {
-    return this.logs.put({ name, content });
+    return this.logs.put({ name, content, lastOpen: new Date() });
+  }
+
+  updateFileLastOpen(name: string): Promise<number> {
+    return this.logs.where('name').equals(name).modify({ lastOpen: new Date() });
   }
 
   deleteFile(name: string): Promise<number> {

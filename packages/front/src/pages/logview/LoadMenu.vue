@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts" setup>
-import { LogsDatabase } from './LogsDatabase';
+import { LogFile, LogsDatabase } from './LogsDatabase';
 import FileUpload, { FileUploadSelectEvent } from 'primevue/fileupload';
 import { observableToRef } from '@gdx/utils';
 import Dialog from 'primevue/dialog';
@@ -40,7 +40,7 @@ type Option = {
 };
 
 const emit = defineEmits({
-  load: (file: string) => true,
+  load: (file: LogFile) => true,
 });
 
 const visible = defineModel('visible', { default: false });
@@ -59,9 +59,10 @@ const options = computed(() =>
 
 async function loadSelected() {
   if (!selectedFile.value) return;
-  const fileContent = await db.loadLogFile(selectedFile.value);
-  if (!fileContent?.content) return;
-  emit('load', fileContent.content);
+  const file = await db.loadLogFile(selectedFile.value);
+  if (!file?.content) return;
+  emit('load', file);
+  db.updateFileLastOpen(file.name);
   visible.value = false;
 }
 

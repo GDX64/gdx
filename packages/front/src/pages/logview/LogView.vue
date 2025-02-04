@@ -40,12 +40,10 @@
         :logs="timeFilteredLogs"
         :showLocalTime="showLocalTime"
         :selectedLogs="selectedLogs"
+        :hightLightedLog="hightLightedLog ?? undefined"
         :search="searchRegex"
+        @on-line-dbl-click="onLogDblClick"
       ></LogWindow>
-      <div
-        class="h-1 bg-prime-400 transition-all rounded-md"
-        :style="{ width: progress * 100 + '%' }"
-      ></div>
       <div class="w-full flex gap-2 flex-wrap items-center">
         <InputText
           class="rounded-md grow min-w-[500px] bg-red-400"
@@ -80,11 +78,14 @@
         </div>
       </div>
       <LogWindow
+        class="transition-opacity"
+        :class="progress < 1 ? 'opacity-75' : ''"
         ref="filteredLogsRef"
         @on-line-dbl-click="onLogDblClick"
         :logs="filteredLogs"
         :selected-logs="selectedLogs"
         :show-local-time="showLocalTime"
+        :hightLightedLog="hightLightedLog ?? undefined"
         :time-only="timeOnly"
         :search="searchRegex"
         :resize="true"
@@ -112,7 +113,7 @@
 
 <script lang="ts" setup>
 import { computed, reactive, ref, shallowRef, watch } from 'vue';
-import { LogsDatabase } from './LogsDatabase';
+import { LogFile, LogsDatabase } from './LogsDatabase';
 import LogTimeline from './LogTimeline.vue';
 import InputText from 'primevue/inputtext';
 import DatePicker from 'primevue/datepicker';
@@ -201,7 +202,7 @@ const { comp: filteredLogs, progress } = useComputedGenerator(function* () {
     if (log.original.match(rgx)) {
       filtered.push(log);
     }
-    if (i % 30_000 === 0) {
+    if (i % 100_000 === 0) {
       yield i / length;
     }
   }
@@ -248,8 +249,8 @@ function neloParser(file: string): LogEssentials[] {
   return logs;
 }
 
-function onFileLoad(file: string) {
-  baseFile.value = file;
+function onFileLoad(file: LogFile) {
+  baseFile.value = file.content;
   restartDateSelection();
 }
 

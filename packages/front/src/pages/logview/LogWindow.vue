@@ -15,11 +15,12 @@
         @dblclick="emit('onLineDblClick', log.data)"
         v-for="log of filterList"
         :style="{ color: log.data.color ?? 'unset' }"
+        :class="hightLightedLog?.index === log.index ? 'bg-prime-100' : ''"
       >
         <div
           @click="onLogSelect(log.data, $event)"
           class="min-w-4 h-4 border border-prime-500 rounded-full cursor-pointer"
-          :class="isLogSelected(log.data) ? 'bg-prime-500' : ''"
+          :class="isLogSelected(log.data) ? 'bg-prime-300' : ''"
         ></div>
         <div>{{ formatDate(log.data.date) }}</div>
         <HighlitableText
@@ -47,6 +48,7 @@ const props = defineProps<{
   selectedLogs: Set<number>;
   resize?: boolean;
   search?: string;
+  hightLightedLog?: LogEssentials;
 }>();
 
 const emit = defineEmits({
