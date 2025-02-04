@@ -179,18 +179,20 @@ const timeFilteredLogs = computed(() => {
 
 const { comp: filteredLogs, progress } = useComputedGenerator(function* () {
   if (showOnlySelected.value) {
-    yield 1;
-    return [...selectedLogs.values()]
+    const trackedValue = [...selectedLogs.values()]
       .sort((a, b) => {
         return a - b;
       })
       .map((index) => {
         return rawLogs.value[index];
       });
+    yield 1;
+    return trackedValue;
   }
   if (!searchRegex.value) {
+    const trackedValue = timeFilteredLogs.value;
     yield 1;
-    return timeFilteredLogs.value;
+    return trackedValue;
   }
   const filtered: LogEssentials[] = [];
   const rgx = new RegExp(searchRegex.value, 'i');
@@ -225,7 +227,6 @@ watch(filteredLogs, () => {
 loadLogs();
 
 function onLoadSeach(regex: string) {
-  console.log('loading', regex);
   searchRegex.value = regex;
 }
 
