@@ -1,5 +1,7 @@
 <template>
   <canvas
+    class="transition-all"
+    :class="bins.loading ? 'opacity-50 ' : ''"
     ref="canvas"
     @pointermove="onPointerMove"
     @pointerdown="onPointerDown"
@@ -9,7 +11,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onUnmounted, ref, watchEffect } from 'vue';
+import { onUnmounted, ref, watchEffect } from 'vue';
 import { LinScale, useCanvasDPI, useComputedGeneratorState, Vec2 } from '@gdx/utils';
 import { primeColors } from '../../design/design';
 
@@ -41,11 +43,16 @@ const bins = useComputedGeneratorState(calcbins, {
   arrbins: [],
   binWidth: 0,
   max: 0,
+  loading: true,
 });
 
 window.addEventListener('pointerup', onPointerUp);
 onUnmounted(() => {
   window.removeEventListener('pointerup', onPointerUp);
+});
+
+watchEffect(() => {
+  drawHistogram();
 });
 
 function onPointerLeave() {
@@ -169,17 +176,20 @@ function* calcbins() {
     const bin = Math.floor(x / binWidth);
     arrbins[bin]++;
     max = Math.max(max, arrbins[bin]);
-    if (index % 50_000 === 0) {
+    if (index % 10_000 === 0) {
       yield {
         arrbins,
         binWidth,
         max,
+        loading: true,
       };
     }
   }
+  yield {
+    arrbins,
+    binWidth,
+    max,
+    loading: false,
+  };
 }
-
-watchEffect(() => {
-  drawHistogram();
-});
 </script>

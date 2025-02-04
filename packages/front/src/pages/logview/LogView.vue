@@ -92,12 +92,12 @@
       ></LogWindow>
       <div class="w-full h-32 relative" v-if="showHistogram">
         <LogTimeline
+          v-if="filteredLogs.length && timeFilteredLogs.length"
           class="w-full h-full absolute top-0 left-0"
           :dates="filteredLogs"
           :startDate="timeFilteredLogs[0].date"
           :endDate="timeFilteredLogs[timeFilteredLogs.length - 1].date"
           :selectedLog="hightLightedLog?.date"
-          v-if="filteredLogs.length"
           @select="onSelect"
         />
       </div>
