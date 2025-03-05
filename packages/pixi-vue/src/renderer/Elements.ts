@@ -1,5 +1,12 @@
 import * as PIXI from "pixi.js";
-import Yoga, { Node, FlexDirection, Gutter, Justify, Align } from "yoga-layout";
+import Yoga, {
+  Node,
+  FlexDirection,
+  Gutter,
+  Justify,
+  Align,
+  Wrap,
+} from "yoga-layout";
 
 export enum ElTags {
   TEXT = "g-text",
@@ -23,7 +30,9 @@ type Percent = `${number}%`;
 export type BasicAttrs = {
   fill?: number | string;
   width?: number | "auto" | Percent;
+  maxWidth?: number | "auto" | Percent;
   height?: number | "auto" | Percent;
+  maxHeight?: number | "auto" | Percent;
   display?: "flex" | "none";
   flexDirection?: FlexDirection;
   justify?: Justify;
@@ -32,6 +41,7 @@ export type BasicAttrs = {
   padding?: number | Percent;
   margin?: number | Percent;
   grow?: number;
+  wrap?: Wrap;
 };
 
 export type ELKey = string | number | null;
@@ -105,6 +115,22 @@ export class GElement {
       case "grow": {
         this.attrs.grow = next;
         this.yogaNode.setFlexGrow(next);
+        break;
+      }
+      case "wrap": {
+        this.attrs.wrap = next;
+        this.yogaNode.setFlexWrap(next);
+        break;
+      }
+      case "maxWidth": {
+        this.attrs.maxWidth = next;
+        this.yogaNode.setMaxWidth(next);
+        break;
+      }
+      case "maxHeight": {
+        this.attrs.maxHeight = next;
+        this.yogaNode.setMaxHeight(next);
+        break;
       }
       default:
     }

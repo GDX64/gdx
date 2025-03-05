@@ -36,7 +36,9 @@ function appRenderer() {
     },
     createText(text) {
       console.log("createText", text);
-      return new GElement();
+      const el = new GElement();
+      el.hide();
+      return el;
     },
     insert(el, parent, anchor) {
       const index = parent.children.findIndex((item) => item === anchor);
