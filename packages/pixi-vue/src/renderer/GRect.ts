@@ -21,13 +21,6 @@ export class GRect extends GElement {
 
   private updateDraw() {
     this.pixiRef.clear();
-    const currentheight = this.yogaNode.getComputedHeight();
-    const currentY = this.yogaNode.getComputedTop();
-    console.log("updateDraw", {
-      fill: this.attrs?.fill,
-      currentY,
-      currentheight,
-    });
     this.pixiRef
       .rect(
         0,

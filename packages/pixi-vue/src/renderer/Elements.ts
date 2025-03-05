@@ -31,6 +31,7 @@ export type BasicAttrs = {
   gap?: number | Percent;
   padding?: number | Percent;
   margin?: number | Percent;
+  grow?: number;
 };
 
 export type ELKey = string | number | null;
@@ -101,6 +102,10 @@ export class GElement {
         this.yogaNode.setAlignItems(next);
         break;
       }
+      case "grow": {
+        this.attrs.grow = next;
+        this.yogaNode.setFlexGrow(next);
+      }
       default:
     }
   }
@@ -127,8 +132,6 @@ export class GElement {
     if (this.yogaNode.hasNewLayout() || true) {
       this.pixiRef.x = this.yogaNode.getComputedLeft();
       this.pixiRef.y = this.yogaNode.getComputedTop();
-      this.pixiRef.width = this.yogaNode.getComputedWidth();
-      this.pixiRef.height = this.yogaNode.getComputedHeight();
       this.children.forEach((child) => child.updateLayout());
       this.yogaNode.markLayoutSeen();
     }

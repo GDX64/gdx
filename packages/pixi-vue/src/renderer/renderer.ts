@@ -119,11 +119,10 @@ export async function createRoot(
   pApp.ticker.add(
     () => {
       const hasChanged = checkUpdateDims();
-      if (nodeRoot.yogaNode.isDirty()) {
+      if (nodeRoot.yogaNode.isDirty() || hasChanged) {
         nodeRoot.yogaNode.calculateLayout(lastWidth, lastHeight);
-        // nodeRoot.updateLayout();
+        nodeRoot.updateLayout();
       }
-      nodeRoot.updateLayout();
     },
     null,
     PIXI.UPDATE_PRIORITY.INTERACTION
