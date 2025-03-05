@@ -1,12 +1,6 @@
+import { BasicAttrs } from "#els/renderTypes.ts";
 import * as PIXI from "pixi.js";
-import Yoga, {
-  Node,
-  FlexDirection,
-  Gutter,
-  Justify,
-  Align,
-  Wrap,
-} from "yoga-layout";
+import Yoga, { Node, Gutter } from "yoga-layout";
 
 export enum ElTags {
   TEXT = "g-text",
@@ -23,25 +17,6 @@ export type LayoutBox = {
   height: number;
   x: number;
   y: number;
-};
-
-type Percent = `${number}%`;
-
-export type BasicAttrs = {
-  fill?: number | string;
-  width?: number | "auto" | Percent;
-  maxWidth?: number | "auto" | Percent;
-  height?: number | "auto" | Percent;
-  maxHeight?: number | "auto" | Percent;
-  display?: "flex" | "none";
-  flexDirection?: FlexDirection;
-  justify?: Justify;
-  align?: Align;
-  gap?: number | Percent;
-  padding?: number | Percent;
-  margin?: number | Percent;
-  grow?: number;
-  wrap?: Wrap;
 };
 
 export type ELKey = string | number | null;

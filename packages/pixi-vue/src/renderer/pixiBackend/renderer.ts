@@ -7,16 +7,8 @@ import {
   h,
 } from "vue";
 import * as PIXI from "pixi.js";
-import { BasicAttrs, GElement } from "./Elements";
-import Yoga, { Direction } from "yoga-layout";
+import { GElement } from "./Elements";
 import { GRect } from "./GRect";
-
-declare module "vue" {
-  export interface GlobalComponents {
-    GRect: Component<BasicAttrs>;
-    GContainer: Component<BasicAttrs>;
-  }
-}
 
 function appRenderer() {
   const { createApp } = createRenderer<GElement, GElement>({
@@ -80,7 +72,7 @@ export type CreateRootResult = {
   pApp: PIXI.Application;
 };
 
-export async function createRoot(
+export async function createPixiRoot(
   canvas: HTMLCanvasElement,
   comp: Component
 ): Promise<CreateRootResult> {

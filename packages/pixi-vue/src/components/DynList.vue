@@ -70,7 +70,10 @@
 
 <script setup lang="ts">
 import { shallowRef } from "vue";
-import { usePixiAnimation, usePixiAppData } from "../renderer/renderer";
+import {
+  usePixiAnimation,
+  usePixiAppData,
+} from "../renderer/pixiBackend/renderer";
 import { Assets, Point, Texture } from "pixi.js";
 import baseSpritePath from "../assets/neon.png";
 import { reactive } from "vue";
