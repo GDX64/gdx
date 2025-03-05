@@ -29,4 +29,12 @@ export default defineConfig({
       external: ["vue", "pixi.js"],
     },
   },
+  esbuild: {
+    target: "es2022",
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      target: "es2022",
+    },
+  },
 });

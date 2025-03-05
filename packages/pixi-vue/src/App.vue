@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from "vue";
 import { createRoot } from "./renderer/renderer";
-import Game from "./components/Game.vue";
+import Game from "./components/LayoutTest.vue";
 
 const canvas = ref<HTMLCanvasElement>();
 

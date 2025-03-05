@@ -7,62 +7,32 @@ import {
   h,
 } from "vue";
 import * as PIXI from "pixi.js";
-import { ElTags, GElement, GGraphics, GText } from "./Elements";
-import RawContainer from "./RawContainer";
-import GSprite, { GAnimatedSprite } from "./GSprite";
+import { BasicAttrs, GElement } from "./Elements";
+import Yoga, { Direction } from "yoga-layout";
+import { GRect } from "./GRect";
 
 declare module "vue" {
-  type BasicArgs = {
-    fill?: number | string;
-    x?: number;
-    y?: number;
-    width?: number;
-    height?: number;
-    alpha?: number;
-    blendMode?: PIXI.BLEND_MODES;
-    scale?: number;
-  };
   export interface GlobalComponents {
-    GText: Component<BasicArgs & { text?: string }>;
-    GRect: Component<BasicArgs & {}>;
-    GContainer: Component<BasicArgs & {}>;
-    GRaw: Component<BasicArgs & { pixiEl?: PIXI.Container }>;
-    GSprite: Component<BasicArgs & { url?: string; texture?: PIXI.Texture }>;
-    GAnimatedSprite: Component<
-      BasicArgs & { url?: string; textures?: PIXI.Texture[] }
-    >;
-    GGraphics: Component<
-      BasicArgs & { drawfn?: (ctx: PIXI.GraphicsContext) => void }
-    >;
+    GRect: Component<BasicAttrs>;
+    GContainer: Component<BasicAttrs>;
   }
 }
 
 function appRenderer() {
   const { createApp } = createRenderer<GElement, GElement>({
     createComment(text) {
-      return GElement.text("");
+      return new GElement();
     },
-    createElement(type, isSVG, isCustomizedBuiltIn, vnodeProps) {
+    createElement(type, namespace, isCustomizedBuiltIn, vnodeProps) {
       switch (type) {
-        case ElTags.RECT:
-          return new GGraphics();
-        case ElTags.GRAPHICS:
-          return new GGraphics();
-        case ElTags.TEXT:
-          return new GText("");
-        case ElTags.RAW:
-          return new RawContainer();
-        case ElTags.SPRITE:
-          return new GSprite();
-        case ElTags.ANIMATED_SPRITE:
-          return new GAnimatedSprite();
-        case ElTags.CONTAINER:
+        case "g-rect":
+          return new GRect();
         default:
           return new GElement();
       }
     },
     createText(text) {
-      return GElement.text(text);
+      return new GElement();
     },
     insert(el, parent, anchor) {
       const index = parent.children.findIndex((item) => item === anchor);
@@ -73,20 +43,20 @@ function appRenderer() {
       }
     },
     nextSibling(node) {
-      const index = node.parent
-        ?.deref()
-        ?.children.findIndex((item: any) => item === node);
+      const index = node.parent?.parent?.children.findIndex(
+        (item) => item === node
+      );
       if (index === -1 || index == null) return null;
-      return node.parent?.deref()?.children[index + 1] ?? null;
+      return node.parent?.children[index + 1] ?? null;
     },
     parentNode(node) {
-      return node.parent?.deref() ?? null;
+      return node.parent ?? null;
     },
     patchProp(el, key, prevValue, nextValue) {
       el.patch(key, prevValue, nextValue);
     },
     remove(el) {
-      el.parent?.deref()?.removeChild(el);
+      el.parent?.removeChild(el);
       el.destroy();
     },
     setElementText(node, text) {
@@ -141,8 +111,9 @@ export async function createRoot(
   pApp.ticker.add(
     () => {
       checkUpdateDims();
-      if (nodeRoot.isDirty) {
-        nodeRoot.redraw();
+      if (nodeRoot.yogaNode.isDirty()) {
+        nodeRoot.yogaNode.calculateLayout("auto", "auto");
+        nodeRoot.updateLayout();
       }
     },
     null,
