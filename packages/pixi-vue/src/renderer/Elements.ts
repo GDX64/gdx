@@ -1,5 +1,5 @@
 import * as PIXI from "pixi.js";
-import Yoga, { Node } from "yoga-layout";
+import Yoga, { Node, FlexDirection, Gutter, Justify, Align } from "yoga-layout";
 
 export enum ElTags {
   TEXT = "g-text",
@@ -18,15 +18,19 @@ export type LayoutBox = {
   y: number;
 };
 
+type Percent = `${number}%`;
+
 export type BasicAttrs = {
   fill?: number | string;
-  x?: number;
-  y?: number;
-  width?: number;
-  height?: number;
-  alpha?: number;
-  blendMode?: PIXI.BLEND_MODES;
-  scale?: number;
+  width?: number | "auto" | Percent;
+  height?: number | "auto" | Percent;
+  display?: "flex" | "none";
+  flexDirection?: FlexDirection;
+  justify?: Justify;
+  align?: Align;
+  gap?: number | Percent;
+  padding?: number | Percent;
+  margin?: number | Percent;
 };
 
 export type ELKey = string | number | null;
@@ -39,6 +43,18 @@ export class GElement {
   attrs: BasicAttrs = {};
   elKey = null as ELKey;
 
+  static root() {
+    const nodeRoot = new GElement();
+    nodeRoot.yogaNode.free();
+    const yogaConfig = Yoga.Config.create();
+    yogaConfig.setUseWebDefaults(true);
+    const yogaRoot = Yoga.Node.createWithConfig(yogaConfig);
+    nodeRoot.yogaNode = yogaRoot;
+    nodeRoot.yogaNode.setHeight("100%");
+    nodeRoot.yogaNode.setWidth("100%");
+    return nodeRoot;
+  }
+
   patch(prop: string, prev: any, next: any): void {
     switch (prop) {
       case "width": {
@@ -49,6 +65,40 @@ export class GElement {
       case "height": {
         this.attrs.height = next;
         this.yogaNode.setHeight(next);
+        break;
+      }
+      case "flexDirection": {
+        this.attrs.flexDirection = next;
+        this.yogaNode.setFlexDirection(next);
+        break;
+      }
+      case "gap": {
+        this.attrs.gap = next;
+        this.yogaNode.setGap(Gutter.All, next);
+      }
+      case "padding": {
+        this.yogaNode.setPadding(Yoga.EDGE_ALL, next);
+        break;
+      }
+      case "margin": {
+        this.yogaNode.setMargin(Yoga.EDGE_ALL, next);
+        break;
+      }
+      case "display": {
+        this.attrs.display = next;
+        this.yogaNode.setDisplay(
+          next === "flex" ? Yoga.DISPLAY_FLEX : Yoga.DISPLAY_NONE
+        );
+        break;
+      }
+      case "justify": {
+        this.attrs.justify = next;
+        this.yogaNode.setJustifyContent(next);
+        break;
+      }
+      case "align": {
+        this.attrs.align = next;
+        this.yogaNode.setAlignItems(next);
         break;
       }
       default:
@@ -74,11 +124,14 @@ export class GElement {
   }
 
   updateLayout() {
-    this.pixiRef.x = this.yogaNode.getComputedLeft();
-    this.pixiRef.y = this.yogaNode.getComputedTop();
-    this.pixiRef.width = this.yogaNode.getComputedWidth();
-    this.pixiRef.height = this.yogaNode.getComputedHeight();
-    this.children.forEach((child) => child.updateLayout());
+    if (this.yogaNode.hasNewLayout() || true) {
+      this.pixiRef.x = this.yogaNode.getComputedLeft();
+      this.pixiRef.y = this.yogaNode.getComputedTop();
+      this.pixiRef.width = this.yogaNode.getComputedWidth();
+      this.pixiRef.height = this.yogaNode.getComputedHeight();
+      this.children.forEach((child) => child.updateLayout());
+      this.yogaNode.markLayoutSeen();
+    }
   }
 
   removeChild(child: GElement): void {
@@ -96,5 +149,11 @@ export class GElement {
   destroy(): void {
     this.pixiRef.destroy({ children: true });
     this.yogaNode.freeRecursive();
+  }
+
+  hide() {
+    this.attrs.display = "none";
+    this.pixiRef.visible = false;
+    this.yogaNode.setDisplay(Yoga.DISPLAY_NONE);
   }
 }

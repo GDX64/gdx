@@ -21,7 +21,10 @@ declare module "vue" {
 function appRenderer() {
   const { createApp } = createRenderer<GElement, GElement>({
     createComment(text) {
-      return new GElement();
+      console.log("createcomment", text);
+      const el = new GElement();
+      el.hide();
+      return el;
     },
     createElement(type, namespace, isCustomizedBuiltIn, vnodeProps) {
       switch (type) {
@@ -32,6 +35,7 @@ function appRenderer() {
       }
     },
     createText(text) {
+      console.log("createText", text);
       return new GElement();
     },
     insert(el, parent, anchor) {
@@ -82,7 +86,7 @@ export async function createRoot(
   await pApp.init({
     canvas: canvas,
     resolution: devicePixelRatio,
-    resizeTo: canvas,
+    resizeTo: canvas.parentElement!,
     antialias: true,
     // backgroundAlpha: 0,
     background: "#00000000",
@@ -94,7 +98,8 @@ export async function createRoot(
   const appData = reactive({ width: 0, height: 0 });
   const app = appRenderer().createApp(() => h(comp));
   app.provide("pixiApp", pApp).provide("pixiAppData", appData);
-  const nodeRoot = new GElement();
+  const nodeRoot = GElement.root();
+  console.log(nodeRoot);
 
   let lastWidth = 0;
   let lastHeight = 0;
@@ -105,16 +110,20 @@ export async function createRoot(
       lastHeight = height;
       appData.width = width;
       appData.height = height;
+      pApp.queueResize();
+      return true;
     }
+    return false;
   }
   checkUpdateDims();
   pApp.ticker.add(
     () => {
-      checkUpdateDims();
+      const hasChanged = checkUpdateDims();
       if (nodeRoot.yogaNode.isDirty()) {
-        nodeRoot.yogaNode.calculateLayout("auto", "auto");
-        nodeRoot.updateLayout();
+        nodeRoot.yogaNode.calculateLayout(lastWidth, lastHeight);
+        // nodeRoot.updateLayout();
       }
+      nodeRoot.updateLayout();
     },
     null,
     PIXI.UPDATE_PRIORITY.INTERACTION
