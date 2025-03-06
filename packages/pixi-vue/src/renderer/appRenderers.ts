@@ -1,6 +1,7 @@
 import { Component } from "vue";
 import { BasicAttrs } from "./renderTypes";
-export { createPixiRoot } from "./pixiBackend/renderer";
+export { createPixiRoot } from "./pixiBackend/pixirRenderer";
+export { createCanvasRoot } from "./canvasBackend/canvasRenderer";
 
 declare module "vue" {
   export interface GlobalComponents {

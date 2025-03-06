@@ -73,7 +73,7 @@ import { shallowRef } from "vue";
 import {
   usePixiAnimation,
   usePixiAppData,
-} from "../renderer/pixiBackend/renderer";
+} from "../renderer/pixiBackend/pixirRenderer";
 import { Assets, Point, Texture } from "pixi.js";
 import baseSpritePath from "../assets/neon.png";
 import { reactive } from "vue";

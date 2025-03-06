@@ -46,7 +46,7 @@ import {
   usePixiAnimation,
   usePixiAppData,
   usePixiApp,
-} from "../renderer/pixiBackend/renderer";
+} from "../renderer/pixiBackend/pixirRenderer";
 import { Assets, Texture } from "pixi.js";
 import birdsPng from "../assets/birds.png";
 import skyPng from "../assets/sky.png";

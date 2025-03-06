@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from "vue";
 import Game from "./components/LayoutTest.vue";
-import { createPixiRoot } from "#els/appRenderers.ts";
+import { createPixiRoot, createCanvasRoot } from "#els/appRenderers.ts";
 
 const canvas = ref<HTMLCanvasElement>();
 
 let destroy = () => {};
 onMounted(async () => {
-  const app = await createPixiRoot(canvas.value!, Game);
+  const app = await createCanvasRoot(canvas.value!, Game);
   destroy = app.destroy;
 });
 
