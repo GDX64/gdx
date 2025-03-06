@@ -35,10 +35,9 @@
       <g-rect
         :width="200"
         :height="200"
-        :fill="color"
+        :fill="0xffffff"
         :gap="10"
         :justify="Justify.SpaceBetween"
-        @click="changeColor"
       >
         <g-rect :width="50" :height="30" :fill="0xff0000"></g-rect>
         <g-rect :width="50" :height="30" :fill="0xff0000"></g-rect>
@@ -47,15 +46,20 @@
     </g-container>
     <g-rect
       :height="100"
-      :fill="0xffffff"
+      :fill="color"
       :grow="1"
       :justify="Justify.Center"
       :padding="10"
+      :gap="5"
+      @click="changeColor"
     >
       <g-text
         :text="`this is a growable rect, and its size is dictade by the text (sort of)`"
       ></g-text>
-      <text-comp text="this is another line"></text-comp>
+      <g-container :flexDirection="FlexDirection.Row" :gap="5" :padding="0">
+        <g-text text="this is another line" fill="red"></g-text>
+        <g-text text="with different text colors" fill="green"></g-text>
+      </g-container>
     </g-rect>
   </g-container>
 </template>
@@ -68,10 +72,8 @@ import { GContainer, GRect, GText } from "#els/appRenderers.ts";
 
 const height = ref(0);
 useAnimationFrames(({ elapsed }) => {
-  height.value = Math.sin(elapsed / 1000) * 200 + 200;
+  height.value = Math.sin(elapsed / 1000) * 50 + 200;
 });
-
-const textComp = "g-text";
 
 const color = ref(0xffffff);
 function changeColor() {

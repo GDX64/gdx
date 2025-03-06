@@ -2,6 +2,7 @@ import { createRenderer, Component, inject, onUnmounted, reactive } from "vue";
 import * as PIXI from "pixi.js";
 import { GElement } from "./Elements";
 import { GRect } from "./GRect";
+import { PixiTextElement } from "./PixiTextElement";
 
 function appRenderer() {
   const { createApp } = createRenderer<GElement, GElement>({
@@ -13,6 +14,8 @@ function appRenderer() {
     },
     createElement(type, namespace, isCustomizedBuiltIn, vnodeProps) {
       switch (type) {
+        case "g-text":
+          return new PixiTextElement();
         case "g-rect":
           return new GRect();
         default:

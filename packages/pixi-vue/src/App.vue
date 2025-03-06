@@ -5,9 +5,16 @@ import { createPixiRoot, createCanvasRoot } from "#els/appRenderers.ts";
 
 const canvas = ref<HTMLCanvasElement>();
 
+const urlQuery = new URLSearchParams(window.location.search);
+
 let destroy = () => {};
 onMounted(async () => {
-  const app = await createCanvasRoot(canvas.value!, Game);
+  let app;
+  if (urlQuery.get("renderer") === "pixi") {
+    app = await createPixiRoot(canvas.value!, Game);
+  } else {
+    app = await createCanvasRoot(canvas.value!, Game);
+  }
   destroy = app.destroy;
 });
 

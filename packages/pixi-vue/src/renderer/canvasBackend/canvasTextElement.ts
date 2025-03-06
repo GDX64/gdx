@@ -41,12 +41,6 @@ export class CanvasTextElement extends CanvasElement {
     const fill = this.getFill();
     if (fill) {
       ctx.fillStyle = fill;
-      ctx.fillRect(
-        0,
-        0,
-        this.yogaNode.getComputedWidth(),
-        this.yogaNode.getComputedHeight()
-      );
     }
     ctx.font = this.getFont();
     ctx.textBaseline = "top";
