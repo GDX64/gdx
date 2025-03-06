@@ -1,6 +1,6 @@
-import { BasicAttrs } from "#els/renderTypes.ts";
+import { YogaAndAttrs } from "#els/yogaAndAttrs.ts";
 import * as PIXI from "pixi.js";
-import Yoga, { Node, Gutter } from "yoga-layout";
+import Yoga from "yoga-layout";
 
 export enum ElTags {
   TEXT = "g-text",
@@ -25,90 +25,26 @@ export class GElement {
   pixiRef: PIXI.Container = new PIXI.Container();
   parent = null as GElement | null;
   children: GElement[] = [];
-  yogaNode: Node = Yoga.Node.create();
-  attrs: BasicAttrs = {};
+  yats = new YogaAndAttrs();
   elKey = null as ELKey;
+
+  get yogaNode() {
+    return this.yats.yogaNode;
+  }
+
+  get attrs() {
+    return this.yats.attrs;
+  }
 
   static root() {
     const nodeRoot = new GElement();
-    nodeRoot.yogaNode.free();
-    const yogaConfig = Yoga.Config.create();
-    yogaConfig.setUseWebDefaults(true);
-    const yogaRoot = Yoga.Node.createWithConfig(yogaConfig);
-    nodeRoot.yogaNode = yogaRoot;
     nodeRoot.yogaNode.setHeight("100%");
     nodeRoot.yogaNode.setWidth("100%");
     return nodeRoot;
   }
 
   patch(prop: string, prev: any, next: any): void {
-    switch (prop) {
-      case "width": {
-        this.attrs.width = next;
-        this.yogaNode.setWidth(next);
-        break;
-      }
-      case "height": {
-        this.attrs.height = next;
-        this.yogaNode.setHeight(next);
-        break;
-      }
-      case "flexDirection": {
-        this.attrs.flexDirection = next;
-        this.yogaNode.setFlexDirection(next);
-        break;
-      }
-      case "gap": {
-        this.attrs.gap = next;
-        this.yogaNode.setGap(Gutter.All, next);
-      }
-      case "padding": {
-        this.yogaNode.setPadding(Yoga.EDGE_ALL, next);
-        break;
-      }
-      case "margin": {
-        this.yogaNode.setMargin(Yoga.EDGE_ALL, next);
-        break;
-      }
-      case "display": {
-        this.attrs.display = next;
-        this.yogaNode.setDisplay(
-          next === "flex" ? Yoga.DISPLAY_FLEX : Yoga.DISPLAY_NONE
-        );
-        break;
-      }
-      case "justify": {
-        this.attrs.justify = next;
-        this.yogaNode.setJustifyContent(next);
-        break;
-      }
-      case "align": {
-        this.attrs.align = next;
-        this.yogaNode.setAlignItems(next);
-        break;
-      }
-      case "grow": {
-        this.attrs.grow = next;
-        this.yogaNode.setFlexGrow(next);
-        break;
-      }
-      case "wrap": {
-        this.attrs.wrap = next;
-        this.yogaNode.setFlexWrap(next);
-        break;
-      }
-      case "maxWidth": {
-        this.attrs.maxWidth = next;
-        this.yogaNode.setMaxWidth(next);
-        break;
-      }
-      case "maxHeight": {
-        this.attrs.maxHeight = next;
-        this.yogaNode.setMaxHeight(next);
-        break;
-      }
-      default:
-    }
+    this.yats.patch(prop, prev, next);
   }
 
   addChild(child: GElement): void {

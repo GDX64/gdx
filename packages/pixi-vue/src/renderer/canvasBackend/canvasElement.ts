@@ -1,14 +1,21 @@
-import { BasicAttrs } from "#els/renderTypes.ts";
-import Yoga, { Gutter, Node } from "yoga-layout";
+import { YogaAndAttrs } from "#els/yogaAndAttrs.ts";
+import Yoga from "yoga-layout";
 
 export class CanvasElement {
-  attrs: BasicAttrs = {};
+  yats = new YogaAndAttrs();
   children: CanvasElement[] = [];
   parent: CanvasElement | null = null;
-  yogaNode = Yoga.Node.create();
 
   static root() {
     return new CanvasElement();
+  }
+
+  get yogaNode() {
+    return this.yats.yogaNode;
+  }
+
+  get attrs() {
+    return this.yats.attrs;
   }
 
   hide() {
@@ -37,77 +44,7 @@ export class CanvasElement {
   }
 
   patch(prop: string, prev: any, next: any): void {
-    switch (prop) {
-      case "width": {
-        this.attrs.width = next;
-        this.yogaNode.setWidth(next);
-        break;
-      }
-      case "height": {
-        this.attrs.height = next;
-        this.yogaNode.setHeight(next);
-        break;
-      }
-      case "flexDirection": {
-        this.attrs.flexDirection = next;
-        this.yogaNode.setFlexDirection(next);
-        break;
-      }
-      case "gap": {
-        this.attrs.gap = next;
-        this.yogaNode.setGap(Gutter.All, next);
-      }
-      case "padding": {
-        this.yogaNode.setPadding(Yoga.EDGE_ALL, next);
-        break;
-      }
-      case "margin": {
-        this.yogaNode.setMargin(Yoga.EDGE_ALL, next);
-        break;
-      }
-      case "display": {
-        this.attrs.display = next;
-        this.yogaNode.setDisplay(
-          next === "flex" ? Yoga.DISPLAY_FLEX : Yoga.DISPLAY_NONE
-        );
-        break;
-      }
-      case "justify": {
-        this.attrs.justify = next;
-        this.yogaNode.setJustifyContent(next);
-        break;
-      }
-      case "align": {
-        this.attrs.align = next;
-        this.yogaNode.setAlignItems(next);
-        break;
-      }
-      case "grow": {
-        this.attrs.grow = next;
-        this.yogaNode.setFlexGrow(next);
-        break;
-      }
-      case "wrap": {
-        this.attrs.wrap = next;
-        this.yogaNode.setFlexWrap(next);
-        break;
-      }
-      case "maxWidth": {
-        this.attrs.maxWidth = next;
-        this.yogaNode.setMaxWidth(next);
-        break;
-      }
-      case "maxHeight": {
-        this.attrs.maxHeight = next;
-        this.yogaNode.setMaxHeight(next);
-        break;
-      }
-      case "fill": {
-        this.attrs.fill = next;
-        break;
-      }
-      default:
-    }
+    this.yats.patch(prop, prev, next);
   }
 
   destroy() {

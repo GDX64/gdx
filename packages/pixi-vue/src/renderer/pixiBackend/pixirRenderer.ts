@@ -1,11 +1,4 @@
-import {
-  createRenderer,
-  Component,
-  inject,
-  onUnmounted,
-  reactive,
-  h,
-} from "vue";
+import { createRenderer, Component, inject, onUnmounted, reactive } from "vue";
 import * as PIXI from "pixi.js";
 import { GElement } from "./Elements";
 import { GRect } from "./GRect";
@@ -69,7 +62,6 @@ function appRenderer() {
 
 export type CreateRootResult = {
   destroy: () => void;
-  pApp: PIXI.Application;
 };
 
 export async function createPixiRoot(
@@ -82,7 +74,7 @@ export async function createPixiRoot(
     resolution: devicePixelRatio,
     resizeTo: canvas.parentElement!,
     antialias: true,
-    // backgroundAlpha: 0,
+    backgroundAlpha: 0,
     background: "#00000000",
     clearBeforeRender: true,
     powerPreference: "low-power",
@@ -90,7 +82,7 @@ export async function createPixiRoot(
   });
 
   const appData = reactive({ width: 0, height: 0 });
-  const app = appRenderer().createApp(() => h(comp));
+  const app = appRenderer().createApp(comp);
   app.provide("pixiApp", pApp).provide("pixiAppData", appData);
   const nodeRoot = GElement.root();
   console.log(nodeRoot);
@@ -131,7 +123,6 @@ export async function createPixiRoot(
       pApp.stop();
       pApp.renderer.destroy();
     },
-    pApp,
   };
 }
 
