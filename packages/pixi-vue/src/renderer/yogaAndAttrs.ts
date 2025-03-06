@@ -76,6 +76,7 @@ export class YogaAndAttrs {
         break;
       }
       default:
+        (this.attrs as any)[prop] = next;
     }
   }
 }

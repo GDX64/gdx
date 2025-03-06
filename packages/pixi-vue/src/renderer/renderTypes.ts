@@ -16,5 +16,8 @@ export type BasicAttrs = {
   margin?: number | Percent;
   grow?: number;
   wrap?: Wrap;
+  text?: string;
+  fontSize?: number;
+  fontFamily?: string;
   onClick?: (event: MouseEvent) => any;
 };

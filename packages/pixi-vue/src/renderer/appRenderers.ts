@@ -6,6 +6,7 @@ export { createCanvasRoot } from "./canvasBackend/canvasRenderer";
 declare module "vue" {
   export interface GlobalComponents {
     GRect: Component<BasicAttrs>;
+    GText: Component<BasicAttrs>;
     GContainer: Component<BasicAttrs>;
   }
 }

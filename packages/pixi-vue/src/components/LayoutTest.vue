@@ -5,6 +5,7 @@
     height="100%"
     width="100%"
     :justify="Justify.SpaceAround"
+    :align="Align.FlexStart"
   >
     <g-rect :width="height" :height="height" :fill="0xff0000"></g-rect>
     <g-container
@@ -44,7 +45,18 @@
         <g-rect :width="50" :height="30" :fill="0xff0000"></g-rect>
       </g-rect>
     </g-container>
-    <g-rect :width="200" :height="100" :fill="0xffffff" :grow="1"></g-rect>
+    <g-rect
+      :height="100"
+      :fill="0xffffff"
+      :grow="1"
+      :justify="Justify.Center"
+      :padding="10"
+    >
+      <g-text
+        :text="`this is a growable rect, and its size is dictade by the text (sort of)`"
+      ></g-text>
+      <g-text text="this is another line "></g-text>
+    </g-rect>
   </g-container>
 </template>
 

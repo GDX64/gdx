@@ -106,6 +106,10 @@ export class CanvasElement {
       this.attrs.onClick?.(event);
     }
   }
+
+  protected getFill() {
+    return numberToHexString(this.attrs.fill);
+  }
 }
 
 function numberToHexString(num: number | string | undefined) {
