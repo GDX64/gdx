@@ -45,6 +45,13 @@ export class GElement {
 
   patch(prop: string, prev: any, next: any): void {
     this.yats.patch(prop, prev, next);
+    switch (prop) {
+      case "onClick": {
+        this.pixiRef.interactive = true;
+        this.pixiRef.onclick = next;
+        break;
+      }
+    }
   }
 
   addChild(child: GElement): void {

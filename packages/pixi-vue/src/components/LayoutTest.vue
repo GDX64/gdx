@@ -34,9 +34,10 @@
       <g-rect
         :width="200"
         :height="200"
-        :fill="0xffffff"
+        :fill="color"
         :gap="10"
         :justify="Justify.SpaceBetween"
+        @click="changeColor"
       >
         <g-rect :width="50" :height="30" :fill="0xff0000"></g-rect>
         <g-rect :width="50" :height="30" :fill="0xff0000"></g-rect>
@@ -56,4 +57,9 @@ const height = ref(0);
 useAnimationFrames(({ elapsed }) => {
   height.value = Math.sin(elapsed / 1000) * 200 + 200;
 });
+
+const color = ref(0xffffff);
+function changeColor() {
+  color.value = Math.round(Math.random() * 0xffffff);
+}
 </script>

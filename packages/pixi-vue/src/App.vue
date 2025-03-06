@@ -7,7 +7,7 @@ const canvas = ref<HTMLCanvasElement>();
 
 let destroy = () => {};
 onMounted(async () => {
-  const app = await createCanvasRoot(canvas.value!, Game);
+  const app = await createPixiRoot(canvas.value!, Game);
   destroy = app.destroy;
 });
 

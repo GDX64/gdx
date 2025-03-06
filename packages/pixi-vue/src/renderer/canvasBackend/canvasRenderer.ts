@@ -109,6 +109,10 @@ export async function createCanvasRoot(
     }
   }
 
+  canvas.addEventListener("click", (e) => {
+    nodeRoot.onClick(e, e.offsetX, e.offsetY);
+  });
+
   drawLoop();
 
   function drawCanvas() {

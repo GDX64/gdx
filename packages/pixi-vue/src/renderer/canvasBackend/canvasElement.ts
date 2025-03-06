@@ -44,6 +44,10 @@ export class CanvasElement {
   }
 
   patch(prop: string, prev: any, next: any): void {
+    if (prop.startsWith("on")) {
+      (this.attrs as any)[prop] = next;
+      return;
+    }
     this.yats.patch(prop, prev, next);
   }
 
@@ -82,6 +86,25 @@ export class CanvasElement {
       child.draw(ctx);
     });
     ctx.restore();
+  }
+
+  private hitsMe(x: number, y: number): boolean {
+    const top = this.yogaNode.getComputedTop();
+    const left = this.yogaNode.getComputedLeft();
+    const width = this.yogaNode.getComputedWidth();
+    const height = this.yogaNode.getComputedHeight();
+    return x >= left && x <= left + width && y >= top && y <= top + height;
+  }
+
+  onClick(event: MouseEvent, x: number, y: number) {
+    if (this.hitsMe(x, y)) {
+      for (const child of this.children) {
+        let adjustedX = x - this.yogaNode.getComputedLeft();
+        let adjustedY = y - this.yogaNode.getComputedTop();
+        child.onClick(event, adjustedX, adjustedY);
+      }
+      this.attrs.onClick?.(event);
+    }
   }
 }
 
