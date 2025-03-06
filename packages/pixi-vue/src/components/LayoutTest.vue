@@ -55,7 +55,7 @@
       <g-text
         :text="`this is a growable rect, and its size is dictade by the text (sort of)`"
       ></g-text>
-      <g-text text="this is another line "></g-text>
+      <text-comp text="this is another line"></text-comp>
     </g-rect>
   </g-container>
 </template>
@@ -64,11 +64,14 @@
 import { Align, FlexDirection, Justify, Wrap } from "yoga-layout";
 import { useAnimationFrames } from "@gdx/utils";
 import { ref } from "vue";
+import { GContainer, GRect, GText } from "#els/appRenderers.ts";
 
 const height = ref(0);
 useAnimationFrames(({ elapsed }) => {
   height.value = Math.sin(elapsed / 1000) * 200 + 200;
 });
+
+const textComp = "g-text";
 
 const color = ref(0xffffff);
 function changeColor() {
