@@ -1,5 +1,5 @@
 import { BasicAttrs } from "./renderTypes";
-import Yoga, { Gutter } from "yoga-layout";
+import Yoga, { Edge, Gutter } from "yoga-layout";
 
 export class YogaAndAttrs {
   attrs: BasicAttrs = {};
@@ -25,9 +25,24 @@ export class YogaAndAttrs {
       case "gap": {
         this.attrs.gap = next;
         this.yogaNode.setGap(Gutter.All, next);
+        break;
+      }
+      case "gapRow": {
+        this.attrs.gapRow = next;
+        this.yogaNode.setGap(Gutter.Row, next);
+        break;
+      }
+      case "gapCol": {
+        this.attrs.gapCol = next;
+        this.yogaNode.setGap(Gutter.Column, next);
+        break;
       }
       case "padding": {
         this.yogaNode.setPadding(Yoga.EDGE_ALL, next);
+        break;
+      }
+      case "paddingX": {
+        this.yogaNode.setPadding(Edge.Horizontal, next);
         break;
       }
       case "margin": {
@@ -71,8 +86,9 @@ export class YogaAndAttrs {
         this.yogaNode.setMaxHeight(next);
         break;
       }
-      case "fill": {
-        this.attrs.fill = next;
+      case "border": {
+        this.attrs.border = next;
+        this.yogaNode.setBorder(Yoga.EDGE_ALL, next);
         break;
       }
       default:

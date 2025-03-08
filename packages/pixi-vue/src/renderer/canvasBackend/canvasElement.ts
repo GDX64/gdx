@@ -89,15 +89,6 @@ export class CanvasElement {
       ctx.lineWidth = this.attrs.border;
       ctx.stroke();
     }
-    if (this.attrs.image) {
-      ctx.drawImage(
-        this.attrs.image,
-        0,
-        0,
-        this.yogaNode.getComputedWidth(),
-        this.yogaNode.getComputedHeight()
-      );
-    }
   }
 
   draw(ctx: CanvasRenderingContext2D) {
