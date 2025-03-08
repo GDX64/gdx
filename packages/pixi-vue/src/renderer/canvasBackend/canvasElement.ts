@@ -1,5 +1,5 @@
 import { YogaAndAttrs } from "#els/yogaAndAttrs.ts";
-import Yoga from "yoga-layout";
+import Yoga, { Overflow } from "yoga-layout";
 
 export class CanvasElement {
   yats = new YogaAndAttrs();
@@ -61,11 +61,26 @@ export class CanvasElement {
 
   drawSelf(ctx: CanvasRenderingContext2D) {
     const fillStyle = numberToHexString(this.attrs.fill);
-    if (!fillStyle) {
+    const border = this.attrs.border;
+    if (!fillStyle && !border) {
       return;
     }
-    ctx.fillStyle = fillStyle;
+    if (fillStyle) {
+      ctx.fillStyle = fillStyle;
+    }
     ctx.beginPath();
+    this.applyPath(ctx);
+    ctx.closePath();
+    ctx.fill();
+    if (border) {
+      ctx.strokeStyle = this.attrs.borderColor ?? "black";
+      ctx.lineWidth = border;
+      ctx.stroke();
+    }
+    ctx.closePath();
+  }
+
+  private applyPath(ctx: CanvasRenderingContext2D) {
     if (this.attrs.roundness) {
       ctx.roundRect(
         0,
@@ -82,13 +97,6 @@ export class CanvasElement {
         this.yogaNode.getComputedHeight()
       );
     }
-    ctx.closePath();
-    ctx.fill();
-    if (this.attrs.border) {
-      ctx.strokeStyle = this.attrs.borderColor ?? "black";
-      ctx.lineWidth = this.attrs.border;
-      ctx.stroke();
-    }
   }
 
   draw(ctx: CanvasRenderingContext2D) {
@@ -100,6 +108,12 @@ export class CanvasElement {
     ctx.save();
     this.drawSelf(ctx);
     ctx.restore();
+    if (this.attrs.overflow === Overflow.Hidden) {
+      ctx.beginPath();
+      this.applyPath(ctx);
+      ctx.clip();
+      ctx.closePath();
+    }
     this.children.forEach((child) => {
       child.draw(ctx);
     });

@@ -5,23 +5,16 @@
     :justify="Justify.SpaceAround"
     :align="Align.FlexStart"
   >
-    <g-rect
-      width="100%"
-      height="100%"
-      fill="#223652"
-      :border="2"
-      :roundness="10"
-    >
+    <g-rect width="100%" height="100%" fill="#223652" :padding="30">
       <OrderComponent></OrderComponent>
     </g-rect>
   </g-container>
 </template>
 
 <script setup lang="ts">
-import { Align, FlexDirection, Justify, Wrap } from "yoga-layout";
-import { useAnimationFrames, useAsyncComputed } from "@gdx/utils";
+import { Align, Justify } from "yoga-layout";
 import { ref } from "vue";
-import { GContainer, GRect, GText, GImage } from "#els/appRenderers.ts";
+import { GContainer, GRect } from "#els/appRenderers.ts";
 import testImg from "../assets/bat.png";
 import OrderComponent from "./OrderComponent.vue";
 

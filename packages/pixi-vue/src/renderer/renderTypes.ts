@@ -1,4 +1,4 @@
-import { FlexDirection, Justify, Align, Wrap } from "yoga-layout";
+import { FlexDirection, Justify, Align, Wrap, Overflow } from "yoga-layout";
 type Percent = `${number}%`;
 
 export type BasicAttrs = {
@@ -19,6 +19,7 @@ export type BasicAttrs = {
   margin?: number | Percent;
   grow?: number;
   wrap?: Wrap;
+  overflow?: Overflow;
   text?: string;
   color?: string;
   fontSize?: number;

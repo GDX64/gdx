@@ -6,7 +6,16 @@
     :padding="0"
     :align="Align.Stretch"
   >
-    <GImage :image="imgUrl" :width="32"></GImage>
+    <GRect
+      :width="17"
+      :height="17"
+      :roundness="10"
+      :overflow="Overflow.Hidden"
+      :align="Align.Center"
+      fill="white"
+    >
+      <GImage :image="imgUrl" :width="32" :height="16"></GImage>
+    </GRect>
     <GRect
       fill="#b85b5e"
       :roundness="4"
@@ -72,6 +81,7 @@ import {
   GRect,
   GText,
   Justify,
+  Overflow,
 } from "#els/appRenderers.ts";
 import imgUrl from "../assets/bat.png";
 

@@ -5,7 +5,8 @@ export class YogaAndAttrs {
   attrs: BasicAttrs = {};
   yogaNode = Yoga.Node.create();
 
-  patch(prop: string, prev: any, next: any): void {
+  patch(_prop: string, prev: any, next: any): void {
+    const prop = _prop as keyof BasicAttrs;
     switch (prop) {
       case "width": {
         this.attrs.width = next;
@@ -54,6 +55,11 @@ export class YogaAndAttrs {
         this.yogaNode.setDisplay(
           next === "flex" ? Yoga.DISPLAY_FLEX : Yoga.DISPLAY_NONE
         );
+        break;
+      }
+      case "overflow": {
+        this.attrs.overflow = next;
+        this.yogaNode.setOverflow(next);
         break;
       }
       case "justify": {
