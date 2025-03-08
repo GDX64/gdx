@@ -90,8 +90,6 @@ export class CanvasElement {
       ctx.stroke();
     }
     if (this.attrs.image) {
-      ctx.save();
-      ctx.clip();
       ctx.drawImage(
         this.attrs.image,
         0,
@@ -99,7 +97,6 @@ export class CanvasElement {
         this.yogaNode.getComputedWidth(),
         this.yogaNode.getComputedHeight()
       );
-      ctx.restore();
     }
   }
 
