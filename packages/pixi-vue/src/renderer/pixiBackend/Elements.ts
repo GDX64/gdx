@@ -94,8 +94,9 @@ export class GElement {
   }
 
   destroy(): void {
-    this.pixiRef.destroy({ children: true });
-    this.yogaNode.freeRecursive();
+    this.children.forEach((child) => child.destroy());
+    this.pixiRef.destroy();
+    this.yogaNode.free();
   }
 
   hide() {

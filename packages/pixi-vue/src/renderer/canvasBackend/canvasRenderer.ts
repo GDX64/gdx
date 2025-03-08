@@ -8,6 +8,7 @@ import {
 } from "vue";
 import { CanvasElement } from "./canvasElement";
 import { CanvasTextElement } from "./canvasTextElement";
+import { CanvasImageElement } from "./CanvasImageElement";
 
 function appRenderer() {
   const { createApp } = createRenderer<CanvasElement, CanvasElement>({
@@ -19,6 +20,8 @@ function appRenderer() {
     },
     createElement(type, namespace, isCustomizedBuiltIn, vnodeProps) {
       switch (type) {
+        case "g-image":
+          return new CanvasImageElement();
         case "g-text":
           return new CanvasTextElement();
         case "g-rect":

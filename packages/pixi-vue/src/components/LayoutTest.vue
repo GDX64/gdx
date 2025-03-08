@@ -36,11 +36,13 @@
         <g-rect
           :width="30"
           :height="20"
-          :fill="0x0000ff"
+          fill="#74dd8b"
           :roundness="3"
-          :image="img"
+          :border="2"
           v-for="x in 40"
-        ></g-rect>
+        >
+          <g-image :image="img" width="100%" height="100%"></g-image>
+        </g-rect>
       </g-rect>
       <g-rect
         :width="200"
@@ -83,7 +85,7 @@
 import { Align, FlexDirection, Justify, Wrap } from "yoga-layout";
 import { useAnimationFrames, useAsyncComputed } from "@gdx/utils";
 import { ref } from "vue";
-import { GContainer, GRect, GText } from "#els/appRenderers.ts";
+import { GContainer, GRect, GText, GImage } from "#els/appRenderers.ts";
 import testImg from "../assets/bat.png";
 
 const img = new Image();

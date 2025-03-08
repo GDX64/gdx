@@ -1,27 +1,14 @@
 import { GElement } from "./Elements";
 import * as PIXI from "pixi.js";
+
 export class GRect extends GElement {
   pixiRef = new PIXI.Graphics();
-  texture: PIXI.Texture = PIXI.Texture.WHITE;
   patch(prop: string, prev: any, next: any): void {
     switch (prop) {
       case "fill": {
         this.attrs.fill = next;
         this.updateDraw();
         break;
-      }
-      case "image": {
-        this.attrs.image = next;
-        if (this.attrs.image) {
-          const image = this.attrs.image;
-          this.attrs.image.addEventListener("load", () => {
-            const texture = PIXI.Texture.from(image);
-            this.texture = texture;
-          });
-        } else {
-          this.texture = PIXI.Texture.WHITE;
-        }
-        this.updateDraw();
       }
       default:
         super.patch(prop, prev, next);
@@ -51,15 +38,13 @@ export class GRect extends GElement {
         this.yogaNode.getComputedHeight()
       );
     }
-    const texture = this.texture;
     this.pixiRef.context.fill({
       color: this.attrs?.fill,
-      texture: this.texture,
     });
     if (this.attrs.border) {
       this.pixiRef.context.stroke({
         color: this.attrs.borderColor ?? "black",
-        texture,
+        width: this.attrs.border,
       });
     }
   }
