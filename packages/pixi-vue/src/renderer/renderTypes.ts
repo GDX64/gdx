@@ -21,5 +21,7 @@ export type BasicAttrs = {
   fontFamily?: string;
   roundness?: number;
   image?: Blob;
+  border?: number;
+  borderColor?: string;
   onClick?: (event: MouseEvent) => any;
 };

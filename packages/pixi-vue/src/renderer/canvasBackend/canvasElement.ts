@@ -65,8 +65,8 @@ export class CanvasElement {
       return;
     }
     ctx.fillStyle = fillStyle;
+    ctx.beginPath();
     if (this.attrs.roundness) {
-      ctx.beginPath();
       ctx.roundRect(
         0,
         0,
@@ -74,15 +74,21 @@ export class CanvasElement {
         this.yogaNode.getComputedHeight(),
         this.attrs.roundness
       );
-      ctx.closePath();
       ctx.fill();
     } else {
-      ctx.fillRect(
+      ctx.rect(
         0,
         0,
         this.yogaNode.getComputedWidth(),
         this.yogaNode.getComputedHeight()
       );
+    }
+    ctx.closePath();
+    ctx.fill();
+    if (this.attrs.border) {
+      ctx.strokeStyle = this.attrs.borderColor ?? "black";
+      ctx.lineWidth = this.attrs.border;
+      ctx.stroke();
     }
   }
 

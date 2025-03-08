@@ -41,5 +41,8 @@ export class GRect extends GElement {
         )
         .fill({ color: this.attrs?.fill });
     }
+    if (this.attrs.border) {
+      this.pixiRef.context.stroke(this.attrs.borderColor ?? "black");
+    }
   }
 }
