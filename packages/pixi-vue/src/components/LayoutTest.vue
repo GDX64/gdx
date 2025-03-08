@@ -10,8 +10,10 @@
     <g-rect
       :width="height"
       :height="height"
-      :fill="0xff0000"
+      :fill="0xffff00"
+      :border="2"
       :roundness="10"
+      :image="img"
     ></g-rect>
     <g-container
       :gap="4"
@@ -82,6 +84,10 @@ import { Align, FlexDirection, Justify, Wrap } from "yoga-layout";
 import { useAnimationFrames } from "@gdx/utils";
 import { ref } from "vue";
 import { GContainer, GRect, GText } from "#els/appRenderers.ts";
+import testImg from "../assets/bat.png";
+
+const img = new Image();
+img.src = testImg;
 
 const height = ref(0);
 useAnimationFrames(({ elapsed }) => {

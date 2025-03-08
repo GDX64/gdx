@@ -20,7 +20,7 @@ export type BasicAttrs = {
   fontSize?: number;
   fontFamily?: string;
   roundness?: number;
-  image?: Blob;
+  image?: HTMLImageElement;
   border?: number;
   borderColor?: string;
   onClick?: (event: MouseEvent) => any;

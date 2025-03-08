@@ -74,7 +74,6 @@ export class CanvasElement {
         this.yogaNode.getComputedHeight(),
         this.attrs.roundness
       );
-      ctx.fill();
     } else {
       ctx.rect(
         0,
@@ -89,6 +88,18 @@ export class CanvasElement {
       ctx.strokeStyle = this.attrs.borderColor ?? "black";
       ctx.lineWidth = this.attrs.border;
       ctx.stroke();
+    }
+    if (this.attrs.image) {
+      ctx.save();
+      ctx.clip();
+      ctx.drawImage(
+        this.attrs.image,
+        0,
+        0,
+        this.yogaNode.getComputedWidth(),
+        this.yogaNode.getComputedHeight()
+      );
+      ctx.restore();
     }
   }
 
