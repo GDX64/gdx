@@ -13,8 +13,11 @@ export class GRect extends GElement {
       case "image": {
         this.attrs.image = next;
         if (this.attrs.image) {
-          const texture = PIXI.Texture.from(this.attrs.image);
-          this.texture = texture;
+          const image = this.attrs.image;
+          this.attrs.image.addEventListener("load", () => {
+            const texture = PIXI.Texture.from(image);
+            this.texture = texture;
+          });
         } else {
           this.texture = PIXI.Texture.WHITE;
         }

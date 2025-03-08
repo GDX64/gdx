@@ -13,7 +13,6 @@
       :fill="0xffff00"
       :border="2"
       :roundness="10"
-      :image="img"
     ></g-rect>
     <g-container
       :gap="4"
@@ -35,10 +34,11 @@
         :border="1"
       >
         <g-rect
-          :width="20"
+          :width="30"
           :height="20"
           :fill="0x0000ff"
           :roundness="3"
+          :image="img"
           v-for="x in 40"
         ></g-rect>
       </g-rect>
@@ -86,13 +86,15 @@ import { ref } from "vue";
 import { GContainer, GRect, GText } from "#els/appRenderers.ts";
 import testImg from "../assets/bat.png";
 
-const img = useAsyncComputed(() => {
-  return new Promise<HTMLImageElement>((resolve) => {
-    const img = new Image();
-    img.onload = () => resolve(img);
-    img.src = testImg;
-  });
-}, undefined);
+const img = new Image();
+img.src = testImg;
+// const img = useAsyncComputed(() => {
+//   return new Promise<HTMLImageElement>((resolve) => {
+//     const img = new Image();
+//     img.onload = () => resolve(img);
+//     img.src = testImg;
+//   });
+// }, undefined);
 
 const height = ref(0);
 useAnimationFrames(({ elapsed }) => {
