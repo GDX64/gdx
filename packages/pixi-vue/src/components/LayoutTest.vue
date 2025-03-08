@@ -5,7 +5,13 @@
     :justify="Justify.SpaceAround"
     :align="Align.FlexStart"
   >
-    <g-rect width="100%" height="100%" fill="#223652" :padding="30">
+    <g-rect
+      width="100%"
+      height="100%"
+      fill="#223652"
+      :padding="30"
+      :align="Align.FlexStart"
+    >
       <OrderComponent></OrderComponent>
     </g-rect>
   </g-container>

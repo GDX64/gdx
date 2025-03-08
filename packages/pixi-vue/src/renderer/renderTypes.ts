@@ -29,4 +29,7 @@ export type BasicAttrs = {
   border?: number;
   borderColor?: string;
   onClick?: (event: MouseEvent) => any;
+  onPointerMove?: (event: PointerEvent) => any;
+  onPointerEnter?: (event: PointerEvent) => any;
+  onPointerLeave?: (event: PointerEvent) => any;
 };

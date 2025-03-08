@@ -139,6 +139,29 @@ export class CanvasElement {
     }
   }
 
+  onPointerMove(event: PointerEvent, x: number, y: number): CanvasElement[] {
+    if (this.hitsMe(x, y)) {
+      const hits: CanvasElement[] = [this];
+      for (const child of this.children) {
+        let adjustedX = x - this.yogaNode.getComputedLeft();
+        let adjustedY = y - this.yogaNode.getComputedTop();
+        const childHits = child.onPointerMove(event, adjustedX, adjustedY);
+        hits.push(...childHits);
+      }
+      this.attrs.onPointerMove?.(event);
+      return hits;
+    }
+    return [];
+  }
+
+  onPointerEnter(event: PointerEvent) {
+    this.attrs.onPointerEnter?.(event);
+  }
+
+  onPointerLeave(event: PointerEvent) {
+    this.attrs.onPointerLeave?.(event);
+  }
+
   protected getFill() {
     return numberToHexString(this.attrs.fill);
   }

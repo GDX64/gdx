@@ -3,8 +3,14 @@
     :flexDirection="FlexDirection.Row"
     :height="17"
     :gapCol="5"
-    :padding="0"
+    :paddingX="5"
     :align="Align.Stretch"
+    :fill="isHovered ? '#ffffff55' : undefined"
+    @pointerMove="onPointerMove"
+    @pointerDown="onPointerDown"
+    @pointerUp="onPointerUp"
+    @pointerEnter="onPointerEnter"
+    @pointerLeave="onPointerLeave"
   >
     <GRect
       :width="17"
@@ -83,7 +89,18 @@ import {
   Justify,
   Overflow,
 } from "#els/appRenderers.ts";
+import { ref } from "vue";
 import imgUrl from "../assets/bat.png";
 
 const fontSize = 12;
+const isHovered = ref(false);
+function onPointerDown() {}
+function onPointerUp() {}
+function onPointerMove() {}
+function onPointerEnter() {
+  isHovered.value = true;
+}
+function onPointerLeave() {
+  isHovered.value = false;
+}
 </script>

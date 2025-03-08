@@ -119,6 +119,16 @@ export async function createCanvasRoot(
     nodeRoot.onClick(e, e.offsetX, e.offsetY);
   });
 
+  let lastHits: CanvasElement[] = [];
+  canvas.addEventListener("pointermove", (e) => {
+    const hitsNow = nodeRoot.onPointerMove(e, e.offsetX, e.offsetY);
+    const newHits = hitsNow.filter((item) => !lastHits.includes(item));
+    const oldHits = lastHits.filter((item) => !hitsNow.includes(item));
+    lastHits = hitsNow;
+    newHits.forEach((item) => item.onPointerEnter?.(e));
+    oldHits.forEach((item) => item.onPointerLeave?.(e));
+  });
+
   drawLoop();
 
   function drawCanvas() {
