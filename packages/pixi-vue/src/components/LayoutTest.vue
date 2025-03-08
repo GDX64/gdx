@@ -81,13 +81,18 @@
 
 <script setup lang="ts">
 import { Align, FlexDirection, Justify, Wrap } from "yoga-layout";
-import { useAnimationFrames } from "@gdx/utils";
+import { useAnimationFrames, useAsyncComputed } from "@gdx/utils";
 import { ref } from "vue";
 import { GContainer, GRect, GText } from "#els/appRenderers.ts";
 import testImg from "../assets/bat.png";
 
-const img = new Image();
-img.src = testImg;
+const img = useAsyncComputed(() => {
+  return new Promise<HTMLImageElement>((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.src = testImg;
+  });
+}, undefined);
 
 const height = ref(0);
 useAnimationFrames(({ elapsed }) => {
