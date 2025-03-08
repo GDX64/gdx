@@ -65,12 +65,25 @@ export class CanvasElement {
       return;
     }
     ctx.fillStyle = fillStyle;
-    ctx.fillRect(
-      0,
-      0,
-      this.yogaNode.getComputedWidth(),
-      this.yogaNode.getComputedHeight()
-    );
+    if (this.attrs.roundness) {
+      ctx.beginPath();
+      ctx.roundRect(
+        0,
+        0,
+        this.yogaNode.getComputedWidth(),
+        this.yogaNode.getComputedHeight(),
+        this.attrs.roundness
+      );
+      ctx.closePath();
+      ctx.fill();
+    } else {
+      ctx.fillRect(
+        0,
+        0,
+        this.yogaNode.getComputedWidth(),
+        this.yogaNode.getComputedHeight()
+      );
+    }
   }
 
   draw(ctx: CanvasRenderingContext2D) {

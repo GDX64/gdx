@@ -19,5 +19,7 @@ export type BasicAttrs = {
   text?: string;
   fontSize?: number;
   fontFamily?: string;
+  roundness?: number;
+  image?: Blob;
   onClick?: (event: MouseEvent) => any;
 };

@@ -21,13 +21,25 @@ export class GRect extends GElement {
 
   private updateDraw() {
     this.pixiRef.clear();
-    this.pixiRef
-      .rect(
-        0,
-        0,
-        this.yogaNode.getComputedWidth(),
-        this.yogaNode.getComputedHeight()
-      )
-      .fill({ color: this.attrs?.fill });
+    if (this.attrs.roundness) {
+      this.pixiRef
+        .roundRect(
+          0,
+          0,
+          this.yogaNode.getComputedWidth(),
+          this.yogaNode.getComputedHeight(),
+          this.attrs.roundness
+        )
+        .fill({ color: this.attrs?.fill });
+    } else {
+      this.pixiRef
+        .rect(
+          0,
+          0,
+          this.yogaNode.getComputedWidth(),
+          this.yogaNode.getComputedHeight()
+        )
+        .fill({ color: this.attrs?.fill });
+    }
   }
 }

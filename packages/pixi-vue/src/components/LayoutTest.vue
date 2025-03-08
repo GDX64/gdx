@@ -7,7 +7,12 @@
     :justify="Justify.SpaceAround"
     :align="Align.FlexStart"
   >
-    <g-rect :width="height" :height="height" :fill="0xff0000"></g-rect>
+    <g-rect
+      :width="height"
+      :height="height"
+      :fill="0xff0000"
+      :roundness="10"
+    ></g-rect>
     <g-container
       :gap="4"
       :flexDirection="FlexDirection.Row"
@@ -24,11 +29,13 @@
         :gap="10"
         :justify="Justify.SpaceEvenly"
         :wrap="Wrap.Wrap"
+        :roundness="10"
       >
         <g-rect
           :width="20"
           :height="20"
           :fill="0x0000ff"
+          :roundness="3"
           v-for="x in 40"
         ></g-rect>
       </g-rect>
@@ -38,6 +45,7 @@
         :fill="0xffffff"
         :gap="10"
         :justify="Justify.SpaceBetween"
+        :roundness="10"
       >
         <g-rect :width="50" :height="30" :fill="0xff0000"></g-rect>
         <g-rect :width="50" :height="30" :fill="0xff0000"></g-rect>
@@ -52,6 +60,7 @@
       :padding="10"
       :gap="5"
       @click="changeColor"
+      :roundness="10"
     >
       <g-text
         :text="`this is a growable rect, and its size is dictade by the text (sort of)`"
