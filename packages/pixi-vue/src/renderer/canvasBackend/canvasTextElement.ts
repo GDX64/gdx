@@ -31,10 +31,10 @@ export class CanvasTextElement extends CanvasElement {
     const text = this.attrs.text ?? "";
     const ctx = new OffscreenCanvas(0, 0).getContext("2d")!;
     ctx.font = this.getFont();
-    const { width, fontBoundingBoxAscent, fontBoundingBoxDescent } =
+    const { width, actualBoundingBoxAscent, actualBoundingBoxDescent } =
       ctx.measureText(text);
     this.yogaNode.setWidth(width);
-    this.yogaNode.setHeight(fontBoundingBoxAscent + fontBoundingBoxDescent);
+    this.yogaNode.setHeight(actualBoundingBoxAscent + actualBoundingBoxDescent);
   }
 
   drawSelf(ctx: CanvasRenderingContext2D): void {

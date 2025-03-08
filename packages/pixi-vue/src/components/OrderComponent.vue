@@ -1,9 +1,10 @@
 <template>
   <GRect
     :flexDirection="FlexDirection.Row"
-    :height="16"
+    :height="17"
     :gapCol="5"
     :padding="0"
+    :align="Align.Stretch"
   >
     <GImage :image="imgUrl" :width="32"></GImage>
     <GRect
@@ -15,12 +16,12 @@
       :justify="Justify.Center"
       :paddingX="6"
     >
-      <GText text="Sim." fill="white" :fontSize="14"></GText>
+      <GText text="Sim." fill="white" :fontSize="fontSize"></GText>
     </GRect>
     <GRect
       fill="#635c34"
       :roundness="4"
-      :align="Align.Center"
+      :align="Align.Stretch"
       :border="1"
       borderColor="#ffe042"
       :justify="Justify.Center"
@@ -34,16 +35,18 @@
         :justify="Justify.Center"
         :paddingX="6"
       >
-        <GText text="1004835" fill="white" :fontSize="14"></GText>
+        <GText text="1004835" fill="white" :fontSize="fontSize"></GText>
       </GRect>
-      <GText text="L 1300" fill="white" :fontSize="14"></GText>
+      <GContainer :align="Align.Center" :justify="Justify.Center">
+        <GText text="L 1300" fill="white" :fontSize="fontSize"></GText>
+      </GContainer>
       <GRect
         fill="#529546"
         :roundness="4"
         :justify="Justify.Center"
         :paddingX="6"
       >
-        <GText text="R$ 238.54" fill="white" :fontSize="14"></GText>
+        <GText text="R$ 238.54" fill="white" :fontSize="fontSize"></GText>
       </GRect>
     </GRect>
     <GRect
@@ -55,7 +58,7 @@
       :border="1"
       borderColor="#ff8e8e"
     >
-      <GText text="X" fill="white" :fontSize="14"></GText>
+      <GText text="X" fill="white" :fontSize="fontSize"></GText>
     </GRect>
   </GRect>
 </template>
@@ -71,4 +74,6 @@ import {
   Justify,
 } from "#els/appRenderers.ts";
 import imgUrl from "../assets/bat.png";
+
+const fontSize = 12;
 </script>
