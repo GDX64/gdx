@@ -139,6 +139,28 @@ export class CanvasElement {
     }
   }
 
+  onPointerUp(event: PointerEvent, x: number, y: number) {
+    if (this.hitsMe(x, y)) {
+      for (const child of this.children) {
+        let adjustedX = x - this.yogaNode.getComputedLeft();
+        let adjustedY = y - this.yogaNode.getComputedTop();
+        child.onPointerUp(event, adjustedX, adjustedY);
+      }
+      this.attrs.onPointerUp?.(event);
+    }
+  }
+
+  onPointerDown(event: PointerEvent, x: number, y: number) {
+    if (this.hitsMe(x, y)) {
+      for (const child of this.children) {
+        let adjustedX = x - this.yogaNode.getComputedLeft();
+        let adjustedY = y - this.yogaNode.getComputedTop();
+        child.onPointerDown(event, adjustedX, adjustedY);
+      }
+      this.attrs.onPointerDown?.(event);
+    }
+  }
+
   onPointerMove(event: PointerEvent, x: number, y: number): CanvasElement[] {
     if (this.hitsMe(x, y)) {
       const hits: CanvasElement[] = [this];

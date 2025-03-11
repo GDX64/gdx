@@ -1,14 +1,14 @@
 <template>
   <GRect
     :flexDirection="FlexDirection.Row"
+    :top="orderPoitionY"
     :height="17"
     :gapCol="5"
     :paddingX="5"
     :align="Align.Stretch"
     :fill="isHovered ? '#ffffff55' : undefined"
-    @pointerMove="onPointerMove"
+    :position="PositionType.Absolute"
     @pointerDown="onPointerDown"
-    @pointerUp="onPointerUp"
     @pointerEnter="onPointerEnter"
     @pointerLeave="onPointerLeave"
   >
@@ -88,15 +88,37 @@ import {
   GText,
   Justify,
   Overflow,
+  PositionType,
 } from "#els/appRenderers.ts";
-import { ref } from "vue";
+import { onUnmounted, ref } from "vue";
 import imgUrl from "../assets/bat.png";
 
 const fontSize = 12;
 const isHovered = ref(false);
-function onPointerDown() {}
-function onPointerUp() {}
-function onPointerMove() {}
+const isPressed = ref(false);
+const orderPoitionY = ref(200);
+
+document.addEventListener("pointerup", onPointerUp);
+document.addEventListener("pointermove", onPointerMove);
+onUnmounted(() => {
+  document.removeEventListener("pointerup", onPointerUp);
+  document.removeEventListener("pointermove", onPointerMove);
+});
+
+function onPointerDown() {
+  isPressed.value = true;
+}
+
+function onPointerUp() {
+  isPressed.value = false;
+}
+
+function onPointerMove(event: PointerEvent) {
+  if (isPressed.value) {
+    orderPoitionY.value += event.movementY;
+  }
+}
+
 function onPointerEnter() {
   isHovered.value = true;
 }

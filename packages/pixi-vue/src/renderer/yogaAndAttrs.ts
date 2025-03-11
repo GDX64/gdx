@@ -97,6 +97,26 @@ export class YogaAndAttrs {
         this.yogaNode.setBorder(Yoga.EDGE_ALL, next);
         break;
       }
+      case "top": {
+        this.yogaNode.setPosition(Yoga.EDGE_TOP, next);
+        break;
+      }
+      case "left": {
+        this.yogaNode.setPosition(Yoga.EDGE_LEFT, next);
+        break;
+      }
+      case "right": {
+        this.yogaNode.setPosition(Yoga.EDGE_RIGHT, next);
+        break;
+      }
+      case "bottom": {
+        this.yogaNode.setPosition(Yoga.EDGE_BOTTOM, next);
+        break;
+      }
+      case "position": {
+        this.yogaNode.setPositionType(next);
+        break;
+      }
       default:
         (this.attrs as any)[prop] = next;
     }

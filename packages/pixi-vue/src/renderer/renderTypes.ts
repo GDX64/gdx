@@ -1,4 +1,11 @@
-import { FlexDirection, Justify, Align, Wrap, Overflow } from "yoga-layout";
+import {
+  FlexDirection,
+  Justify,
+  Align,
+  Wrap,
+  Overflow,
+  PositionType,
+} from "yoga-layout";
 type Percent = `${number}%`;
 
 export type BasicAttrs = {
@@ -7,6 +14,11 @@ export type BasicAttrs = {
   maxWidth?: number | "auto" | Percent;
   height?: number | "auto" | Percent;
   maxHeight?: number | "auto" | Percent;
+  top?: number | "auto" | Percent;
+  left?: number | "auto" | Percent;
+  right?: number | "auto" | Percent;
+  bottom?: number | "auto" | Percent;
+  position?: PositionType;
   display?: "flex" | "none";
   flexDirection?: FlexDirection;
   justify?: Justify;
@@ -32,4 +44,6 @@ export type BasicAttrs = {
   onPointerMove?: (event: PointerEvent) => any;
   onPointerEnter?: (event: PointerEvent) => any;
   onPointerLeave?: (event: PointerEvent) => any;
+  onPointerDown?: (event: PointerEvent) => any;
+  onPointerUp?: (event: PointerEvent) => any;
 };

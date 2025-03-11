@@ -129,6 +129,14 @@ export async function createCanvasRoot(
     oldHits.forEach((item) => item.onPointerLeave?.(e));
   });
 
+  canvas.addEventListener('pointerdown', (e) => {
+    nodeRoot.onPointerDown(e, e.offsetX, e.offsetY);
+  })
+
+  canvas.addEventListener('pointerup', (e) => {
+    nodeRoot.onPointerUp(e, e.offsetX, e.offsetY);
+  })
+
   drawLoop();
 
   function drawCanvas() {
