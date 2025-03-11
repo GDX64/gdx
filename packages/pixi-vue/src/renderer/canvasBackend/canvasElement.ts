@@ -83,16 +83,16 @@ export class CanvasElement {
   private applyPath(ctx: CanvasRenderingContext2D) {
     if (this.attrs.roundness) {
       ctx.roundRect(
-        0,
-        0,
+        0.5,
+        0.5,
         this.yogaNode.getComputedWidth(),
         this.yogaNode.getComputedHeight(),
         this.attrs.roundness
       );
     } else {
       ctx.rect(
-        0,
-        0,
+        0.5,
+        0.5,
         this.yogaNode.getComputedWidth(),
         this.yogaNode.getComputedHeight()
       );
