@@ -11,7 +11,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onUnmounted, ref, watchEffect } from 'vue';
+import { computed, onUnmounted, ref, watchEffect } from 'vue';
 import { LinScale, useCanvasDPI, useComputedGeneratorState, Vec2 } from '@gdx/utils';
 import { primeColors } from '../../design/design';
 
@@ -20,6 +20,7 @@ const props = defineProps<{
   startDate: Date;
   endDate: Date;
   selectedLog?: Date;
+  showLocalTime: boolean;
 }>();
 
 const emit = defineEmits({
@@ -28,13 +29,15 @@ const emit = defineEmits({
 
 const mousePosRef = ref<Vec2 | null>(null);
 const selectionStartRef = ref<Vec2 | null>(null);
-const formatTime = new Intl.DateTimeFormat('en-US', {
-  hour: 'numeric',
-  minute: 'numeric',
-  second: 'numeric',
-  hour12: false,
-  //UTC-0
-  timeZone: 'UTC',
+const timeFormatter = computed(() => {
+  return new Intl.DateTimeFormat('en-US', {
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+    hour12: false,
+    //UTC-0
+    timeZone: props.showLocalTime ? undefined : 'UTC',
+  });
 });
 
 const { canvas, size } = useCanvasDPI();
@@ -145,9 +148,9 @@ function drawScalePoint(ctx: CanvasRenderingContext2D, point: Vec2) {
     const isCloseToTheRight = point.x + 100 > size.width;
     if (isCloseToTheRight) {
       ctx.textAlign = 'right';
-      ctx.fillText(formatTime.format(date), point.x - 5, 10);
+      ctx.fillText(timeFormatter.value.format(date), point.x - 5, 10);
     } else {
-      ctx.fillText(formatTime.format(date), point.x + 5, 10);
+      ctx.fillText(timeFormatter.value.format(date), point.x + 5, 10);
     }
   }
   ctx.restore();

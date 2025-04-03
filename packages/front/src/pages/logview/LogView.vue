@@ -100,6 +100,7 @@
           :startDate="timeFilteredLogs[0].date"
           :endDate="timeFilteredLogs[timeFilteredLogs.length - 1].date"
           :selectedLog="hightLightedLog?.date"
+          :show-local-time="showLocalTime"
           @select="onSelect"
         />
       </div>
