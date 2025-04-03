@@ -15,7 +15,7 @@
         @dblclick="emit('onLineDblClick', log.data)"
         v-for="log of filterList"
         :style="{ color: log.data.color ?? 'unset' }"
-        :class="hightLightedLog?.index === log.index ? 'bg-prime-100' : ''"
+        :class="hightLightedLog?.index === log.data.index ? 'bg-prime-100' : ''"
       >
         <div
           @click="onLogSelect(log.data, $event)"
@@ -27,8 +27,13 @@
           class="font-bold"
           :value="log.data.level"
           :search="search"
+          @click="emit('onLineClick', log.data)"
         ></HighlitableText>
-        <HighlitableText :value="log.data.message" :search="search"></HighlitableText>
+        <HighlitableText
+          :value="log.data.message"
+          :search="search"
+          @click="emit('onLineClick', log.data)"
+        ></HighlitableText>
       </div>
     </div>
   </div>
@@ -53,6 +58,7 @@ const props = defineProps<{
 
 const emit = defineEmits({
   onLineDblClick: (log: LogEssentials) => true,
+  onLineClick: (log: LogEssentials) => true,
 });
 
 const {

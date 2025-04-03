@@ -43,6 +43,7 @@
         :hightLightedLog="hightLightedLog ?? undefined"
         :search="searchRegex"
         @on-line-dbl-click="onLogDblClick"
+        @on-line-click="onLogClick"
       ></LogWindow>
       <div class="w-full flex gap-2 flex-wrap items-center">
         <InputText
@@ -82,6 +83,7 @@
         :class="progress < 1 ? 'opacity-75' : ''"
         ref="filteredLogsRef"
         @on-line-dbl-click="onLogDblClick"
+        @on-line-click="onLogClick"
         :logs="filteredLogs"
         :selected-logs="selectedLogs"
         :show-local-time="showLocalTime"
@@ -201,7 +203,7 @@ const { comp: filteredLogs, progress } = useComputedGenerator(function* () {
   const logsArr = timeFilteredLogs.value;
   for (let i = 0; i < length; i++) {
     const log = logsArr[i];
-    if (log.original.match(rgx)) {
+    if (log.original.match(rgx) || selectedLogs.has(log.index)) {
       filtered.push(log);
     }
     if (i % 100_000 === 0) {
@@ -217,6 +219,11 @@ function onLogDblClick(log: LogEssentials) {
   hightLightedLog.value = log;
   if (index === -1) return;
   timeFilteredLogsRef.value?.scrollTo(index);
+}
+
+function onLogClick(log: LogEssentials) {
+  const index = filteredLogs.value.findIndex((l) => l.index === log.index);
+  hightLightedLog.value = log;
 }
 
 watch(filteredLogs, () => {
