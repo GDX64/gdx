@@ -11,7 +11,7 @@
     ></div>
     <div class="" v-bind="filterWrapperProps">
       <div
-        class="flex gap-2 whitespace-nowrap h-[25px] items-center px-1"
+        class="flex gap-2 whitespace-nowrap h-[25px] items-center px-1 group"
         @dblclick="emit('onLineDblClick', log.data)"
         v-for="log of filterList"
         :style="{ color: log.data.color ?? 'unset' }"
@@ -34,6 +34,11 @@
           :search="search"
           @click="emit('onLineClick', log.data)"
         ></HighlitableText>
+        <div
+          class="hover:scale-110 transition-all scale-0 group-hover:scale-100 bg-bg-50 cursor-pointer sticky right-0 p-1 h-full aspect-square rounded-md delay-500"
+        >
+          <i @click="" class="h-full w-full pi pi-comment text-text-prime"></i>
+        </div>
       </div>
     </div>
   </div>
