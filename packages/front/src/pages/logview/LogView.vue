@@ -21,11 +21,12 @@
         <Button @click="isCodeEditorVisible = true">Code Editor</Button>
         <div class="flex items-center gap-2">
           <label for="switch1">LocalTime</label>
-          <ToggleSwitch inputId="switch1" v-model="showLocalTime"> </ToggleSwitch>
+          <ToggleSwitch inputId="switch1" v-model="analysis.showLocalTime">
+          </ToggleSwitch>
         </div>
         <div class="flex items-center gap-2">
           <label for="switch1">TimeOnly</label>
-          <ToggleSwitch inputId="switch1" v-model="timeOnly"> </ToggleSwitch>
+          <ToggleSwitch inputId="switch1" v-model="analysis.timeOnly"> </ToggleSwitch>
         </div>
         <span> ({{ rawLogs.length }} logs) </span>
         <div class="grow bg-prime-400"></div>
@@ -36,12 +37,12 @@
       <LogWindow
         ref="timeFilteredLogsRef"
         class="grow"
-        :time-only="timeOnly"
+        :time-only="analysis.timeOnly"
         :logs="timeFilteredLogs"
-        :showLocalTime="showLocalTime"
-        :selectedLogs="selectedLogs"
+        :showLocalTime="analysis.showLocalTime"
+        :selectedLogs="analysis.selectedLogs"
         :hightLightedLog="hightLightedLog ?? undefined"
-        :search="searchRegex"
+        :search="analysis.searchRegex"
         @on-line-dbl-click="onLogDblClick"
         @on-line-click="onLogClick"
       ></LogWindow>
@@ -49,11 +50,11 @@
         <InputText
           class="rounded-md grow min-w-[500px] bg-red-400"
           type="text"
-          v-model="searchRegex"
+          v-model="analysis.searchRegex"
         />
         <div class="">Results {{ filteredLogs.length }}</div>
         <DatePicker
-          v-model="startDate.adjusted"
+          v-model="analysis.startDate.adjusted"
           fluid
           timeOnly
           showSeconds
@@ -61,7 +62,7 @@
           class="w-[100px]"
         ></DatePicker>
         <DatePicker
-          v-model="endDate.adjusted"
+          v-model="analysis.endDate.adjusted"
           fluid
           timeOnly
           showSeconds
@@ -71,11 +72,13 @@
         <Button @click="restartDateSelection"> Reset </Button>
         <div class="flex items-center gap-2">
           <label for="switch1">Only Selected</label>
-          <ToggleSwitch inputId="switch1" v-model="showOnlySelected"> </ToggleSwitch>
+          <ToggleSwitch inputId="switch1" v-model="analysis.showOnlySelected">
+          </ToggleSwitch>
         </div>
         <div class="flex items-center gap-2">
           <label for="switch1">Histogram</label>
-          <ToggleSwitch inputId="switch1" v-model="showHistogram"> </ToggleSwitch>
+          <ToggleSwitch inputId="switch1" v-model="analysis.showHistogram">
+          </ToggleSwitch>
         </div>
       </div>
       <LogWindow
@@ -85,14 +88,14 @@
         @on-line-dbl-click="onLogDblClick"
         @on-line-click="onLogClick"
         :logs="filteredLogs"
-        :selected-logs="selectedLogs"
-        :show-local-time="showLocalTime"
+        :selected-logs="analysis.selectedLogs"
+        :show-local-time="analysis.showLocalTime"
         :hightLightedLog="hightLightedLog ?? undefined"
-        :time-only="timeOnly"
-        :search="searchRegex"
+        :time-only="analysis.timeOnly"
+        :search="analysis.searchRegex"
         :resize="true"
       ></LogWindow>
-      <div class="w-full h-32 relative" v-if="showHistogram">
+      <div class="w-full h-32 relative" v-if="analysis.showHistogram">
         <LogTimeline
           v-if="filteredLogs.length && timeFilteredLogs.length"
           class="w-full h-full absolute top-0 left-0"
@@ -100,7 +103,7 @@
           :startDate="timeFilteredLogs[0].date"
           :endDate="timeFilteredLogs[timeFilteredLogs.length - 1].date"
           :selectedLog="hightLightedLog?.date"
-          :show-local-time="showLocalTime"
+          :show-local-time="analysis.showLocalTime"
           @select="onSelect"
         />
       </div>
@@ -132,28 +135,37 @@ import LogWindow from './LogWindow.vue';
 import SearchDialog from './SearchDialog.vue';
 
 const db = new LogsDatabase();
-const searchRegex = ref('');
-const isLoadVisible = ref(false);
+
+const analysis = reactive({
+  searchRegex: '',
+  selectedLogs: new Set<number>(),
+  showOnlySelected: false,
+  showHistogram: true,
+  showLocalTime: true,
+  timeOnly: true,
+  hightLightedLogIndex: null as number | null,
+  startDate: useUTCAdjustedDate(new Date(0)),
+  endDate: useUTCAdjustedDate(new Date()),
+});
+
 const isDrawerVisible = ref(false);
 const isSearchEditorVisible = ref(false);
 const isColorRulesVisible = ref(false);
 const isCodeEditorVisible = ref(false);
-const selectedLogs = reactive(new Set<number>());
-const showOnlySelected = ref(false);
-const showHistogram = ref(true);
-const showLocalTime = ref(true);
-const timeOnly = ref(true);
-
+const isLoadVisible = ref(false);
 const timeFilteredLogsRef = shallowRef<InstanceType<typeof LogWindow>>();
 const filteredLogsRef = shallowRef<InstanceType<typeof LogWindow>>();
-
-const hightLightedLog = ref<LogEssentials | null>(null);
 
 const colorRules = observableToRef(db.colorRulesObserver(), []);
 const baseFile = ref<string>('');
 
-const startDate = useUTCAdjustedDate(new Date(0));
-const endDate = useUTCAdjustedDate(new Date());
+const hightLightedLog = computed(() => {
+  return (
+    rawLogs.value.find((log) => {
+      return log.index === analysis.hightLightedLogIndex;
+    }) ?? null
+  );
+});
 
 const rawLogs = computed<LogEssentials[]>(() => {
   const logs = neloParser(baseFile.value);
@@ -173,16 +185,16 @@ const rawLogs = computed<LogEssentials[]>(() => {
 });
 
 const timeFilteredLogs = computed(() => {
-  const start = startDate.original;
-  const end = endDate.original;
+  const start = analysis.startDate.original;
+  const end = analysis.endDate.original;
   return rawLogs.value.filter((log) => {
     return log.date >= start && log.date <= end;
   });
 });
 
 const { comp: filteredLogs, progress } = useComputedGenerator(function* () {
-  if (showOnlySelected.value) {
-    const trackedValue = [...selectedLogs.values()]
+  if (analysis.showOnlySelected) {
+    const trackedValue = [...analysis.selectedLogs.values()]
       .sort((a, b) => {
         return a - b;
       })
@@ -192,19 +204,19 @@ const { comp: filteredLogs, progress } = useComputedGenerator(function* () {
     yield 1;
     return trackedValue;
   }
-  if (!searchRegex.value) {
+  if (!analysis.searchRegex) {
     const trackedValue = timeFilteredLogs.value;
     yield 1;
     return trackedValue;
   }
   const filtered: LogEssentials[] = [];
-  const rgx = new RegExp(searchRegex.value, 'i');
+  const rgx = new RegExp(analysis.searchRegex, 'i');
 
   const length = timeFilteredLogs.value.length;
   const logsArr = timeFilteredLogs.value;
   for (let i = 0; i < length; i++) {
     const log = logsArr[i];
-    if (log.original.match(rgx) || selectedLogs.has(log.index)) {
+    if (log.original.match(rgx) || analysis.selectedLogs.has(log.index)) {
       filtered.push(log);
     }
     if (i % 100_000 === 0) {
@@ -217,14 +229,13 @@ const { comp: filteredLogs, progress } = useComputedGenerator(function* () {
 
 function onLogDblClick(log: LogEssentials) {
   const index = timeFilteredLogs.value.findIndex((l) => l.index === log.index);
-  hightLightedLog.value = log;
+  analysis.hightLightedLogIndex = log.index;
   if (index === -1) return;
   timeFilteredLogsRef.value?.scrollTo(index);
 }
 
 function onLogClick(log: LogEssentials) {
-  const index = filteredLogs.value.findIndex((l) => l.index === log.index);
-  hightLightedLog.value = log;
+  analysis.hightLightedLogIndex = log.index;
 }
 
 watch(filteredLogs, () => {
@@ -235,7 +246,7 @@ watch(filteredLogs, () => {
 loadLogs();
 
 function onLoadSeach(regex: string) {
-  searchRegex.value = regex;
+  analysis.searchRegex = regex;
 }
 
 function neloParser(file: string): LogEssentials[] {
@@ -265,8 +276,8 @@ function onFileLoad(file: LogFile) {
 
 function restartDateSelection() {
   const { minDate, maxDate } = minMaxDates();
-  startDate.original = minDate;
-  endDate.original = maxDate;
+  analysis.startDate.original = minDate;
+  analysis.endDate.original = maxDate;
 }
 
 function minMaxDates() {
@@ -280,8 +291,8 @@ function minMaxDates() {
 }
 
 function onSelect(selection: { startDate: Date; endDate: Date }) {
-  startDate.original = selection.startDate;
-  endDate.original = selection.endDate;
+  analysis.startDate.original = selection.startDate;
+  analysis.endDate.original = selection.endDate;
 }
 
 async function loadLogs(name?: string) {
