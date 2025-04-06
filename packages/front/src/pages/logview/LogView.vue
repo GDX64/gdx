@@ -59,7 +59,7 @@
           v-model="analysis.searches"
           :suggestions="suggestions"
           :loading="false"
-          :typeahead="false"
+          :typeahead="true"
           dropdown
           multiple
           @complete="search"
@@ -187,10 +187,6 @@ const searchRegex = computed(() => {
   return analysis.searches.join('|');
 });
 
-watchEffect(() => {
-  console.log([...analysis.searches]);
-});
-
 const isDrawerVisible = ref(false);
 const isSearchEditorVisible = ref(false);
 const isColorRulesVisible = ref(false);
@@ -315,9 +311,8 @@ const suggestions = computed(() => {
   const savedSearches = preSearches.value.map((item) => item.regex);
   const regex = new RegExp(currentSearchText.value, 'i');
   const values = [...history, ...colorSearches, ...savedSearches];
-  console.log(values);
   return values.filter((item) => {
-    return item.match(regex);
+    return item.match(regex) && !analysis.searches.includes(item);
   });
 });
 
@@ -419,23 +414,27 @@ async function tryToLoadLastAnalysis() {
 }
 
 function search(event: AutoCompleteCompleteEvent) {
-  console.log('query', event.query);
+  currentSearchText.value = event.query;
 }
 
-function onSearchChange(event: AutoCompleteChangeEvent) {
-  const values = [event.value].flat();
-  values.forEach((value) => {
-    if (!analysis.searchHistory.includes(value)) {
-      analysis.searchHistory.push(value);
-      analysis.searchHistory = analysis.searchHistory.slice(-10).filter((item) => item);
-    }
-  });
-}
+function onSearchChange(event: AutoCompleteChangeEvent) {}
 
 function onSearchArrow(event: KeyboardEvent) {
   if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
     autocomplete.value.overlayVisible = true;
   }
-  currentSearchText.value = (event.target as HTMLInputElement).value;
+  if (event.key === 'Enter') {
+    const input = event.target as HTMLInputElement;
+    const current = input.value;
+    if (!current) {
+      return;
+    }
+    analysis.searches.push(current);
+    if (!analysis.searchHistory.includes(current)) {
+      analysis.searchHistory.push(current);
+      analysis.searchHistory = analysis.searchHistory.slice(-10).filter((item) => item);
+    }
+    input.value = '';
+  }
 }
 </script>
