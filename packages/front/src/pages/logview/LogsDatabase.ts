@@ -24,11 +24,27 @@ export type PluginStored = {
   saveDate: number;
 };
 
+export type LogAnalysis = {
+  id: number;
+  name: string;
+  searchRegex: string;
+  selectedLogs: Set<number>;
+  showOnlySelected: boolean;
+  showHistogram: boolean;
+  showLocalTime: boolean;
+  timeOnly: boolean;
+  hightLightedLogIndex: number | null;
+  startDate: Date;
+  endDate: Date;
+  logFileID: number;
+};
+
 export class LogsDatabase extends Dexie {
   private logs: Dexie.Table<LogFile, number>;
   private colorRules: Dexie.Table<ColorRule, number>;
   private plugins: Dexie.Table<PluginStored, number>;
   private searches: Dexie.Table<LogSearchRegex, number>;
+  private logAnalysis: Dexie.Table<LogAnalysis, number>;
 
   constructor() {
     super('LogsDatabase');
@@ -38,6 +54,7 @@ export class LogsDatabase extends Dexie {
         colorRules: '&name',
         plugins: '&name',
         searches: '&name',
+        logAnalysis: '++id, &name',
       })
       .upgrade(async () => {
         await this.logs.clear();
@@ -46,10 +63,15 @@ export class LogsDatabase extends Dexie {
     this.logs = this.table('logs');
     this.plugins = this.table('plugins');
     this.searches = this.table('searches');
+    this.logAnalysis = this.table('logAnalysis');
   }
 
   loadLogFile(name: string): Promise<LogFile | undefined> {
     return this.logs.get({ name });
+  }
+
+  getLogFile(id: number): Promise<LogFile | undefined> {
+    return this.logs.get(id);
   }
 
   saveColorRule(rule: ColorRule): Promise<number> {
@@ -86,6 +108,10 @@ export class LogsDatabase extends Dexie {
     return this.colorRules.where('name').equals(name).delete();
   }
 
+  deleteLogAnalysis(id: number): Promise<number> {
+    return this.logAnalysis.where('id').equals(id).delete();
+  }
+
   lastFile(): Promise<LogFile | undefined> {
     return this.logs.orderBy('lastOpen').last();
   }
@@ -100,6 +126,25 @@ export class LogsDatabase extends Dexie {
 
   loadPlugins(): Promise<PluginStored[]> {
     return this.plugins.toArray();
+  }
+
+  loadAnalysisNames() {
+    return this.logAnalysis.toCollection().keys();
+  }
+
+  analysisObserver(): Observable<{ name: string; id: number }[]> {
+    return liveQuery(async () => {
+      const arr = await this.logAnalysis.orderBy('name').toArray();
+      return arr.map((a) => ({ name: a.name, id: a.id }));
+    });
+  }
+
+  getAnalysis(id: number): Promise<LogAnalysis | undefined> {
+    return this.logAnalysis.get(id);
+  }
+
+  addLogAnalysis(analysis: Omit<LogAnalysis, 'id'>): Promise<number> {
+    return this.logAnalysis.add(analysis as LogAnalysis);
   }
 
   colorRulesObserver(): Observable<ColorRule[]> {

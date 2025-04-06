@@ -6,7 +6,7 @@
     @dragover.stop.prevent.capture=""
   >
     <div class="flex flex-col items-start gap-1 flex-1 overflow-hidden h-full">
-      <LoadMenu @load="onFileLoad" v-model:visible="isLoadVisible"></LoadMenu>
+      <LoadMenu @load="onAnalysisLoaded" v-model:visible="isLoadVisible"></LoadMenu>
       <ColorRulesDialog v-model:visible="isColorRulesVisible"></ColorRulesDialog>
       <CodeEditor v-model:visible="isCodeEditorVisible"></CodeEditor>
       <SearchDialog
@@ -119,12 +119,17 @@
 
 <script lang="ts" setup>
 import { computed, reactive, ref, shallowRef, watch } from 'vue';
-import { LogFile, LogsDatabase } from './LogsDatabase';
+import { LogAnalysis, LogFile, LogsDatabase } from './LogsDatabase';
 import LogTimeline from './LogTimeline.vue';
 import InputText from 'primevue/inputtext';
 import DatePicker from 'primevue/datepicker';
 import Button from 'primevue/button';
-import { observableToRef, useComputedGenerator, useUTCAdjustedDate } from '@gdx/utils';
+import {
+  fnToObservable,
+  observableToRef,
+  useComputedGenerator,
+  useUTCAdjustedDate,
+} from '@gdx/utils';
 import LoadMenu from './LoadMenu.vue';
 import ToggleSwitch from 'primevue/toggleswitch';
 import { LogEssentials } from './LogTypes';
@@ -133,6 +138,7 @@ import ColorRulesDialog from './ColorRulesDialog.vue';
 import CodeEditor from './CodeEditor.vue';
 import LogWindow from './LogWindow.vue';
 import SearchDialog from './SearchDialog.vue';
+import { EMPTY, switchMap } from 'rxjs';
 
 const db = new LogsDatabase();
 
@@ -143,6 +149,7 @@ const analysis = reactive({
   showHistogram: true,
   showLocalTime: true,
   timeOnly: true,
+  logFileID: null as number | null,
   hightLightedLogIndex: null as number | null,
   startDate: useUTCAdjustedDate(new Date(0)),
   endDate: useUTCAdjustedDate(new Date()),
@@ -157,7 +164,15 @@ const timeFilteredLogsRef = shallowRef<InstanceType<typeof LogWindow>>();
 const filteredLogsRef = shallowRef<InstanceType<typeof LogWindow>>();
 
 const colorRules = observableToRef(db.colorRulesObserver(), []);
-const baseFile = ref<string>('');
+const file$ = fnToObservable(() => analysis.logFileID).pipe(
+  switchMap(async (id) => {
+    if (id == null) return '';
+    const file = await db.getLogFile(id);
+    if (file == null) return '';
+    return file.content;
+  })
+);
+const baseFile = observableToRef(file$, '');
 
 const hightLightedLog = computed(() => {
   return (
@@ -243,8 +258,6 @@ watch(filteredLogs, () => {
   timeFilteredLogsRef.value?.scrollTo(0);
 });
 
-loadLogs();
-
 function onLoadSeach(regex: string) {
   analysis.searchRegex = regex;
 }
@@ -267,11 +280,6 @@ function neloParser(file: string): LogEssentials[] {
     };
   });
   return logs;
-}
-
-function onFileLoad(file: LogFile) {
-  baseFile.value = file.content;
-  restartDateSelection();
 }
 
 function restartDateSelection() {
@@ -308,6 +316,20 @@ async function loadLogs(name?: string) {
     baseFile.value = '';
   }
   restartDateSelection();
+}
+
+function onAnalysisLoaded(loaded: LogAnalysis) {
+  analysis.endDate.original = loaded.endDate;
+  analysis.startDate.original = loaded.startDate;
+  analysis.hightLightedLogIndex = loaded.hightLightedLogIndex;
+  analysis.searchRegex = loaded.searchRegex;
+  analysis.selectedLogs = loaded.selectedLogs;
+  analysis.showHistogram = loaded.showHistogram;
+  analysis.showLocalTime = loaded.showLocalTime;
+  analysis.showOnlySelected = loaded.showOnlySelected;
+  analysis.timeOnly = loaded.timeOnly;
+  analysis.logFileID = loaded.logFileID;
+  console.log(loaded);
 }
 
 async function onDrop(event: DragEvent) {

@@ -291,7 +291,7 @@ type SimpleObservable<T> = {
 };
 
 export function observableToRef<T>(
-  obs: SimpleObservable<T>,
+  obs: SimpleObservable<T> | Observable<T>,
   initial: T
 ): Ref<T> {
   const thing = shallowRef(initial);
@@ -300,6 +300,21 @@ export function observableToRef<T>(
   });
   onUnmounted(() => sub.unsubscribe());
   return thing;
+}
+
+export function fnToObservable<T>(fn: () => T): Observable<T> {
+  return new Observable<T>((subscriber) => {
+    const sub = watch(
+      fn,
+      (value) => {
+        subscriber.next(value);
+      },
+      {
+        immediate: true,
+      }
+    );
+    return () => sub();
+  });
 }
 
 export function useComputedGenerator<T>(
