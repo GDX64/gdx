@@ -48,18 +48,24 @@
         :showLocalTime="analysis.showLocalTime"
         :selectedLogs="analysis.selectedLogs"
         :hightLightedLog="hightLightedLog ?? undefined"
-        :search="analysis.searchRegex"
+        :search="searchRegex"
         @on-line-dbl-click="onLogDblClick"
         @on-line-click="onLogClick"
       ></LogWindow>
       <div class="w-full flex gap-2 flex-wrap items-center">
         <AutoComplete
           class="rounded-md grow"
-          type="text"
-          v-model="analysis.searchRegex"
+          ref="autocomplete"
+          v-model="analysis.searches"
           :suggestions="suggestions"
+          :loading="false"
+          :typeahead="false"
           dropdown
+          multiple
           @complete="search"
+          @change="onSearchChange"
+          @keyup="onSearchArrow"
+          @value-change="onSearchChange"
         />
         <div class="">Results {{ filteredLogs.length }}</div>
         <DatePicker
@@ -101,7 +107,7 @@
         :show-local-time="analysis.showLocalTime"
         :hightLightedLog="hightLightedLog ?? undefined"
         :time-only="analysis.timeOnly"
-        :search="analysis.searchRegex"
+        :search="searchRegex"
         :resize="true"
       ></LogWindow>
       <div class="w-full h-32 relative" v-if="analysis.showHistogram">
@@ -127,7 +133,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, reactive, ref, shallowRef, toRaw, watch } from 'vue';
+import { computed, reactive, ref, shallowRef, toRaw, watch, watchEffect } from 'vue';
 import { LogAnalysis, LogFile, LogsDatabase } from './LogsDatabase';
 import LogTimeline from './LogTimeline.vue';
 import InputText from 'primevue/inputtext';
@@ -151,7 +157,10 @@ import LogWindow from './LogWindow.vue';
 import SearchDialog from './SearchDialog.vue';
 import { switchMap } from 'rxjs';
 import NewAnalysisMenu from './NewAnalysisMenu.vue';
-import AutoComplete, { AutoCompleteCompleteEvent } from 'primevue/autocomplete';
+import AutoComplete, {
+  AutoCompleteChangeEvent,
+  AutoCompleteCompleteEvent,
+} from 'primevue/autocomplete';
 
 const db = new LogsDatabase();
 
@@ -159,7 +168,7 @@ const analysis = reactive({
   id: null as number | null,
   searchHistory: <string[]>[],
   name: 'New Analysis',
-  searchRegex: '',
+  searches: <string[]>[],
   selectedLogs: new Set<number>(),
   showOnlySelected: false,
   showHistogram: true,
@@ -169,6 +178,17 @@ const analysis = reactive({
   hightLightedLogIndex: null as number | null,
   startDate: useUTCAdjustedDate(new Date(0)),
   endDate: useUTCAdjustedDate(new Date()),
+});
+
+const autocomplete = ref<any>();
+const currentSearchText = ref('');
+
+const searchRegex = computed(() => {
+  return analysis.searches.join('|');
+});
+
+watchEffect(() => {
+  console.log([...analysis.searches]);
 });
 
 const isDrawerVisible = ref(false);
@@ -207,7 +227,7 @@ useInterval(async () => {
     endDate: analysis.endDate.original,
     startDate: analysis.startDate.original,
     hightLightedLogIndex: analysis.hightLightedLogIndex,
-    searchRegex: analysis.searchRegex,
+    searches: toRaw(analysis.searches),
     selectedLogs: toRaw(analysis.selectedLogs),
     showHistogram: analysis.showHistogram,
     showLocalTime: analysis.showLocalTime,
@@ -264,13 +284,13 @@ const { comp: filteredLogs, progress } = useComputedGenerator(function* () {
     yield 1;
     return trackedValue;
   }
-  if (!analysis.searchRegex) {
+  if (!searchRegex.value) {
     const trackedValue = timeFilteredLogs.value;
     yield 1;
     return trackedValue;
   }
   const filtered: LogEssentials[] = [];
-  const rgx = new RegExp(analysis.searchRegex, 'i');
+  const rgx = new RegExp(searchRegex.value, 'i');
 
   const length = timeFilteredLogs.value.length;
   const logsArr = timeFilteredLogs.value;
@@ -293,8 +313,11 @@ const suggestions = computed(() => {
   const history = analysis.searchHistory;
   const colorSearches = colorRules.value.map((item) => item.regex);
   const savedSearches = preSearches.value.map((item) => item.regex);
-  return [...history, ...colorSearches, ...savedSearches].filter((item) => {
-    return item.toLowerCase().includes(analysis.searchRegex.toLowerCase());
+  const regex = new RegExp(currentSearchText.value, 'i');
+  const values = [...history, ...colorSearches, ...savedSearches];
+  console.log(values);
+  return values.filter((item) => {
+    return item.match(regex);
   });
 });
 
@@ -315,7 +338,7 @@ function onLogClick(log: LogEssentials) {
 }
 
 function onLoadSeach(regex: string) {
-  analysis.searchRegex = regex;
+  analysis.searches.push(regex);
 }
 
 function neloParser(file: string): LogEssentials[] {
@@ -367,7 +390,7 @@ function onAnalysisLoaded(loaded: LogAnalysis) {
     analysis.startDate.original = loaded.startDate;
   }
   analysis.hightLightedLogIndex = loaded.hightLightedLogIndex;
-  analysis.searchRegex = loaded.searchRegex;
+  analysis.searches = loaded.searches;
   analysis.selectedLogs = loaded.selectedLogs;
   analysis.showHistogram = loaded.showHistogram;
   analysis.showLocalTime = loaded.showLocalTime;
@@ -396,8 +419,23 @@ async function tryToLoadLastAnalysis() {
 }
 
 function search(event: AutoCompleteCompleteEvent) {
-  if (!analysis.searchHistory.includes(event.query)) {
-    analysis.searchHistory.push(event.query);
+  console.log('query', event.query);
+}
+
+function onSearchChange(event: AutoCompleteChangeEvent) {
+  const values = [event.value].flat();
+  values.forEach((value) => {
+    if (!analysis.searchHistory.includes(value)) {
+      analysis.searchHistory.push(value);
+      analysis.searchHistory = analysis.searchHistory.slice(-10).filter((item) => item);
+    }
+  });
+}
+
+function onSearchArrow(event: KeyboardEvent) {
+  if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+    autocomplete.value.overlayVisible = true;
   }
+  currentSearchText.value = (event.target as HTMLInputElement).value;
 }
 </script>

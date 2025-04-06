@@ -27,7 +27,7 @@ export type PluginStored = {
 export type LogAnalysis = {
   id: number;
   name: string;
-  searchRegex: string;
+  searches: string[];
   selectedLogs: Set<number>;
   showOnlySelected: boolean;
   showHistogram: boolean;

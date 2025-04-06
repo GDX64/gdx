@@ -45,7 +45,7 @@ async function save() {
       endDate: new Date(),
       startDate: new Date(0),
       hightLightedLogIndex: null,
-      searchRegex: 'AppStart',
+      searches: [],
       selectedLogs: new Set(),
       showHistogram: true,
       showLocalTime: true,
