@@ -53,10 +53,13 @@
         @on-line-click="onLogClick"
       ></LogWindow>
       <div class="w-full flex gap-2 flex-wrap items-center">
-        <InputText
-          class="rounded-md grow min-w-[500px] bg-red-400"
+        <AutoComplete
+          class="rounded-md grow"
           type="text"
           v-model="analysis.searchRegex"
+          :suggestions="suggestions"
+          dropdown
+          @complete="search"
         />
         <div class="">Results {{ filteredLogs.length }}</div>
         <DatePicker
@@ -146,14 +149,15 @@ import ColorRulesDialog from './ColorRulesDialog.vue';
 import CodeEditor from './CodeEditor.vue';
 import LogWindow from './LogWindow.vue';
 import SearchDialog from './SearchDialog.vue';
-import { EMPTY, switchMap } from 'rxjs';
+import { switchMap } from 'rxjs';
 import NewAnalysisMenu from './NewAnalysisMenu.vue';
-import { is } from 'ramda';
+import AutoComplete, { AutoCompleteCompleteEvent } from 'primevue/autocomplete';
 
 const db = new LogsDatabase();
 
 const analysis = reactive({
   id: null as number | null,
+  searchHistory: <string[]>[],
   name: 'New Analysis',
   searchRegex: '',
   selectedLogs: new Set<number>(),
@@ -178,6 +182,7 @@ const filteredLogsRef = shallowRef<InstanceType<typeof LogWindow>>();
 const currentFile = shallowRef<File | null>(null);
 
 const colorRules = observableToRef(db.colorRulesObserver(), []);
+const preSearches = observableToRef(db.searchObservable(), []);
 const file$ = fnToObservable(() => analysis.logFileID).pipe(
   switchMap(async (id) => {
     if (id == null) return '';
@@ -284,6 +289,15 @@ const { comp: filteredLogs, progress } = useComputedGenerator(function* () {
   return filtered;
 }, []);
 
+const suggestions = computed(() => {
+  const history = analysis.searchHistory;
+  const colorSearches = colorRules.value.map((item) => item.regex);
+  const savedSearches = preSearches.value.map((item) => item.regex);
+  return [...history, ...colorSearches, ...savedSearches].filter((item) => {
+    return item.toLowerCase().includes(analysis.searchRegex.toLowerCase());
+  });
+});
+
 watch(filteredLogs, () => {
   filteredLogsRef.value?.scrollTo(0);
   timeFilteredLogsRef.value?.scrollTo(0);
@@ -378,6 +392,12 @@ async function tryToLoadLastAnalysis() {
     onAnalysisLoaded(lastAnalysis);
   } else {
     isLoadVisible.value = true;
+  }
+}
+
+function search(event: AutoCompleteCompleteEvent) {
+  if (!analysis.searchHistory.includes(event.query)) {
+    analysis.searchHistory.push(event.query);
   }
 }
 </script>
