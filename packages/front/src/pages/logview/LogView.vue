@@ -269,9 +269,11 @@ const { comp: filteredLogs, progress } = useComputedGenerator(function* () {
 
   const length = timeFilteredLogs.value.length;
   const logsArr = timeFilteredLogs.value;
+  //this is for performance
+  const selectedLogs = new Set(analysis.selectedLogs.values());
   for (let i = 0; i < length; i++) {
     const log = logsArr[i];
-    if (log.original.match(rgx) || analysis.selectedLogs.has(log.index)) {
+    if (log.original.match(rgx) || selectedLogs.has(log.index)) {
       filtered.push(log);
     }
     if (i % 100_000 === 0) {
