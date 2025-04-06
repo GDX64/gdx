@@ -83,7 +83,8 @@ export class LogsDatabase extends Dexie {
     const content = await file.text();
     const existing = await this.logs.get({ name });
     if (existing) {
-      return this.logs.update(existing.id!, { content });
+      await this.logs.update(existing.id!, { content });
+      return existing.id!;
     }
     return this.logs.put({ name, content, lastOpen: new Date() });
   }

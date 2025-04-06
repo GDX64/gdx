@@ -7,6 +7,12 @@
   >
     <div class="flex flex-col items-start gap-1 flex-1 overflow-hidden h-full">
       <LoadMenu @load="onAnalysisLoaded" v-model:visible="isLoadVisible"></LoadMenu>
+      <NewAnalysisMenu
+        v-if="currentFile"
+        :file="currentFile"
+        @load="onAnalysisLoaded"
+        v-model:visible="isNewAnalysisVisible"
+      ></NewAnalysisMenu>
       <ColorRulesDialog v-model:visible="isColorRulesVisible"></ColorRulesDialog>
       <CodeEditor v-model:visible="isCodeEditorVisible"></CodeEditor>
       <SearchDialog
@@ -139,6 +145,8 @@ import CodeEditor from './CodeEditor.vue';
 import LogWindow from './LogWindow.vue';
 import SearchDialog from './SearchDialog.vue';
 import { EMPTY, switchMap } from 'rxjs';
+import NewAnalysisMenu from './NewAnalysisMenu.vue';
+import { is } from 'ramda';
 
 const db = new LogsDatabase();
 
@@ -160,8 +168,10 @@ const isSearchEditorVisible = ref(false);
 const isColorRulesVisible = ref(false);
 const isCodeEditorVisible = ref(false);
 const isLoadVisible = ref(false);
+const isNewAnalysisVisible = ref(false);
 const timeFilteredLogsRef = shallowRef<InstanceType<typeof LogWindow>>();
 const filteredLogsRef = shallowRef<InstanceType<typeof LogWindow>>();
+const currentFile = shallowRef<File | null>(null);
 
 const colorRules = observableToRef(db.colorRulesObserver(), []);
 const file$ = fnToObservable(() => analysis.logFileID).pipe(
@@ -335,8 +345,8 @@ function onAnalysisLoaded(loaded: LogAnalysis) {
 async function onDrop(event: DragEvent) {
   const file = event.dataTransfer?.files[0];
   if (file) {
-    await db.saveRawFile(file);
-    loadLogs(file.name);
+    currentFile.value = file;
+    isNewAnalysisVisible.value = true;
   }
 }
 </script>
