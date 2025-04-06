@@ -124,7 +124,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, reactive, ref, shallowRef, watch } from 'vue';
+import { computed, reactive, ref, shallowRef, toRaw, watch } from 'vue';
 import { LogAnalysis, LogFile, LogsDatabase } from './LogsDatabase';
 import LogTimeline from './LogTimeline.vue';
 import InputText from 'primevue/inputtext';
@@ -134,6 +134,8 @@ import {
   fnToObservable,
   observableToRef,
   useComputedGenerator,
+  useInterval,
+  useObservable,
   useUTCAdjustedDate,
 } from '@gdx/utils';
 import LoadMenu from './LoadMenu.vue';
@@ -151,6 +153,8 @@ import { is } from 'ramda';
 const db = new LogsDatabase();
 
 const analysis = reactive({
+  id: null as number | null,
+  name: 'New Analysis',
   searchRegex: '',
   selectedLogs: new Set<number>(),
   showOnlySelected: false,
@@ -182,7 +186,33 @@ const file$ = fnToObservable(() => analysis.logFileID).pipe(
     return file.content;
   })
 );
-const baseFile = observableToRef(file$, '');
+
+const baseFile = ref('');
+useObservable(file$, (file) => {
+  baseFile.value = file;
+  restartDateSelection();
+});
+
+tryToLoadLastAnalysis();
+
+useInterval(async () => {
+  if (analysis.logFileID == null || analysis.id == null) return;
+  await db.putAnalysis({
+    name: analysis.name,
+    endDate: analysis.endDate.original,
+    startDate: analysis.startDate.original,
+    hightLightedLogIndex: analysis.hightLightedLogIndex,
+    searchRegex: analysis.searchRegex,
+    selectedLogs: toRaw(analysis.selectedLogs),
+    showHistogram: analysis.showHistogram,
+    showLocalTime: analysis.showLocalTime,
+    showOnlySelected: analysis.showOnlySelected,
+    timeOnly: analysis.timeOnly,
+    logFileID: analysis.logFileID,
+    id: analysis.id,
+    updatedAt: new Date(),
+  });
+}, 1000);
 
 const hightLightedLog = computed(() => {
   return (
@@ -252,6 +282,11 @@ const { comp: filteredLogs, progress } = useComputedGenerator(function* () {
   return filtered;
 }, []);
 
+watch(filteredLogs, () => {
+  filteredLogsRef.value?.scrollTo(0);
+  timeFilteredLogsRef.value?.scrollTo(0);
+});
+
 function onLogDblClick(log: LogEssentials) {
   const index = timeFilteredLogs.value.findIndex((l) => l.index === log.index);
   analysis.hightLightedLogIndex = log.index;
@@ -262,11 +297,6 @@ function onLogDblClick(log: LogEssentials) {
 function onLogClick(log: LogEssentials) {
   analysis.hightLightedLogIndex = log.index;
 }
-
-watch(filteredLogs, () => {
-  filteredLogsRef.value?.scrollTo(0);
-  timeFilteredLogsRef.value?.scrollTo(0);
-});
 
 function onLoadSeach(regex: string) {
   analysis.searchRegex = regex;
@@ -313,24 +343,13 @@ function onSelect(selection: { startDate: Date; endDate: Date }) {
   analysis.endDate.original = selection.endDate;
 }
 
-async function loadLogs(name?: string) {
-  let logFile;
-  if (name) {
-    logFile = await db.loadLogFile(name);
-  } else {
-    logFile = await db.lastFile();
-  }
-  if (logFile) {
-    baseFile.value = logFile.content;
-  } else {
-    baseFile.value = '';
-  }
-  restartDateSelection();
-}
-
 function onAnalysisLoaded(loaded: LogAnalysis) {
-  analysis.endDate.original = loaded.endDate;
-  analysis.startDate.original = loaded.startDate;
+  if (loaded.endDate) {
+    analysis.endDate.original = loaded.endDate;
+  }
+  if (loaded.startDate) {
+    analysis.startDate.original = loaded.startDate;
+  }
   analysis.hightLightedLogIndex = loaded.hightLightedLogIndex;
   analysis.searchRegex = loaded.searchRegex;
   analysis.selectedLogs = loaded.selectedLogs;
@@ -339,7 +358,8 @@ function onAnalysisLoaded(loaded: LogAnalysis) {
   analysis.showOnlySelected = loaded.showOnlySelected;
   analysis.timeOnly = loaded.timeOnly;
   analysis.logFileID = loaded.logFileID;
-  console.log(loaded);
+  analysis.id = loaded.id;
+  analysis.name = loaded.name;
 }
 
 async function onDrop(event: DragEvent) {
@@ -347,6 +367,15 @@ async function onDrop(event: DragEvent) {
   if (file) {
     currentFile.value = file;
     isNewAnalysisVisible.value = true;
+  }
+}
+
+async function tryToLoadLastAnalysis() {
+  const lastAnalysis = await db.getLastLogAnalysis();
+  if (lastAnalysis) {
+    onAnalysisLoaded(lastAnalysis);
+  } else {
+    isLoadVisible.value = true;
   }
 }
 </script>

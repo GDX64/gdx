@@ -34,9 +34,10 @@ export type LogAnalysis = {
   showLocalTime: boolean;
   timeOnly: boolean;
   hightLightedLogIndex: number | null;
-  startDate: Date;
-  endDate: Date;
+  startDate?: Date;
+  endDate?: Date;
   logFileID: number;
+  updatedAt: Date;
 };
 
 export class LogsDatabase extends Dexie {
@@ -54,7 +55,7 @@ export class LogsDatabase extends Dexie {
         colorRules: '&name',
         plugins: '&name',
         searches: '&name',
-        logAnalysis: '++id, &name',
+        logAnalysis: '++id, &name, updatedAt',
       })
       .upgrade(async () => {
         await this.logs.clear();
@@ -131,6 +132,14 @@ export class LogsDatabase extends Dexie {
 
   loadAnalysisNames() {
     return this.logAnalysis.toCollection().keys();
+  }
+
+  getLastLogAnalysis() {
+    return this.logAnalysis.orderBy('updatedAt').last();
+  }
+
+  putAnalysis(analysis: LogAnalysis): Promise<number> {
+    return this.logAnalysis.put(analysis);
   }
 
   analysisObserver(): Observable<{ name: string; id: number }[]> {

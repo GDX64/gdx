@@ -302,6 +302,14 @@ export function observableToRef<T>(
   return thing;
 }
 
+export function useObservable<T>(
+  obs: SimpleObservable<T> | Observable<T>,
+  fn: (value: T) => void
+): void {
+  const sub = obs.subscribe(fn);
+  onUnmounted(() => sub.unsubscribe());
+}
+
 export function fnToObservable<T>(fn: () => T): Observable<T> {
   return new Observable<T>((subscriber) => {
     const sub = watch(

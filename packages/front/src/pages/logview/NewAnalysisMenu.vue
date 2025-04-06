@@ -52,6 +52,7 @@ async function save() {
       showOnlySelected: false,
       timeOnly: false,
       logFileID: fileID,
+      updatedAt: new Date(),
     });
 
     const finalAnalysis = await db.getAnalysis(analysisID);

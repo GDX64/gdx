@@ -1,11 +1,6 @@
 <template>
   <Dialog v-model:visible="visible" modal header="Files" class="w-[500px]">
     <div class="flex flex-col gap-4">
-      <div class="flex flex-col items-start gap-2">
-        <div class="flex gap-2">
-          <Button @click="addNew">Save</Button>
-        </div>
-      </div>
       <Listbox
         v-model="selected"
         :options="options"
@@ -68,21 +63,5 @@ function deleteSelected() {
   if (selected.value != null) {
     db.deleteLogAnalysis(selected.value);
   }
-}
-
-function addNew() {
-  db.addLogAnalysis({
-    name: 'newOther',
-    endDate: new Date(),
-    startDate: new Date(0),
-    hightLightedLogIndex: null,
-    searchRegex: 'AppStart',
-    selectedLogs: new Set(),
-    showHistogram: false,
-    showLocalTime: true,
-    showOnlySelected: false,
-    timeOnly: false,
-    logFileID: 6,
-  });
 }
 </script>
