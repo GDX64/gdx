@@ -40,12 +40,21 @@ export type LogAnalysis = {
   updatedAt: Date;
 };
 
+export type LogComment = {
+  id?: number;
+  comment: string;
+  updatedAt: Date;
+  analysisID: number;
+  logIndex: number;
+};
+
 export class LogsDatabase extends Dexie {
   private logs: Dexie.Table<LogFile, number>;
   private colorRules: Dexie.Table<ColorRule, number>;
   private plugins: Dexie.Table<PluginStored, number>;
   private searches: Dexie.Table<LogSearchRegex, number>;
   private logAnalysis: Dexie.Table<LogAnalysis, number>;
+  private comments: Dexie.Table<LogComment, number>;
 
   constructor() {
     super('LogsDatabase');
@@ -56,6 +65,7 @@ export class LogsDatabase extends Dexie {
         plugins: '&name',
         searches: '&name',
         logAnalysis: '++id, &name, updatedAt',
+        comments: '++id, updatedAt, analysisID',
       })
       .upgrade(async () => {
         await this.logs.clear();
@@ -65,6 +75,7 @@ export class LogsDatabase extends Dexie {
     this.plugins = this.table('plugins');
     this.searches = this.table('searches');
     this.logAnalysis = this.table('logAnalysis');
+    this.comments = this.table('comments');
   }
 
   loadLogFile(name: string): Promise<LogFile | undefined> {
@@ -192,5 +203,19 @@ export class LogsDatabase extends Dexie {
 
   deleteFile(name: string): Promise<number> {
     return this.logs.where('name').equals(name).delete();
+  }
+
+  saveComment(comment: LogComment): Promise<number> {
+    return this.comments.put(comment);
+  }
+
+  commentsObserver(analysisID: number): Observable<LogComment[]> {
+    return liveQuery(async () => {
+      return this.comments.where('analysisID').equals(analysisID).toArray();
+    });
+  }
+
+  deleteComment(id: number): Promise<number> {
+    return this.comments.where('id').equals(id).delete();
   }
 }

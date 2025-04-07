@@ -4,6 +4,9 @@
     class="overflow-y-auto w-full min-h-[100px] max-h-[70%] border border-prime-600"
     :style="{ height: downLogViewSize + 'px' }"
   >
+    <Popover ref="op" @hide="onPopoverHide">
+      <Textarea v-if="currentComment" v-model="currentComment.comment"> </Textarea>
+    </Popover>
     <div
       v-if="resize"
       class="resize-handler w-full cursor-ns-resize top-0 sticky h-2"
@@ -35,9 +38,15 @@
           @click="emit('onLineClick', log.data)"
         ></HighlitableText>
         <div
-          class="hover:scale-110 transition-all scale-0 group-hover:scale-100 bg-bg-50 cursor-pointer sticky right-0 p-1 h-full aspect-square rounded-md delay-500"
+          class="hover:scale-110 transition-all scale-0 group-hover:scale-100 bg-bg-50 cursor-pointer sticky right-0 p-1 h-full aspect-square rounded-md"
+          :class="
+            commentOfLog(log.data)
+              ? 'text-prime-500 !scale-100'
+              : 'delay-500 text-text-prime'
+          "
+          @click="onCommentClick($event, log.data)"
         >
-          <i @click="" class="h-full w-full pi pi-comment text-text-prime"></i>
+          <i class="h-full w-full pi pi-comment"></i>
         </div>
       </div>
     </div>
@@ -46,10 +55,14 @@
 
 <script lang="ts" setup>
 import { useVirtualList } from '@vueuse/core';
-import { computed, ref, toRef } from 'vue';
+import { computed, ref, toRef, watchEffect } from 'vue';
 import { LogEssentials } from './LogTypes';
 import { useMakeYResizeHandler } from '@gdx/utils';
 import HighlitableText from './HighlitableText.vue';
+import { LogComment } from './LogsDatabase';
+import Popover from 'primevue/popover';
+import Textarea from 'primevue/textarea';
+import { useLogView } from './useLogView';
 
 const props = defineProps<{
   logs: LogEssentials[];
@@ -76,7 +89,10 @@ const {
   itemHeight: 25,
 });
 
+const { db, analysis, comments } = useLogView();
 const downLogViewSize = ref(props.startSize ?? 500);
+const op = ref<InstanceType<typeof Popover> | null>(null);
+const currentComment = ref<LogComment | null>(null);
 
 const resizeStart$ = useMakeYResizeHandler({
   onEnd() {},
@@ -87,6 +103,18 @@ const resizeStart$ = useMakeYResizeHandler({
     return downLogViewSize.value;
   },
 });
+
+function commentOfLog(log: LogEssentials) {
+  return comments.value.find((comment) => comment.logIndex === log.index);
+}
+
+function onPopoverHide() {
+  if (currentComment.value?.comment) {
+    db.saveComment({ ...currentComment.value });
+  } else if (currentComment.value?.id) {
+    db.deleteComment(currentComment.value.id);
+  }
+}
 
 const dateFormatter = computed(() => {
   if (props.showLocalTime) {
@@ -154,6 +182,18 @@ function onLogSelect(log: LogEssentials, event: MouseEvent) {
   } else {
     props.selectedLogs?.add(log.index);
   }
+}
+
+function onCommentClick(event: Event, log: LogEssentials) {
+  if (analysis.id == null) return;
+
+  currentComment.value = commentOfLog(log) ?? {
+    analysisID: analysis.id,
+    comment: '',
+    logIndex: log.index,
+    updatedAt: new Date(),
+  };
+  op.value?.show(event);
 }
 
 defineExpose({

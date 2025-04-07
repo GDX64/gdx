@@ -139,7 +139,6 @@
 import { computed, reactive, ref, shallowRef, toRaw, watch, watchEffect } from 'vue';
 import { LogAnalysis, LogFile, LogsDatabase } from './LogsDatabase';
 import LogTimeline from './LogTimeline.vue';
-import InputText from 'primevue/inputtext';
 import DatePicker from 'primevue/datepicker';
 import Button from 'primevue/button';
 import {
@@ -148,7 +147,6 @@ import {
   useComputedGenerator,
   useInterval,
   useObservable,
-  useUTCAdjustedDate,
 } from '@gdx/utils';
 import LoadMenu from './LoadMenu.vue';
 import ToggleSwitch from 'primevue/toggleswitch';
@@ -164,24 +162,9 @@ import AutoComplete, {
   AutoCompleteChangeEvent,
   AutoCompleteCompleteEvent,
 } from 'primevue/autocomplete';
+import { useLogView } from './useLogView';
 
-const db = new LogsDatabase();
-
-const analysis = reactive({
-  id: null as number | null,
-  searchHistory: <string[]>[],
-  name: 'New Analysis',
-  searches: <string[]>[],
-  selectedLogs: new Set<number>(),
-  showOnlySelected: false,
-  showHistogram: true,
-  showLocalTime: true,
-  timeOnly: true,
-  logFileID: null as number | null,
-  hightLightedLogIndex: null as number | null,
-  startDate: useUTCAdjustedDate(new Date(0)),
-  endDate: useUTCAdjustedDate(new Date()),
-});
+const { db, analysis } = useLogView();
 
 const autocomplete = ref<any>();
 const currentSearchText = ref('');
@@ -361,7 +344,7 @@ function calcSearch() {
   const values = [...history, ...colorSearches, ...savedSearches];
   const head = <string[]>[];
   const tail = <string[]>[];
-  const thoseWhoMatch = values.forEach((item) => {
+  values.forEach((item) => {
     const matches = item.match(regex) && !analysis.searches.includes(item);
     if (matches) {
       head.push(item);
