@@ -51,6 +51,7 @@
         :search="searchRegex"
         @on-line-dbl-click="onLogDblClick"
         @on-line-click="onLogClick"
+        :start-size="100"
       ></LogWindow>
       <div class="w-full flex gap-2 flex-wrap items-center">
         <AutoComplete
@@ -60,7 +61,9 @@
           :suggestions="suggestions"
           :loading="false"
           :typeahead="true"
-          dropdown
+          :delay="100"
+          :show-empty-message="false"
+          scroll-height="10rem"
           multiple
           @complete="search"
           @change="onSearchChange"
@@ -184,7 +187,10 @@ const autocomplete = ref<any>();
 const currentSearchText = ref('');
 
 const searchRegex = computed(() => {
-  return analysis.searches.join('|');
+  const result = [...analysis.searches, currentSearchText.value]
+    .filter((item) => item)
+    .join('|');
+  return result;
 });
 
 const isDrawerVisible = ref(false);
@@ -305,16 +311,7 @@ const { comp: filteredLogs, progress } = useComputedGenerator(function* () {
   return filtered;
 }, []);
 
-const suggestions = computed(() => {
-  const history = analysis.searchHistory;
-  const colorSearches = colorRules.value.map((item) => item.regex);
-  const savedSearches = preSearches.value.map((item) => item.regex);
-  const regex = new RegExp(currentSearchText.value, 'i');
-  const values = [...history, ...colorSearches, ...savedSearches];
-  return values.filter((item) => {
-    return item.match(regex) && !analysis.searches.includes(item);
-  });
-});
+const suggestions = ref(calcSearch());
 
 watch(filteredLogs, () => {
   filteredLogsRef.value?.scrollTo(0);
@@ -354,6 +351,25 @@ function neloParser(file: string): LogEssentials[] {
     };
   });
   return logs;
+}
+
+function calcSearch() {
+  const history = analysis.searchHistory;
+  const colorSearches = colorRules.value.map((item) => item.regex);
+  const savedSearches = preSearches.value.map((item) => item.regex);
+  const regex = new RegExp(currentSearchText.value, 'i');
+  const values = [...history, ...colorSearches, ...savedSearches];
+  const head = <string[]>[];
+  const tail = <string[]>[];
+  const thoseWhoMatch = values.forEach((item) => {
+    const matches = item.match(regex) && !analysis.searches.includes(item);
+    if (matches) {
+      head.push(item);
+    } else {
+      tail.push(item);
+    }
+  });
+  return [...head, ...tail];
 }
 
 function restartDateSelection() {
@@ -415,26 +431,32 @@ async function tryToLoadLastAnalysis() {
 
 function search(event: AutoCompleteCompleteEvent) {
   currentSearchText.value = event.query;
+  suggestions.value = calcSearch();
 }
 
 function onSearchChange(event: AutoCompleteChangeEvent) {}
 
 function onSearchArrow(event: KeyboardEvent) {
-  if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-    autocomplete.value.overlayVisible = true;
-  }
-  if (event.key === 'Enter') {
-    const input = event.target as HTMLInputElement;
-    const current = input.value;
-    if (!current) {
-      return;
+  try {
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      autocomplete.value.overlayVisible = true;
     }
-    analysis.searches.push(current);
-    if (!analysis.searchHistory.includes(current)) {
-      analysis.searchHistory.push(current);
-      analysis.searchHistory = analysis.searchHistory.slice(-10).filter((item) => item);
+    if (event.key === 'Enter') {
+      const input = event.target as HTMLInputElement;
+      const current = input.value;
+      currentSearchText.value = current;
+      if (!current) {
+        return;
+      }
+      analysis.searches.push(current);
+      if (!analysis.searchHistory.includes(current)) {
+        analysis.searchHistory.push(current);
+        analysis.searchHistory = analysis.searchHistory.slice(-10).filter((item) => item);
+      }
+      input.value = '';
     }
-    input.value = '';
+  } finally {
+    suggestions.value = calcSearch();
   }
 }
 </script>

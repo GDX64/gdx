@@ -59,6 +59,7 @@ const props = defineProps<{
   resize?: boolean;
   search?: string;
   hightLightedLog?: LogEssentials;
+  startSize?: number;
 }>();
 
 const emit = defineEmits({
@@ -75,7 +76,7 @@ const {
   itemHeight: 25,
 });
 
-const downLogViewSize = ref(300);
+const downLogViewSize = ref(props.startSize ?? 500);
 
 const resizeStart$ = useMakeYResizeHandler({
   onEnd() {},
