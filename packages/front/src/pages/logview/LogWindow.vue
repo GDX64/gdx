@@ -5,7 +5,8 @@
     :style="{ height: downLogViewSize + 'px' }"
   >
     <Popover ref="op" @hide="onPopoverHide">
-      <Textarea v-if="currentComment" v-model="currentComment.comment"> </Textarea>
+      <Textarea v-if="currentComment" v-model="currentComment.comment" class="min-w-96">
+      </Textarea>
     </Popover>
     <div
       v-if="resize"
@@ -38,15 +39,17 @@
           @click="emit('onLineClick', log.data)"
         ></HighlitableText>
         <div
-          class="hover:scale-110 transition-all scale-0 group-hover:scale-100 bg-bg-50 cursor-pointer sticky right-0 p-1 h-full aspect-square rounded-md"
+          v-if="hightLightedLog?.index === log.data.index || commentOfLog(log.data)"
+          class="bg-bg-50 cursor-pointer sticky right-0 p-1 h-full aspect-square rounded-md flex gap-2"
           :class="
-            commentOfLog(log.data)
-              ? 'text-prime-500 !scale-100'
-              : 'delay-500 text-text-prime'
+            commentOfLog(log.data) ? 'text-prime-500 !scale-100' : ' text-text-prime'
           "
-          @click="onCommentClick($event, log.data)"
         >
-          <i class="h-full w-full pi pi-comment"></i>
+          <i
+            class="h-full w-full pi pi-comment"
+            @click="onCommentClick($event, log.data)"
+          ></i>
+          <i class="h-full w-full pi pi-clipboard" @click="copyLog(log.data)"></i>
         </div>
       </div>
     </div>
@@ -63,6 +66,7 @@ import { LogComment } from './LogsDatabase';
 import Popover from 'primevue/popover';
 import Textarea from 'primevue/textarea';
 import { useLogView } from './useLogView';
+import { useToast } from 'primevue/usetoast';
 
 const props = defineProps<{
   logs: LogEssentials[];
@@ -89,6 +93,7 @@ const { db, analysis, comments, hightLightedLog } = useLogView();
 const downLogViewSize = ref(props.startSize ?? 500);
 const op = ref<InstanceType<typeof Popover> | null>(null);
 const currentComment = ref<LogComment | null>(null);
+const toast = useToast();
 
 const resizeStart$ = useMakeYResizeHandler({
   onEnd() {},
@@ -190,6 +195,16 @@ function onCommentClick(event: Event, log: LogEssentials) {
     updatedAt: new Date(),
   };
   op.value?.show(event);
+}
+
+async function copyLog(log: LogEssentials) {
+  await navigator.clipboard.writeText(log.original);
+  toast.add({
+    severity: 'success',
+    summary: 'Success',
+    detail: 'Log copied to clipboard',
+    life: 3000,
+  });
 }
 
 defineExpose({
