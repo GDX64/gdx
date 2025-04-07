@@ -66,12 +66,8 @@ import { useLogView } from './useLogView';
 
 const props = defineProps<{
   logs: LogEssentials[];
-  showLocalTime: boolean;
-  timeOnly: boolean;
-  selectedLogs: Set<number>;
   resize?: boolean;
   search?: string;
-  hightLightedLog?: LogEssentials;
   startSize?: number;
 }>();
 
@@ -89,7 +85,7 @@ const {
   itemHeight: 25,
 });
 
-const { db, analysis, comments } = useLogView();
+const { db, analysis, comments, hightLightedLog } = useLogView();
 const downLogViewSize = ref(props.startSize ?? 500);
 const op = ref<InstanceType<typeof Popover> | null>(null);
 const currentComment = ref<LogComment | null>(null);
@@ -117,8 +113,8 @@ function onPopoverHide() {
 }
 
 const dateFormatter = computed(() => {
-  if (props.showLocalTime) {
-    if (props.timeOnly) {
+  if (analysis.showLocalTime) {
+    if (analysis.timeOnly) {
       const intl = new Intl.DateTimeFormat('pt-BR', {
         hour: 'numeric',
         minute: 'numeric',
@@ -141,7 +137,7 @@ const dateFormatter = computed(() => {
       return (date: Date) => intl.format(date);
     }
   } else {
-    if (props.timeOnly) {
+    if (analysis.timeOnly) {
       const intl = new Intl.DateTimeFormat('pt-BR', {
         hour: 'numeric',
         minute: 'numeric',
@@ -173,14 +169,14 @@ function formatDate(date: Date) {
 }
 
 function isLogSelected(log: LogEssentials) {
-  return props.selectedLogs?.has(log.index);
+  return analysis.selectedLogs?.has(log.index);
 }
 
 function onLogSelect(log: LogEssentials, event: MouseEvent) {
-  if (props.selectedLogs?.has(log.index)) {
-    props.selectedLogs.delete(log.index);
+  if (analysis.selectedLogs?.has(log.index)) {
+    analysis.selectedLogs.delete(log.index);
   } else {
-    props.selectedLogs?.add(log.index);
+    analysis.selectedLogs?.add(log.index);
   }
 }
 

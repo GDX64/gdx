@@ -45,9 +45,6 @@
         class="grow"
         :time-only="analysis.timeOnly"
         :logs="timeFilteredLogs"
-        :showLocalTime="analysis.showLocalTime"
-        :selectedLogs="analysis.selectedLogs"
-        :hightLightedLog="hightLightedLog ?? undefined"
         :search="searchRegex"
         @on-line-dbl-click="onLogDblClick"
         @on-line-click="onLogClick"
@@ -106,10 +103,6 @@
         @on-line-dbl-click="onLogDblClick"
         @on-line-click="onLogClick"
         :logs="filteredLogs"
-        :selected-logs="analysis.selectedLogs"
-        :show-local-time="analysis.showLocalTime"
-        :hightLightedLog="hightLightedLog ?? undefined"
-        :time-only="analysis.timeOnly"
         :search="searchRegex"
         :resize="true"
       ></LogWindow>
@@ -136,18 +129,12 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, reactive, ref, shallowRef, toRaw, watch, watchEffect } from 'vue';
-import { LogAnalysis, LogFile, LogsDatabase } from './LogsDatabase';
+import { computed, ref, shallowRef, toRaw, watch } from 'vue';
+import { LogAnalysis } from './LogsDatabase';
 import LogTimeline from './LogTimeline.vue';
 import DatePicker from 'primevue/datepicker';
 import Button from 'primevue/button';
-import {
-  fnToObservable,
-  observableToRef,
-  useComputedGenerator,
-  useInterval,
-  useObservable,
-} from '@gdx/utils';
+import { useComputedGenerator, useInterval } from '@gdx/utils';
 import LoadMenu from './LoadMenu.vue';
 import ToggleSwitch from 'primevue/toggleswitch';
 import { LogEssentials } from './LogTypes';
@@ -164,7 +151,16 @@ import AutoComplete, {
 } from 'primevue/autocomplete';
 import { useLogView } from './useLogView';
 
-const { db, analysis } = useLogView();
+const {
+  db,
+  analysis,
+  colorRules,
+  preSearches,
+  hightLightedLog,
+  rawLogs,
+  restartDateSelection,
+  markedLogs,
+} = useLogView();
 
 const autocomplete = ref<any>();
 const currentSearchText = ref('');
@@ -185,23 +181,6 @@ const isNewAnalysisVisible = ref(false);
 const timeFilteredLogsRef = shallowRef<InstanceType<typeof LogWindow>>();
 const filteredLogsRef = shallowRef<InstanceType<typeof LogWindow>>();
 const currentFile = shallowRef<File | null>(null);
-
-const colorRules = observableToRef(db.colorRulesObserver(), []);
-const preSearches = observableToRef(db.searchObservable(), []);
-const file$ = fnToObservable(() => analysis.logFileID).pipe(
-  switchMap(async (id) => {
-    if (id == null) return '';
-    const file = await db.getLogFile(id);
-    if (file == null) return '';
-    return file.content;
-  })
-);
-
-const baseFile = ref('');
-useObservable(file$, (file) => {
-  baseFile.value = file;
-  restartDateSelection();
-});
 
 tryToLoadLastAnalysis();
 
@@ -224,31 +203,6 @@ useInterval(async () => {
   });
 }, 1000);
 
-const hightLightedLog = computed(() => {
-  return (
-    rawLogs.value.find((log) => {
-      return log.index === analysis.hightLightedLogIndex;
-    }) ?? null
-  );
-});
-
-const rawLogs = computed<LogEssentials[]>(() => {
-  const logs = neloParser(baseFile.value);
-  const regexes = colorRules.value.map((rule) => {
-    return {
-      regex: new RegExp(rule.regex, 'i'),
-      color: rule.color,
-    };
-  });
-  logs.forEach((log) => {
-    log.color =
-      regexes.find((rule) => {
-        return rule.regex.test(log.original);
-      })?.color ?? null;
-  });
-  return logs;
-});
-
 const timeFilteredLogs = computed(() => {
   const start = analysis.startDate.original;
   const end = analysis.endDate.original;
@@ -259,13 +213,14 @@ const timeFilteredLogs = computed(() => {
 
 const { comp: filteredLogs, progress } = useComputedGenerator(function* () {
   if (analysis.showOnlySelected) {
-    const trackedValue = [...analysis.selectedLogs.values()]
+    const trackedValue = markedLogs()
       .sort((a, b) => {
         return a - b;
       })
       .map((index) => {
         return rawLogs.value[index];
-      });
+      })
+      .filter((log) => log);
     yield 1;
     return trackedValue;
   }
@@ -316,26 +271,6 @@ function onLoadSeach(regex: string) {
   analysis.searches.push(regex);
 }
 
-function neloParser(file: string): LogEssentials[] {
-  const lines = file.trim().split('\n');
-  const logs = lines.map((line, index) => {
-    const firsPipeIndex = line.indexOf('|');
-    const secondPipeIndex = line.indexOf('|', firsPipeIndex + 1);
-    const date = line.slice(0, firsPipeIndex).trim();
-    const level = line.slice(firsPipeIndex + 1, secondPipeIndex).trim();
-    const message = line.slice(secondPipeIndex + 1).trim();
-    return {
-      date: new Date(date),
-      level,
-      message,
-      original: line,
-      index,
-      color: null,
-    };
-  });
-  return logs;
-}
-
 function calcSearch() {
   const history = analysis.searchHistory;
   const colorSearches = colorRules.value.map((item) => item.regex);
@@ -353,22 +288,6 @@ function calcSearch() {
     }
   });
   return [...head, ...tail];
-}
-
-function restartDateSelection() {
-  const { minDate, maxDate } = minMaxDates();
-  analysis.startDate.original = minDate;
-  analysis.endDate.original = maxDate;
-}
-
-function minMaxDates() {
-  const minDate = rawLogs.value.reduce((acc, log) => {
-    return log.date < acc ? log.date : acc;
-  }, new Date());
-  const maxDate = rawLogs.value.reduce((acc, log) => {
-    return log.date > acc ? log.date : acc;
-  }, new Date(0));
-  return { minDate, maxDate };
 }
 
 function onSelect(selection: { startDate: Date; endDate: Date }) {
