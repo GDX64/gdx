@@ -9,6 +9,7 @@ import {
 import { CanvasElement } from "./canvasElement";
 import { CanvasTextElement } from "./canvasTextElement";
 import { CanvasImageElement } from "./CanvasImageElement";
+import { CanvasCacheElement } from "./CanvasCacheElement";
 
 function appRenderer() {
   const { createApp } = createRenderer<CanvasElement, CanvasElement>({
@@ -26,12 +27,14 @@ function appRenderer() {
           return new CanvasTextElement();
         case "g-rect":
           return new CanvasElement();
+        case "g-cache": {
+          return new CanvasCacheElement();
+        }
         default:
           return new CanvasElement();
       }
     },
     createText(text) {
-      console.log("createText", text);
       const el = new CanvasElement();
       el.hide();
       return el;
@@ -129,13 +132,13 @@ export async function createCanvasRoot(
     oldHits.forEach((item) => item.onPointerLeave?.(e));
   });
 
-  canvas.addEventListener('pointerdown', (e) => {
+  canvas.addEventListener("pointerdown", (e) => {
     nodeRoot.onPointerDown(e, e.offsetX, e.offsetY);
-  })
+  });
 
-  canvas.addEventListener('pointerup', (e) => {
+  canvas.addEventListener("pointerup", (e) => {
     nodeRoot.onPointerUp(e, e.offsetX, e.offsetY);
-  })
+  });
 
   drawLoop();
 

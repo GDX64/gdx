@@ -85,16 +85,16 @@ export class CanvasElement {
       ctx.roundRect(
         0.5,
         0.5,
-        this.yogaNode.getComputedWidth(),
-        this.yogaNode.getComputedHeight(),
+        this.yogaNode.getComputedWidth() - 1,
+        this.yogaNode.getComputedHeight() - 1,
         this.attrs.roundness
       );
     } else {
       ctx.rect(
         0.5,
         0.5,
-        this.yogaNode.getComputedWidth(),
-        this.yogaNode.getComputedHeight()
+        this.yogaNode.getComputedWidth() - 1,
+        this.yogaNode.getComputedHeight() - 1
       );
     }
   }
