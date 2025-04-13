@@ -1,9 +1,5 @@
 <template>
-  <GCache
-    :position="PositionType.Absolute"
-    :top="orderPoitionY"
-    :cacheKey="updateVersion"
-  >
+  <GCache :position="PositionType.Absolute" :cacheKey="updateVersion">
     <GRect
       :flexDirection="FlexDirection.Row"
       :height="17"
@@ -59,12 +55,12 @@
           <GText text="L 1300" fill="white" :fontSize="fontSize"></GText>
         </GContainer>
         <GRect
-          fill="#529546"
+          :fill="priceNum > 0 ? '#529546' : '#a03933'"
           :roundness="4"
           :justify="Justify.Center"
           :paddingX="6"
         >
-          <GText text="R$ 238.54" fill="white" :fontSize="fontSize"></GText>
+          <GText :text="price" fill="white" :fontSize="fontSize"></GText>
         </GRect>
       </GRect>
       <GRect
@@ -95,15 +91,33 @@ import {
   Overflow,
   PositionType,
 } from "#els/appRenderers.ts";
-import { onBeforeUpdate, onUnmounted, ref } from "vue";
+import {
+  computed,
+  getCurrentInstance,
+  onBeforeUpdate,
+  onUnmounted,
+  ref,
+} from "vue";
 import imgUrl from "../assets/bat.png";
+import { awaitTime } from "../../../utils/src/misc";
 
-const props = defineProps<{ initialY: number }>();
 const fontSize = 12;
 const isHovered = ref(false);
 const isPressed = ref(false);
-const orderPoitionY = ref(props.initialY);
+const orderPoitionY = defineModel<number>("positionY", {
+  required: true,
+});
 const updateVersion = ref(0);
+const instance = getCurrentInstance()!;
+
+const priceNum = ref(0);
+
+const price = computed(() => {
+  return `$${priceNum.value.toFixed(2)}`;
+});
+
+updatePrice();
+
 onBeforeUpdate(() => {
   updateVersion.value++;
 });
@@ -114,6 +128,14 @@ onUnmounted(() => {
   document.removeEventListener("pointerup", onPointerUp);
   document.removeEventListener("pointermove", onPointerMove);
 });
+
+async function updatePrice() {
+  while (true) {
+    await awaitTime(Math.random() * 1000);
+    if (instance.isUnmounted) return;
+    priceNum.value += (Math.random() - 0.5) * 10;
+  }
+}
 
 function onPointerDown() {
   isPressed.value = true;

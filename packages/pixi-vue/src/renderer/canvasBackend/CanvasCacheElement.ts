@@ -25,11 +25,15 @@ export class CanvasCacheElement extends CanvasElement {
     if (this.offscreenCanvas) {
       this.drawFromCache(ctx);
     } else {
+      const matrix = ctx.getTransform();
+      const scaleX = matrix.a;
+      const scaleY = matrix.d;
       const canvas = new OffscreenCanvas(
-        this.yogaNode.getComputedWidth(),
-        this.yogaNode.getComputedHeight()
+        this.yogaNode.getComputedWidth() * scaleX,
+        this.yogaNode.getComputedHeight() * scaleY
       );
       const cacheCtx = canvas.getContext("2d")!;
+      cacheCtx.scale(scaleX, scaleY);
       this.children.forEach((child) => {
         child.draw(cacheCtx as unknown as CanvasRenderingContext2D);
       });

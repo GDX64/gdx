@@ -12,7 +12,11 @@
       :padding="30"
       :align="Align.FlexStart"
     >
-      <OrderComponent v-for="i of 44" :initial-y="i * 20 + 20"></OrderComponent>
+      <OrderComponent
+        v-for="order of orders"
+        v-model:position-y="order.position"
+        :top="order.position"
+      ></OrderComponent>
     </g-rect>
   </g-container>
 </template>
@@ -22,7 +26,18 @@ import { Align, Justify } from "yoga-layout";
 import { GContainer, GRect } from "#els/appRenderers.ts";
 import testImg from "../assets/bat.png";
 import OrderComponent from "./OrderComponent.vue";
+import { reactive } from "vue";
 
 const img = new Image();
 img.src = testImg;
+
+const orders = reactive(
+  [...Array(44)].map((_, i) => {
+    return {
+      id: i,
+      position: i * 20 + 20,
+      price: Math.random() * 1000,
+    };
+  })
+);
 </script>
