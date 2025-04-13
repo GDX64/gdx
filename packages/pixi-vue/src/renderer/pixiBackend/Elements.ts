@@ -1,6 +1,7 @@
+import { BasicAttrs } from "#els/renderTypes.ts";
 import { YogaAndAttrs } from "#els/yogaAndAttrs.ts";
 import * as PIXI from "pixi.js";
-import Yoga from "yoga-layout";
+import Yoga, { Overflow } from "yoga-layout";
 
 export enum ElTags {
   TEXT = "g-text",
@@ -45,7 +46,7 @@ export class GElement {
 
   patch(prop: string, prev: any, next: any): void {
     this.yats.patch(prop, prev, next);
-    switch (prop) {
+    switch (prop as keyof BasicAttrs) {
       case "onClick": {
         this.pixiRef.interactive = true;
         this.pixiRef.onclick = next;
@@ -73,11 +74,20 @@ export class GElement {
   }
 
   updateLayout() {
-    if (this.yogaNode.hasNewLayout() || true) {
-      this.pixiRef.x = this.yogaNode.getComputedLeft();
-      this.pixiRef.y = this.yogaNode.getComputedTop();
-      this.children.forEach((child) => child.updateLayout());
-      this.yogaNode.markLayoutSeen();
+    if (!this.yogaNode.hasNewLayout()) {
+      return;
+    }
+    this.pixiRef.x = this.yogaNode.getComputedLeft();
+    this.pixiRef.y = this.yogaNode.getComputedTop();
+    this.children.forEach((child) => child.updateLayout());
+    this.yogaNode.markLayoutSeen();
+    if (this.attrs.overflow === Overflow.Hidden) {
+      const mask = new PIXI.Graphics();
+      mask.beginPath();
+      mask.x = this.yogaNode.getComputedLeft();
+      mask.y = this.yogaNode.getComputedTop();
+      mask.rect(0, 0, 20, 20).fill({ color: 0x999999, alpha: 1 });
+      this.pixiRef.mask = mask;
     }
   }
 

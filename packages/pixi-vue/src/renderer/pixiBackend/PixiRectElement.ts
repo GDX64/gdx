@@ -38,9 +38,11 @@ export class GRect extends GElement {
         this.yogaNode.getComputedHeight()
       );
     }
-    this.pixiRef.context.fill({
-      color: this.attrs?.fill,
-    });
+    if (this.attrs.fill) {
+      this.pixiRef.context.fill({
+        color: this.attrs?.fill,
+      });
+    }
     if (this.attrs.border) {
       this.pixiRef.context.stroke({
         color: this.attrs.borderColor ?? "black",

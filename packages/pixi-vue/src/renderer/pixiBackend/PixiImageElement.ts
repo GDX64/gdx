@@ -8,8 +8,14 @@ export class PixiImageElement extends GElement {
     switch (prop) {
       case "image": {
         this.attrs.image = next;
-        if (this.attrs.image instanceof HTMLImageElement) {
-          const image = this.attrs.image;
+        let image: HTMLImageElement | undefined = undefined;
+        if (next instanceof HTMLImageElement) {
+          image = next;
+        } else if (typeof next === "string") {
+          image = new Image();
+          image.src = next;
+        }
+        if (image) {
           this.lastAbort.abort();
           this.lastAbort = new AbortController();
           image.addEventListener(
