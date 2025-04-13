@@ -2,6 +2,7 @@ import { CanvasElement } from "./canvasElement";
 
 export class CanvasTextElement extends CanvasElement {
   updateScheduled = false;
+  textMeasure: TextMetrics | null = null;
 
   patch(prop: string, prev: any, next: any): void {
     super.patch(prop, prev, next);
@@ -31,8 +32,10 @@ export class CanvasTextElement extends CanvasElement {
     const text = this.attrs.text ?? "";
     const ctx = new OffscreenCanvas(0, 0).getContext("2d")!;
     ctx.font = this.getFont();
-    const { width, actualBoundingBoxAscent, actualBoundingBoxDescent } =
-      ctx.measureText(text);
+    ctx.textBaseline = "top";
+    this.textMeasure = ctx.measureText(text);
+    const { actualBoundingBoxAscent, actualBoundingBoxDescent, width } =
+      this.textMeasure;
     this.yogaNode.setWidth(width);
     this.yogaNode.setHeight(actualBoundingBoxAscent + actualBoundingBoxDescent);
   }
@@ -43,7 +46,8 @@ export class CanvasTextElement extends CanvasElement {
       ctx.fillStyle = fill;
     }
     ctx.font = this.getFont();
+    const boundingBoxError = this.textMeasure?.actualBoundingBoxAscent ?? 0;
     ctx.textBaseline = "top";
-    ctx.fillText(this.attrs.text ?? "", 0, 0);
+    ctx.fillText(this.attrs.text ?? "", 0, boundingBoxError);
   }
 }

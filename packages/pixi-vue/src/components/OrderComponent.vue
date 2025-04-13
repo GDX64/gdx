@@ -93,10 +93,11 @@ import {
 import { onUnmounted, ref } from "vue";
 import imgUrl from "../assets/bat.png";
 
+const props = defineProps<{ initialY: number }>();
 const fontSize = 12;
 const isHovered = ref(false);
 const isPressed = ref(false);
-const orderPoitionY = ref(200);
+const orderPoitionY = ref(props.initialY);
 
 document.addEventListener("pointerup", onPointerUp);
 document.addEventListener("pointermove", onPointerMove);

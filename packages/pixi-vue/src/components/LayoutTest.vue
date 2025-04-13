@@ -12,23 +12,17 @@
       :padding="30"
       :align="Align.FlexStart"
     >
-      <OrderComponent></OrderComponent>
+      <OrderComponent v-for="i of 30" :initial-y="i * 30 + 20"></OrderComponent>
     </g-rect>
   </g-container>
 </template>
 
 <script setup lang="ts">
 import { Align, Justify } from "yoga-layout";
-import { ref } from "vue";
 import { GContainer, GRect } from "#els/appRenderers.ts";
 import testImg from "../assets/bat.png";
 import OrderComponent from "./OrderComponent.vue";
 
 const img = new Image();
 img.src = testImg;
-
-const color = ref(0xffffff);
-function changeColor() {
-  color.value = Math.round(Math.random() * 0xffffff);
-}
 </script>
