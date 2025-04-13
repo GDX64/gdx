@@ -67,20 +67,42 @@ export class CanvasElement {
     }
     if (fillStyle) {
       ctx.fillStyle = fillStyle;
+      ctx.beginPath();
+      this.fillPath(ctx);
+      ctx.closePath();
+      ctx.fill();
     }
-    ctx.beginPath();
-    this.applyPath(ctx);
-    ctx.closePath();
-    ctx.fill();
     if (border) {
       ctx.strokeStyle = this.attrs.borderColor ?? "black";
       ctx.lineWidth = border;
+      ctx.beginPath();
+      this.borderPath(ctx);
+      ctx.closePath();
       ctx.stroke();
     }
     ctx.closePath();
   }
 
-  private applyPath(ctx: CanvasRenderingContext2D) {
+  private fillPath(ctx: CanvasRenderingContext2D) {
+    if (this.attrs.roundness) {
+      ctx.roundRect(
+        0,
+        0,
+        this.yogaNode.getComputedWidth(),
+        this.yogaNode.getComputedHeight(),
+        this.attrs.roundness
+      );
+    } else {
+      ctx.rect(
+        0,
+        0,
+        this.yogaNode.getComputedWidth(),
+        this.yogaNode.getComputedHeight()
+      );
+    }
+  }
+
+  private borderPath(ctx: CanvasRenderingContext2D) {
     if (this.attrs.roundness) {
       ctx.roundRect(
         0.5,
@@ -110,7 +132,7 @@ export class CanvasElement {
     ctx.restore();
     if (this.attrs.overflow === Overflow.Hidden) {
       ctx.beginPath();
-      this.applyPath(ctx);
+      this.fillPath(ctx);
       ctx.clip();
       ctx.closePath();
     }
