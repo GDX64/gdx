@@ -15,7 +15,9 @@ export class CanvasCacheElement extends CanvasElement {
     }
   }
 
-  private invalidateCache() {}
+  private invalidateCache() {
+    this.offscreenCanvas = null;
+  }
 
   drawSelf(ctx: CanvasRenderingContext2D) {}
 

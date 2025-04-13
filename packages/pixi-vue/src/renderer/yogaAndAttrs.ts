@@ -1,8 +1,8 @@
 import { BasicAttrs } from "./renderTypes";
 import Yoga, { Edge, Gutter } from "yoga-layout";
 
-export class YogaAndAttrs {
-  attrs: BasicAttrs = {};
+export class YogaAndAttrs<T extends BasicAttrs> {
+  attrs: Partial<T> = {};
   yogaNode = Yoga.Node.create();
 
   patch(_prop: string, prev: any, next: any): void {

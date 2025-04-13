@@ -12,7 +12,7 @@
       :padding="30"
       :align="Align.FlexStart"
     >
-      <OrderComponent v-for="i of 30" :initial-y="i * 30 + 20"></OrderComponent>
+      <OrderComponent v-for="i of 44" :initial-y="i * 20 + 20"></OrderComponent>
     </g-rect>
   </g-container>
 </template>

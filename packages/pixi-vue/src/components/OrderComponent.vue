@@ -1,5 +1,9 @@
 <template>
-  <GCache :position="PositionType.Absolute" :top="orderPoitionY">
+  <GCache
+    :position="PositionType.Absolute"
+    :top="orderPoitionY"
+    :cacheKey="updateVersion"
+  >
     <GRect
       :flexDirection="FlexDirection.Row"
       :height="17"
@@ -91,7 +95,7 @@ import {
   Overflow,
   PositionType,
 } from "#els/appRenderers.ts";
-import { onUnmounted, ref } from "vue";
+import { onBeforeUpdate, onUnmounted, ref } from "vue";
 import imgUrl from "../assets/bat.png";
 
 const props = defineProps<{ initialY: number }>();
@@ -99,6 +103,10 @@ const fontSize = 12;
 const isHovered = ref(false);
 const isPressed = ref(false);
 const orderPoitionY = ref(props.initialY);
+const updateVersion = ref(0);
+onBeforeUpdate(() => {
+  updateVersion.value++;
+});
 
 document.addEventListener("pointerup", onPointerUp);
 document.addEventListener("pointermove", onPointerMove);

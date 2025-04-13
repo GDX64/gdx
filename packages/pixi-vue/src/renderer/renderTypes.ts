@@ -47,3 +47,7 @@ export type BasicAttrs = {
   onPointerDown?: (event: PointerEvent) => any;
   onPointerUp?: (event: PointerEvent) => any;
 };
+
+export type CacheElementAttrs = BasicAttrs & {
+  cacheKey?: string | number;
+};
