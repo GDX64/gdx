@@ -26,8 +26,8 @@ export class CanvasCacheElement extends CanvasElement {
       this.drawFromCache(ctx);
     } else {
       const matrix = ctx.getTransform();
-      const scaleX = matrix.a;
-      const scaleY = matrix.d;
+      const scaleX = matrix.a * (this.attrs.scaleX ?? 1);
+      const scaleY = matrix.d * (this.attrs.scaleY ?? 1);
       const canvas = new OffscreenCanvas(
         this.yogaNode.getComputedWidth() * scaleX,
         this.yogaNode.getComputedHeight() * scaleY
@@ -48,8 +48,8 @@ export class CanvasCacheElement extends CanvasElement {
         this.offscreenCanvas,
         this.yogaNode.getComputedLeft(),
         this.yogaNode.getComputedTop(),
-        this.yogaNode.getComputedWidth(),
-        this.yogaNode.getComputedHeight()
+        this.offscreenCanvas.width,
+        this.offscreenCanvas.height
       );
     }
   }

@@ -1,12 +1,16 @@
 <template>
-  <GCache :position="PositionType.Absolute" :cacheKey="updateVersion">
+  <GCache
+    :position="PositionType.Absolute"
+    :cacheKey="updateVersion"
+    :scaleX="isHovered ? 1.1 : 1"
+    :scaleY="isHovered ? 1.1 : 1"
+  >
     <GRect
       :flexDirection="FlexDirection.Row"
       :height="17"
       :gapCol="5"
       :paddingX="5"
       :align="Align.Stretch"
-      :fill="isHovered ? '#ffffff55' : undefined"
       @pointerDown="onPointerDown"
       @pointerEnter="onPointerEnter"
       @pointerLeave="onPointerLeave"

@@ -127,6 +127,9 @@ export class CanvasElement {
       this.yogaNode.getComputedLeft(),
       this.yogaNode.getComputedTop()
     );
+    if (this.attrs.scaleX || this.attrs.scaleY) {
+      ctx.scale(this.attrs.scaleX ?? 1, this.attrs.scaleY ?? 1);
+    }
     ctx.save();
     this.drawSelf(ctx);
     ctx.restore();

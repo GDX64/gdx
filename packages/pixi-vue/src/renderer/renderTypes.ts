@@ -13,6 +13,8 @@ export type BasicAttrs = {
   width?: number | "auto" | Percent;
   maxWidth?: number | "auto" | Percent;
   height?: number | "auto" | Percent;
+  scaleX?: number;
+  scaleY?: number;
   maxHeight?: number | "auto" | Percent;
   top?: number | "auto" | Percent;
   left?: number | "auto" | Percent;
