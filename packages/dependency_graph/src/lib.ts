@@ -1,5 +1,5 @@
 import ts from "typescript";
-import path, { resolve } from "path";
+import path from "path";
 
 export interface GraphNode {
   children: GraphNode[];
@@ -26,38 +26,41 @@ export class DependencyGraph {
   }
 
   async getDependencyGraph(
-    _sourcePath: string,
-    _fileName: string
+    sourcePath: string,
+    fileName: string
   ): Promise<GraphNode | null> {
-    const sourcePath = adjustFileName(_sourcePath);
-    const fileName = adjustFileName(_fileName);
     const resolvedModule = ts.bundlerModuleNameResolver(
       fileName,
       sourcePath,
       this.config.compilerOptions,
       this.config.moduleResolutionHost
     );
-    console.log(resolvedModule);
     if (!resolvedModule.resolvedModule) {
       return null;
     }
-    if (resolvedModule.resolvedModule.isExternalLibraryImport) {
+    const {
+      isExternalLibraryImport,
+      resolvedFileName: _resolved,
+      packageId,
+    } = resolvedModule.resolvedModule;
+    const resolvedFileName = adjustFileName(_resolved);
+    if (isExternalLibraryImport) {
       return <GraphNode>{
         children: [],
-        fileName: path.basename(resolvedModule.resolvedModule.resolvedFileName),
-        filePath: resolvedModule.resolvedModule.resolvedFileName,
+        fileName: path.basename(resolvedFileName),
+        filePath: resolvedFileName,
         isLibrary: true,
-        package: resolvedModule.resolvedModule.packageId?.name,
+        package: packageId?.name,
       };
     }
-    const data = await readFile(sourcePath);
+    const data = await readFile(resolvedFileName);
     if (!data) {
       return null;
     }
     const file = ts.preProcessFile(data);
     const all = file.importedFiles.map(async (importedFile) => {
       const node = await this.getDependencyGraph(
-        resolvedModule.resolvedModule!.resolvedFileName,
+        resolvedFileName,
         importedFile.fileName
       );
       return node;
@@ -67,10 +70,10 @@ export class DependencyGraph {
     const children = nodes.filter((node) => node !== null);
     return {
       children,
-      fileName: path.basename(sourcePath),
-      filePath: sourcePath,
-      isLibrary: resolvedModule.resolvedModule.isExternalLibraryImport ?? false,
-      package: resolvedModule.resolvedModule.packageId?.name,
+      fileName: path.basename(resolvedFileName),
+      filePath: resolvedFileName,
+      isLibrary: isExternalLibraryImport ?? false,
+      package: packageId?.name,
     };
   }
 }
