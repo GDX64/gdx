@@ -1,7 +1,7 @@
 import ts from "typescript";
 import path from "path";
 
-interface GraphNode {
+export interface GraphNode {
   children: GraphNode[];
   fileName: string;
   filePath: string;
@@ -24,7 +24,8 @@ export class DependencyGraph {
     return me.getDependencyGraph(sourcePath);
   }
 
-  async getDependencyGraph(sourcePath: string): Promise<GraphNode | null> {
+  async getDependencyGraph(_sourcePath: string): Promise<GraphNode | null> {
+    const sourcePath = adjustFileName(_sourcePath);
     const data = await readFile(sourcePath);
     if (!data) {
       return null;
@@ -92,19 +93,20 @@ function getCompilerOptionsAndHost(tsConfigFilePath: string) {
 }
 
 function readFile(fileName: string) {
-  const isVueFile = fileName.includes(".vue");
-  if (isVueFile) {
-    const withoutTsJs = fileName.slice(0, -3);
-    return ts.sys.readFile(withoutTsJs);
-  }
-  return ts.sys.readFile(fileName);
+  return ts.sys.readFile(adjustFileName(fileName));
 }
 
 function fileExists(fileName: string) {
+  return ts.sys.fileExists(adjustFileName(fileName));
+}
+
+function adjustFileName(fileName: string) {
   const isVueFile = fileName.includes(".vue");
   if (isVueFile) {
-    const withoutTsJs = fileName.slice(0, -3);
-    return ts.sys.fileExists(withoutTsJs);
+    const doesNotEndWithVue = !fileName.endsWith(".vue");
+    if (doesNotEndWithVue) {
+      return fileName.slice(0, -3);
+    }
   }
-  return ts.sys.fileExists(fileName);
+  return fileName;
 }
