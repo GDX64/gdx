@@ -63,6 +63,16 @@ export class DependencyGraph {
         resolvedFileName,
         importedFile.fileName
       );
+      if (!node) {
+        const dir = path.dirname(resolvedFileName);
+        const file = path.resolve(dir, importedFile.fileName);
+        return <GraphNode>{
+          children: [],
+          fileName: path.basename(file),
+          filePath: file,
+          isLibrary: false,
+        };
+      }
       return node;
     });
 

@@ -8,4 +8,5 @@
 
 <script setup lang="ts">
 import Hello from "./Hello.vue";
+import Logo from "./assets/logo.svg";
 </script>
