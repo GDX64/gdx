@@ -1,6 +1,12 @@
 import ts from "typescript";
-import { promises as fs } from "fs";
 import path from "path";
+
+interface GraphNode {
+  children: GraphNode[];
+  fileName: string;
+  filePath: string;
+  isLibrary: boolean;
+}
 
 export class DependencyGraph {
   config!: {
@@ -10,10 +16,7 @@ export class DependencyGraph {
 
   static async create(sourcePath: string) {
     const me = new DependencyGraph();
-    const tsConfigFilePath = ts.findConfigFile(
-      process.cwd(),
-      ts.sys.fileExists
-    );
+    const tsConfigFilePath = ts.findConfigFile(sourcePath, ts.sys.fileExists);
     if (!tsConfigFilePath) {
       throw new Error("tsconfig.json not found");
     }
@@ -21,30 +24,44 @@ export class DependencyGraph {
     return me.getDependencyGraph(sourcePath);
   }
 
-  async getDependencyGraph(sourcePath: string) {
-    const data = await fs.readFile(sourcePath, "utf8");
+  async getDependencyGraph(sourcePath: string): Promise<GraphNode | null> {
+    const data = await readFile(sourcePath);
+    if (!data) {
+      return null;
+    }
     const file = ts.preProcessFile(data);
-    console.log(file.importedFiles);
     const all = file.importedFiles.map(async (importedFile) => {
-      const resolvedModule = ts.resolveModuleName(
+      const resolvedModule = ts.bundlerModuleNameResolver(
         importedFile.fileName,
         sourcePath,
         this.config.compilerOptions,
         this.config.moduleResolutionHost
       );
-      console.log(resolvedModule);
       if (!resolvedModule.resolvedModule) {
-        return;
+        return null;
       }
       if (resolvedModule.resolvedModule.isExternalLibraryImport) {
-        return;
+        return null;
       }
-      return this.getDependencyGraph(
+      const node = await this.getDependencyGraph(
         resolvedModule.resolvedModule.resolvedFileName
       );
+      if (!node) {
+        return null;
+      }
+      node.isLibrary =
+        resolvedModule.resolvedModule.isExternalLibraryImport ?? false;
+      return node;
     });
 
-    await Promise.all(all);
+    const nodes = await Promise.all(all);
+    const children = nodes.filter((node) => node !== null);
+    return {
+      children,
+      fileName: path.basename(sourcePath),
+      filePath: sourcePath,
+      isLibrary: false,
+    };
   }
 }
 
@@ -62,8 +79,8 @@ function getCompilerOptionsAndHost(tsConfigFilePath: string) {
 
   // Step 3: Create a ModuleResolutionHost
   const moduleResolutionHost: ts.ModuleResolutionHost = {
-    fileExists: ts.sys.fileExists,
-    readFile: ts.sys.readFile,
+    fileExists: fileExists,
+    readFile: readFile,
     directoryExists: ts.sys.directoryExists,
     getCurrentDirectory: ts.sys.getCurrentDirectory,
     getDirectories: ts.sys.getDirectories,
@@ -72,4 +89,22 @@ function getCompilerOptionsAndHost(tsConfigFilePath: string) {
   };
 
   return { compilerOptions, moduleResolutionHost };
+}
+
+function readFile(fileName: string) {
+  const isVueFile = fileName.includes(".vue");
+  if (isVueFile) {
+    const withoutTsJs = fileName.slice(0, -3);
+    return ts.sys.readFile(withoutTsJs);
+  }
+  return ts.sys.readFile(fileName);
+}
+
+function fileExists(fileName: string) {
+  const isVueFile = fileName.includes(".vue");
+  if (isVueFile) {
+    const withoutTsJs = fileName.slice(0, -3);
+    return ts.sys.fileExists(withoutTsJs);
+  }
+  return ts.sys.fileExists(fileName);
 }

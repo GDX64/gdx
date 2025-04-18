@@ -3,5 +3,6 @@ import path from "path";
 test("hello", async () => {
   const src = path.resolve(__dirname, "./example-project/main.ts");
   console.log(src);
-  await DependencyGraph.create(src);
+  const graph = await DependencyGraph.create(src);
+  console.log(graph);
 });
