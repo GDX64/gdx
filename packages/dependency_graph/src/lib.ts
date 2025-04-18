@@ -1,11 +1,12 @@
 import ts from "typescript";
-import path from "path";
+import path, { resolve } from "path";
 
 export interface GraphNode {
   children: GraphNode[];
   fileName: string;
   filePath: string;
   isLibrary: boolean;
+  package?: string;
 }
 
 export class DependencyGraph {
@@ -21,37 +22,44 @@ export class DependencyGraph {
       throw new Error("tsconfig.json not found");
     }
     me.config = await getCompilerOptionsAndHost(tsConfigFilePath);
-    return me.getDependencyGraph(sourcePath);
+    return me.getDependencyGraph(sourcePath, sourcePath);
   }
 
-  async getDependencyGraph(_sourcePath: string): Promise<GraphNode | null> {
+  async getDependencyGraph(
+    _sourcePath: string,
+    _fileName: string
+  ): Promise<GraphNode | null> {
     const sourcePath = adjustFileName(_sourcePath);
+    const fileName = adjustFileName(_fileName);
+    const resolvedModule = ts.bundlerModuleNameResolver(
+      fileName,
+      sourcePath,
+      this.config.compilerOptions,
+      this.config.moduleResolutionHost
+    );
+    console.log(resolvedModule);
+    if (!resolvedModule.resolvedModule) {
+      return null;
+    }
+    if (resolvedModule.resolvedModule.isExternalLibraryImport) {
+      return <GraphNode>{
+        children: [],
+        fileName: path.basename(resolvedModule.resolvedModule.resolvedFileName),
+        filePath: resolvedModule.resolvedModule.resolvedFileName,
+        isLibrary: true,
+        package: resolvedModule.resolvedModule.packageId?.name,
+      };
+    }
     const data = await readFile(sourcePath);
     if (!data) {
       return null;
     }
     const file = ts.preProcessFile(data);
     const all = file.importedFiles.map(async (importedFile) => {
-      const resolvedModule = ts.bundlerModuleNameResolver(
-        importedFile.fileName,
-        sourcePath,
-        this.config.compilerOptions,
-        this.config.moduleResolutionHost
-      );
-      if (!resolvedModule.resolvedModule) {
-        return null;
-      }
-      if (resolvedModule.resolvedModule.isExternalLibraryImport) {
-        return null;
-      }
       const node = await this.getDependencyGraph(
-        resolvedModule.resolvedModule.resolvedFileName
+        resolvedModule.resolvedModule!.resolvedFileName,
+        importedFile.fileName
       );
-      if (!node) {
-        return null;
-      }
-      node.isLibrary =
-        resolvedModule.resolvedModule.isExternalLibraryImport ?? false;
       return node;
     });
 
@@ -61,7 +69,8 @@ export class DependencyGraph {
       children,
       fileName: path.basename(sourcePath),
       filePath: sourcePath,
-      isLibrary: false,
+      isLibrary: resolvedModule.resolvedModule.isExternalLibraryImport ?? false,
+      package: resolvedModule.resolvedModule.packageId?.name,
     };
   }
 }
