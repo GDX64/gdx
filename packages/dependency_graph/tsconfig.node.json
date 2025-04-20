@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.common.json",
+  "compilerOptions": {
+    "outDir": "./dist-ts",
+    "moduleResolution": "Node",
+    "esModuleInterop": true
+  },
+  "references": [],
+  "include": ["./bin", "./src"],
+  "exclude": ["./node_modules", "./dist", "./dist-ts"]
+}
+
