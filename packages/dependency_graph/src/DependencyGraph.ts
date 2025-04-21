@@ -7,7 +7,8 @@ export interface GraphNode {
   fileName: string;
   filePath: string;
   isLibrary: boolean;
-  package?: string;
+  package: string | null;
+  parent: GraphNode | null;
 }
 
 export class DependencyGraph {
@@ -28,8 +29,13 @@ export class DependencyGraph {
 
   async getDependencyGraph(
     sourcePath: string,
-    fileName: string
+    fileName: string,
+    parent?: GraphNode
   ): Promise<GraphNode | null> {
+    if (parent && isCircularDependency(parent, fileName)) {
+      return null;
+    }
+
     const resolvedModule = ts.bundlerModuleNameResolver(
       fileName,
       sourcePath,
@@ -45,48 +51,65 @@ export class DependencyGraph {
       packageId,
     } = resolvedModule.resolvedModule;
     const resolvedFileName = adjustFileName(_resolved);
-    if (isExternalLibraryImport) {
-      return <GraphNode>{
-        children: [],
-        fileName: path.basename(resolvedFileName),
-        filePath: resolvedFileName,
-        isLibrary: true,
-        package: packageId?.name,
-      };
+    const thisNode: GraphNode = {
+      children: [],
+      fileName: path.basename(resolvedFileName),
+      filePath: resolvedFileName,
+      isLibrary: isExternalLibraryImport ?? false,
+      package: packageId?.name ?? null,
+      parent: parent ?? null,
+    };
+    if (thisNode.isLibrary) {
+      return thisNode;
     }
     const data = await readFile(resolvedFileName);
     if (!data) {
       return null;
     }
-    const file = ts.preProcessFile(data);
-    const all = file.importedFiles.map(async (importedFile) => {
-      const node = await this.getDependencyGraph(
+    const { importedFiles } = ts.preProcessFile(data);
+    const all = importedFiles.map(async (importedFile) => {
+      const child = await this.getDependencyGraph(
         resolvedFileName,
-        importedFile.fileName
+        importedFile.fileName,
+        thisNode
       );
-      if (!node) {
-        const dir = path.dirname(resolvedFileName);
-        const file = path.resolve(dir, importedFile.fileName);
-        return <GraphNode>{
-          children: [],
-          fileName: path.basename(file),
-          filePath: file,
-          isLibrary: false,
-        };
+      if (child) {
+        return child;
       }
-      return node;
+      const dir = path.dirname(resolvedFileName);
+      const file = path.resolve(dir, importedFile.fileName);
+      return <GraphNode>{
+        children: [],
+        fileName: path.basename(file),
+        filePath: file,
+        isLibrary: false,
+        package: null,
+        parent: thisNode ?? null,
+      };
     });
 
-    const nodes = await Promise.all(all);
-    const children = nodes.filter((node) => node !== null);
-    return {
+    const children = await Promise.all(all);
+    thisNode.children = children;
+    const result: GraphNode = {
       children,
       fileName: path.basename(resolvedFileName),
       filePath: resolvedFileName,
       isLibrary: isExternalLibraryImport ?? false,
-      package: packageId?.name,
+      package: packageId?.name ?? null,
+      parent: parent ?? null,
     };
+    return result;
   }
+}
+
+function isCircularDependency(node: GraphNode, filePath: string) {
+  if (node.filePath === filePath) {
+    return true;
+  }
+  if (node.parent) {
+    return isCircularDependency(node.parent, filePath);
+  }
+  return false;
 }
 
 function getCompilerOptionsAndHost(tsConfigFilePath: string) {
