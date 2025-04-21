@@ -45,17 +45,15 @@ export class DependencyGraph {
     if (!resolvedModule.resolvedModule) {
       return null;
     }
-    const {
-      isExternalLibraryImport,
-      resolvedFileName: _resolved,
-      packageId,
-    } = resolvedModule.resolvedModule;
+    const { resolvedFileName: _resolved, packageId } =
+      resolvedModule.resolvedModule;
+    const isLib = isLibrary(resolvedModule.resolvedModule);
     const resolvedFileName = adjustFileName(_resolved);
     const thisNode: GraphNode = {
       children: [],
-      fileName: path.basename(resolvedFileName),
-      filePath: resolvedFileName,
-      isLibrary: isExternalLibraryImport ?? false,
+      fileName: isLib ? packageId?.name ?? "" : path.basename(resolvedFileName),
+      filePath: isLib ? packageId?.name ?? "" : resolvedFileName,
+      isLibrary: isLib,
       package: packageId?.name ?? null,
       parent: parent ?? null,
     };
@@ -78,6 +76,7 @@ export class DependencyGraph {
       }
       const dir = path.dirname(resolvedFileName);
       const file = path.resolve(dir, importedFile.fileName);
+
       return <GraphNode>{
         children: [],
         fileName: path.basename(file),
@@ -90,15 +89,7 @@ export class DependencyGraph {
 
     const children = await Promise.all(all);
     thisNode.children = children;
-    const result: GraphNode = {
-      children,
-      fileName: path.basename(resolvedFileName),
-      filePath: resolvedFileName,
-      isLibrary: isExternalLibraryImport ?? false,
-      package: packageId?.name ?? null,
-      parent: parent ?? null,
-    };
-    return result;
+    return thisNode;
   }
 }
 
@@ -219,4 +210,12 @@ function uniqueBy<T>(array: T[], fn: (val: T) => string): T[] {
       return true;
     }
   });
+}
+
+function isLibrary(mod: ts.ResolvedModuleFull) {
+  return (
+    (mod.isExternalLibraryImport &&
+      mod.resolvedFileName.includes("node_modules")) ??
+    false
+  );
 }
