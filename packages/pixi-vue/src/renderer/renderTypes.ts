@@ -53,3 +53,20 @@ export type BasicAttrs = {
 export type CacheElementAttrs = BasicAttrs & {
   cacheKey?: string | number;
 };
+
+export type RawElementAttrs = BasicAttrs & {
+  drawFunction?: (
+    ctx: CanvasRenderingContext2D,
+    element: ElementInterface<RawElementAttrs>
+  ) => void;
+};
+
+export interface ElementInterface<T extends BasicAttrs = BasicAttrs> {
+  patch(prop: string, prev: any, next: any): void;
+  getWidth(): number;
+  getHeight(): number;
+  getLeft(): number;
+  getTop(): number;
+  hovered: boolean;
+  attrs: Partial<T>;
+}

@@ -10,6 +10,7 @@ import { CanvasElement } from "./canvasElement";
 import { CanvasTextElement } from "./canvasTextElement";
 import { CanvasImageElement } from "./CanvasImageElement";
 import { CanvasCacheElement } from "./CanvasCacheElement";
+import { CanvasRawElement } from "./CanvasRawElement";
 
 function appRenderer() {
   const { createApp } = createRenderer<CanvasElement, CanvasElement>({
@@ -29,6 +30,9 @@ function appRenderer() {
           return new CanvasElement();
         case "g-cache": {
           return new CanvasCacheElement();
+        }
+        case "g-raw": {
+          return new CanvasRawElement();
         }
         default:
           return new CanvasElement();
@@ -143,7 +147,7 @@ export async function createCanvasRoot(
   drawLoop();
 
   function drawCanvas() {
-    if (nodeRoot.yogaNode.isDirty()) {
+    if (nodeRoot.yogaNode?.isDirty()) {
       nodeRoot.yogaNode.calculateLayout(lastWidth, lastHeight);
       nodeRoot.updateLayout();
     }

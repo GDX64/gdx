@@ -1,13 +1,16 @@
-import { BasicAttrs } from "#els/renderTypes.ts";
+import { BasicAttrs, ElementInterface } from "#els/renderTypes.ts";
 import { YogaAndAttrs } from "#els/yogaAndAttrs.ts";
 import Yoga, { Overflow, Node } from "yoga-layout";
 
-export class CanvasElement {
-  yats: YogaAndAttrs<BasicAttrs>;
+export class CanvasElement<T extends BasicAttrs = BasicAttrs>
+  implements ElementInterface<T>
+{
+  yats: YogaAndAttrs<T>;
   children: CanvasElement[] = [];
   parent: CanvasElement | null = null;
+  hovered = false;
 
-  constructor(yats?: YogaAndAttrs<BasicAttrs>) {
+  constructor(yats?: YogaAndAttrs<T>) {
     if (yats) {
       this.yats = yats;
     } else {
@@ -222,10 +225,12 @@ export class CanvasElement {
   }
 
   onPointerEnter(event: PointerEvent) {
+    this.hovered = true;
     this.attrs.onPointerEnter?.(event);
   }
 
   onPointerLeave(event: PointerEvent) {
+    this.hovered = false;
     this.attrs.onPointerLeave?.(event);
   }
 
