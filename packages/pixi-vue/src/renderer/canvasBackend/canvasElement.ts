@@ -171,20 +171,26 @@ export class CanvasElement {
 
   onClick(event: MouseEvent, x: number, y: number) {
     if (this.hitsMe(x, y)) {
+      const { adjustedX, adjustedY } = this.getAdjustedPoint(x, y);
       for (const child of this.children) {
-        let adjustedX = x - this.getLeft();
-        let adjustedY = y - this.getTop();
         child.onClick(event, adjustedX, adjustedY);
       }
       this.attrs.onClick?.(event);
     }
   }
 
+  private getAdjustedPoint(x: number, y: number) {
+    let adjustedX = x - this.getLeft();
+    let adjustedY = y - this.getTop();
+    adjustedX = adjustedX / (this.attrs.scaleX ?? 1);
+    adjustedY = adjustedY / (this.attrs.scaleY ?? 1);
+    return { adjustedX, adjustedY };
+  }
+
   onPointerUp(event: PointerEvent, x: number, y: number) {
     if (this.hitsMe(x, y)) {
+      const { adjustedX, adjustedY } = this.getAdjustedPoint(x, y);
       for (const child of this.children) {
-        let adjustedX = x - this.getLeft();
-        let adjustedY = y - this.getTop();
         child.onPointerUp(event, adjustedX, adjustedY);
       }
       this.attrs.onPointerUp?.(event);
@@ -193,9 +199,8 @@ export class CanvasElement {
 
   onPointerDown(event: PointerEvent, x: number, y: number) {
     if (this.hitsMe(x, y)) {
+      const { adjustedX, adjustedY } = this.getAdjustedPoint(x, y);
       for (const child of this.children) {
-        let adjustedX = x - this.getLeft();
-        let adjustedY = y - this.getTop();
         child.onPointerDown(event, adjustedX, adjustedY);
       }
       this.attrs.onPointerDown?.(event);
@@ -205,9 +210,8 @@ export class CanvasElement {
   onPointerMove(event: PointerEvent, x: number, y: number): CanvasElement[] {
     if (this.hitsMe(x, y)) {
       const hits: CanvasElement[] = [this];
+      const { adjustedX, adjustedY } = this.getAdjustedPoint(x, y);
       for (const child of this.children) {
-        let adjustedX = x - this.getLeft();
-        let adjustedY = y - this.getTop();
         const childHits = child.onPointerMove(event, adjustedX, adjustedY);
         hits.push(...childHits);
       }
