@@ -1,42 +1,15 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from "vue";
-import Game from "./components/LayoutTest.vue";
-import { createPixiRoot, createCanvasRoot } from "#els/appRenderers.ts";
-
-const canvas = ref<HTMLCanvasElement>();
+import Test from "./components/LayoutTest.vue";
+import RenderWrapper from "./components/RenderWrapper.vue";
 
 const urlQuery = new URLSearchParams(window.location.search);
-
-let destroy = () => {};
-onMounted(async () => {
-  let app;
-  if (urlQuery.get("renderer") === "pixi") {
-    app = await createPixiRoot(canvas.value!, Game);
-  } else {
-    app = await createCanvasRoot(canvas.value!, Game);
-  }
-  destroy = app.destroy;
-});
-
-onBeforeUnmount(() => {
-  destroy();
-});
 </script>
 
 <template>
-  <div
-    style="
-      width: 100vw;
-      height: 100vh;
-      position: relative;
-      background-color: antiquewhite;
-    "
+  <RenderWrapper
+    style="width: 100vw; height: 100vh; background-color: antiquewhite"
+    :renderer="urlQuery.get('renderer') === 'pixi' ? 'pixi' : 'canvas'"
   >
-    <canvas
-      ref="canvas"
-      style="position: absolute; top: 0; left: 0; width: 100%; height: 100%"
-    ></canvas>
-  </div>
+    <Test></Test>
+  </RenderWrapper>
 </template>
-
-<style scoped></style>
