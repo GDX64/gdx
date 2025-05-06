@@ -1,16 +1,25 @@
+import { BasicAttrs } from "#els/renderTypes.ts";
 import { YogaAndAttrs } from "#els/yogaAndAttrs.ts";
-import Yoga, { Overflow } from "yoga-layout";
+import Yoga, { Overflow, Node } from "yoga-layout";
 
 export class CanvasElement {
-  yats = new YogaAndAttrs();
+  yats: YogaAndAttrs<BasicAttrs>;
   children: CanvasElement[] = [];
   parent: CanvasElement | null = null;
+
+  constructor(yats?: YogaAndAttrs<BasicAttrs>) {
+    if (yats) {
+      this.yats = yats;
+    } else {
+      this.yats = YogaAndAttrs.withYoga();
+    }
+  }
 
   static root() {
     return new CanvasElement();
   }
 
-  get yogaNode() {
+  get yogaNode(): Node | null {
     return this.yats.yogaNode;
   }
 
@@ -18,28 +27,48 @@ export class CanvasElement {
     return this.yats.attrs;
   }
 
+  getTop() {
+    return this.yogaNode?.getComputedTop() ?? 0;
+  }
+
+  getLeft() {
+    return this.yogaNode?.getComputedLeft() ?? 0;
+  }
+
+  getWidth() {
+    return this.yogaNode?.getComputedWidth() ?? 0;
+  }
+
+  getHeight() {
+    return this.yogaNode?.getComputedHeight() ?? 0;
+  }
+
   hide() {
     this.attrs.display = "none";
-    this.yogaNode.setDisplay(Yoga.DISPLAY_NONE);
+    this.yogaNode?.setDisplay(Yoga.DISPLAY_NONE);
   }
 
   addChild(el: CanvasElement) {
     this.children.push(el);
     el.parent = this;
-    this.yogaNode.insertChild(el.yogaNode, this.yogaNode.getChildCount());
+    if (el.yogaNode) {
+      this.yogaNode?.insertChild(el.yogaNode, this.yogaNode?.getChildCount());
+    }
   }
 
   addChildAt(el: CanvasElement, index: number) {
     this.children.splice(index, 0, el);
     el.parent = this;
-    this.yogaNode.insertChild(el.yogaNode, index);
+    if (el.yogaNode) {
+      this.yogaNode?.insertChild(el.yogaNode, index);
+    }
   }
 
   removeChild(el: CanvasElement) {
     const index = this.children.findIndex((item) => item === el);
-    if (index !== -1) {
+    if (index !== -1 && el.yogaNode) {
       this.children.splice(index, 1);
-      this.yogaNode.removeChild(el.yogaNode);
+      this.yogaNode?.removeChild(el.yogaNode);
     }
   }
 
@@ -52,7 +81,7 @@ export class CanvasElement {
   }
 
   destroy() {
-    this.yogaNode.free();
+    this.yogaNode?.free();
   }
 
   setText(text: string) {}
@@ -88,17 +117,12 @@ export class CanvasElement {
       ctx.roundRect(
         0,
         0,
-        this.yogaNode.getComputedWidth(),
-        this.yogaNode.getComputedHeight(),
+        this.getWidth(),
+        this.getHeight(),
         this.attrs.roundness
       );
     } else {
-      ctx.rect(
-        0,
-        0,
-        this.yogaNode.getComputedWidth(),
-        this.yogaNode.getComputedHeight()
-      );
+      ctx.rect(0, 0, this.getWidth(), this.getHeight());
     }
   }
 
@@ -107,26 +131,18 @@ export class CanvasElement {
       ctx.roundRect(
         0.5,
         0.5,
-        this.yogaNode.getComputedWidth() - 1,
-        this.yogaNode.getComputedHeight() - 1,
+        this.getWidth() - 1,
+        this.getHeight() - 1,
         this.attrs.roundness
       );
     } else {
-      ctx.rect(
-        0.5,
-        0.5,
-        this.yogaNode.getComputedWidth() - 1,
-        this.yogaNode.getComputedHeight() - 1
-      );
+      ctx.rect(0.5, 0.5, this.getWidth() - 1, this.getHeight() - 1);
     }
   }
 
   draw(ctx: CanvasRenderingContext2D) {
     ctx.save();
-    ctx.translate(
-      this.yogaNode.getComputedLeft(),
-      this.yogaNode.getComputedTop()
-    );
+    ctx.translate(this.getLeft(), this.getTop());
     if (this.attrs.scaleX || this.attrs.scaleY) {
       ctx.scale(this.attrs.scaleX ?? 1, this.attrs.scaleY ?? 1);
     }
@@ -146,18 +162,18 @@ export class CanvasElement {
   }
 
   private hitsMe(x: number, y: number): boolean {
-    const top = this.yogaNode.getComputedTop();
-    const left = this.yogaNode.getComputedLeft();
-    const width = this.yogaNode.getComputedWidth();
-    const height = this.yogaNode.getComputedHeight();
+    const top = this.getTop();
+    const left = this.getLeft();
+    const width = this.getWidth();
+    const height = this.getHeight();
     return x >= left && x <= left + width && y >= top && y <= top + height;
   }
 
   onClick(event: MouseEvent, x: number, y: number) {
     if (this.hitsMe(x, y)) {
       for (const child of this.children) {
-        let adjustedX = x - this.yogaNode.getComputedLeft();
-        let adjustedY = y - this.yogaNode.getComputedTop();
+        let adjustedX = x - this.getLeft();
+        let adjustedY = y - this.getTop();
         child.onClick(event, adjustedX, adjustedY);
       }
       this.attrs.onClick?.(event);
@@ -167,8 +183,8 @@ export class CanvasElement {
   onPointerUp(event: PointerEvent, x: number, y: number) {
     if (this.hitsMe(x, y)) {
       for (const child of this.children) {
-        let adjustedX = x - this.yogaNode.getComputedLeft();
-        let adjustedY = y - this.yogaNode.getComputedTop();
+        let adjustedX = x - this.getLeft();
+        let adjustedY = y - this.getTop();
         child.onPointerUp(event, adjustedX, adjustedY);
       }
       this.attrs.onPointerUp?.(event);
@@ -178,8 +194,8 @@ export class CanvasElement {
   onPointerDown(event: PointerEvent, x: number, y: number) {
     if (this.hitsMe(x, y)) {
       for (const child of this.children) {
-        let adjustedX = x - this.yogaNode.getComputedLeft();
-        let adjustedY = y - this.yogaNode.getComputedTop();
+        let adjustedX = x - this.getLeft();
+        let adjustedY = y - this.getTop();
         child.onPointerDown(event, adjustedX, adjustedY);
       }
       this.attrs.onPointerDown?.(event);
@@ -190,8 +206,8 @@ export class CanvasElement {
     if (this.hitsMe(x, y)) {
       const hits: CanvasElement[] = [this];
       for (const child of this.children) {
-        let adjustedX = x - this.yogaNode.getComputedLeft();
-        let adjustedY = y - this.yogaNode.getComputedTop();
+        let adjustedX = x - this.getLeft();
+        let adjustedY = y - this.getTop();
         const childHits = child.onPointerMove(event, adjustedX, adjustedY);
         hits.push(...childHits);
       }

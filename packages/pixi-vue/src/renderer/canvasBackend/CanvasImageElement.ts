@@ -21,13 +21,7 @@ export class CanvasImageElement extends CanvasElement {
 
   drawSelf(ctx: CanvasRenderingContext2D) {
     if (this.imgElement) {
-      ctx.drawImage(
-        this.imgElement,
-        0,
-        0,
-        this.yogaNode.getComputedWidth(),
-        this.yogaNode.getComputedHeight()
-      );
+      ctx.drawImage(this.imgElement, 0, 0, this.getWidth(), this.getHeight());
     }
   }
 }
