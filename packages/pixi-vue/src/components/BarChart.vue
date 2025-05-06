@@ -34,9 +34,7 @@ import { Align, FlexDirection, GRaw, GRect } from "#els/appRenderers.ts";
 import { ElementInterface } from "#els/renderTypes.ts";
 import { LinScale } from "@gdx/utils";
 import { computed, reactive, watchEffect } from "vue";
-import { interpolateReds, min } from "d3";
-
-const padding = 30;
+import { interpolateReds, max, min } from "d3";
 
 const hovered = reactive(new Set<number>());
 
@@ -45,9 +43,17 @@ const barsRaw = [
   { value: 6 },
   { value: 8 },
   { value: 3 },
-  { value: 2 },
+  { value: 131 },
   { value: 21 },
 ];
+
+const paddingX = computed(() => {
+  const maxValue = Math.max(...barsRaw.map((bar) => bar.value));
+  const maxLabel = maxValue.toString().length * 10;
+  return Math.max(30, maxLabel + 10);
+});
+
+const paddingY = 30;
 
 function onPointerEnter() {}
 
@@ -75,12 +81,17 @@ const size = reactive({
 
 const scales = computed(() => {
   const { minY, maxY, minX, maxX } = limits.value;
-  const scaleX = LinScale.fromPoints(minX, padding, maxX, size.width - padding);
+  const scaleX = LinScale.fromPoints(
+    minX,
+    paddingX.value,
+    maxX,
+    size.width - paddingX.value
+  );
   const scaleY = LinScale.fromPoints(
     minY,
-    size.height - padding,
+    size.height - paddingY,
     maxY,
-    padding
+    paddingY
   );
   return { scaleX, scaleY };
 });
@@ -89,9 +100,12 @@ function drawTicks(ctx: CanvasRenderingContext2D) {
   ctx.save();
   const { scaleX, scaleY } = scales.value;
   const { maxX, maxY } = limits.value;
-  const ticks = Array.from(Array(maxY), (_, i) => i + 1);
-
-  ticks.forEach((tickValue) => {
+  const maxTicksSupported = Math.abs(scaleY.deltaScale(maxY) / 20);
+  let ticks = Math.floor(Math.min(maxTicksSupported, maxY));
+  const increment = Math.floor(maxY / ticks);
+  ticks = Math.floor(maxY / increment);
+  for (let i = 1; i < ticks + 1; i++) {
+    const tickValue = i * increment;
     const y = scaleY.scale(tickValue);
     ctx.beginPath();
     ctx.strokeStyle = "black";
@@ -106,8 +120,9 @@ function drawTicks(ctx: CanvasRenderingContext2D) {
     ctx.stroke();
     ctx.fillStyle = "black";
     ctx.textBaseline = "middle";
-    ctx.fillText(tickValue.toString(), x0 - 20, y);
-  });
+    ctx.textAlign = "right";
+    ctx.fillText(tickValue.toString(), x0 - 8, y);
+  }
   ctx.restore();
 }
 
