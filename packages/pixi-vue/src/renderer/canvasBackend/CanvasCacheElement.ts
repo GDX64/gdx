@@ -28,6 +28,7 @@ export class CanvasCacheElement extends CanvasElement {
       const matrix = ctx.getTransform();
       const scaleX = matrix.a * (this.attrs.scaleX ?? 1);
       const scaleY = matrix.d * (this.attrs.scaleY ?? 1);
+      console.log({ scaleX, scaleY });
       const canvas = new OffscreenCanvas(
         this.yogaNode.getComputedWidth() * scaleX,
         this.yogaNode.getComputedHeight() * scaleY
@@ -48,8 +49,8 @@ export class CanvasCacheElement extends CanvasElement {
         this.offscreenCanvas,
         this.yogaNode.getComputedLeft(),
         this.yogaNode.getComputedTop(),
-        this.offscreenCanvas.width,
-        this.offscreenCanvas.height
+        this.offscreenCanvas.width / devicePixelRatio,
+        this.offscreenCanvas.height / devicePixelRatio
       );
     }
   }
