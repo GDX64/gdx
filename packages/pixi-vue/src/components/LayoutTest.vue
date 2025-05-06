@@ -4,6 +4,8 @@
     width="100%"
     :justify="Justify.SpaceAround"
     :align="Align.FlexStart"
+    :scaleX="2"
+    :scaleY="2"
   >
     <g-rect
       width="100%"

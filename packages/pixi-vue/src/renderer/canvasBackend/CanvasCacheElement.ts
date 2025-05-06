@@ -45,12 +45,15 @@ export class CanvasCacheElement extends CanvasElement {
 
   private drawFromCache(ctx: CanvasRenderingContext2D) {
     if (this.offscreenCanvas) {
+      const matrix = ctx.getTransform();
+      const scaleX = matrix.a;
+      const scaleY = matrix.d;
       ctx.drawImage(
         this.offscreenCanvas,
         this.getLeft(),
         this.getTop(),
-        this.offscreenCanvas.width / devicePixelRatio,
-        this.offscreenCanvas.height / devicePixelRatio
+        this.offscreenCanvas.width / scaleX,
+        this.offscreenCanvas.height / scaleY
       );
     }
   }
