@@ -4,6 +4,7 @@
     width="100%"
     :justify="Justify.SpaceAround"
     :align="Align.FlexStart"
+    :paddingX="30"
   >
     <BarChart />
   </g-container>

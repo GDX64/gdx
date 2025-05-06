@@ -43,11 +43,11 @@ export type BasicAttrs = {
   border?: number;
   borderColor?: string;
   onClick?: (event: MouseEvent) => any;
-  onPointerMove?: (event: PointerEvent) => any;
-  onPointerEnter?: (event: PointerEvent) => any;
-  onPointerLeave?: (event: PointerEvent) => any;
-  onPointerDown?: (event: PointerEvent) => any;
-  onPointerUp?: (event: PointerEvent) => any;
+  onPointermove?: (event: PointerEvent) => any;
+  onPointerenter?: (event: PointerEvent) => any;
+  onPointerleave?: (event: PointerEvent) => any;
+  onPointerdown?: (event: PointerEvent) => any;
+  onPointerup?: (event: PointerEvent) => any;
 };
 
 export type CacheElementAttrs = BasicAttrs & {

@@ -196,7 +196,7 @@ export class CanvasElement<T extends BasicAttrs = BasicAttrs>
       for (const child of this.children) {
         child.onPointerUp(event, adjustedX, adjustedY);
       }
-      this.attrs.onPointerUp?.(event);
+      this.attrs.onPointerup?.(event);
     }
   }
 
@@ -206,7 +206,7 @@ export class CanvasElement<T extends BasicAttrs = BasicAttrs>
       for (const child of this.children) {
         child.onPointerDown(event, adjustedX, adjustedY);
       }
-      this.attrs.onPointerDown?.(event);
+      this.attrs.onPointerdown?.(event);
     }
   }
 
@@ -218,7 +218,7 @@ export class CanvasElement<T extends BasicAttrs = BasicAttrs>
         const childHits = child.onPointerMove(event, adjustedX, adjustedY);
         hits.push(...childHits);
       }
-      this.attrs.onPointerMove?.(event);
+      this.attrs.onPointermove?.(event);
       return hits;
     }
     return [];
@@ -226,12 +226,12 @@ export class CanvasElement<T extends BasicAttrs = BasicAttrs>
 
   onPointerEnter(event: PointerEvent) {
     this.hovered = true;
-    this.attrs.onPointerEnter?.(event);
+    this.attrs.onPointerenter?.(event);
   }
 
   onPointerLeave(event: PointerEvent) {
     this.hovered = false;
-    this.attrs.onPointerLeave?.(event);
+    this.attrs.onPointerleave?.(event);
   }
 
   protected getFill() {
