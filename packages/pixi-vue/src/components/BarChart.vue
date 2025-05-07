@@ -101,7 +101,6 @@ type ScaleLimits = {
 function onLayoutUpdate(element: ElementInterface) {
   size.width = element.getWidth();
   size.height = element.getHeight();
-  console.log("size", size.width, size.height);
 }
 
 function drawFn(ctx: CanvasRenderingContext2D, element: ElementInterface) {

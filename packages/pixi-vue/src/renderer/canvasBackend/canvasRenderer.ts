@@ -114,11 +114,21 @@ export async function createCanvasRoot(
       if (isDestroyed) {
         return;
       }
-      if (checkUpdateDims()) {
+      const dimsUpdated = checkUpdateDims();
+      if (dimsUpdated) {
         appData.width = lastWidth;
         appData.height;
       }
-      drawCanvas();
+      if (nodeRoot.yogaNode?.isDirty() || dimsUpdated) {
+        nodeRoot.yogaNode?.calculateLayout(lastWidth, lastHeight);
+        nodeRoot.updateLayout();
+      }
+      const ctx = canvas.getContext("2d")!;
+      ctx.save();
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.scale(devicePixelRatio, devicePixelRatio);
+      nodeRoot.draw(ctx);
+      ctx.restore();
     }
   }
 
@@ -145,19 +155,6 @@ export async function createCanvasRoot(
   });
 
   drawLoop();
-
-  function drawCanvas() {
-    if (nodeRoot.yogaNode?.isDirty()) {
-      nodeRoot.yogaNode.calculateLayout(lastWidth, lastHeight);
-      nodeRoot.updateLayout();
-    }
-    const ctx = canvas.getContext("2d")!;
-    ctx.save();
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.scale(devicePixelRatio, devicePixelRatio);
-    nodeRoot.draw(ctx);
-    ctx.restore();
-  }
 
   app.mount(nodeRoot);
 

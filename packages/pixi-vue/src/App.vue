@@ -8,9 +8,15 @@ const urlQuery = new URLSearchParams(window.location.search);
 </script>
 
 <template>
-  <div class="w-full min-h-screen bg-orange-100 p-8">
+  <div class="w-full min-h-screen bg-orange-100 p-8 flex flex-col gap-8">
     <RenderWrapper
-      class="min-w-[500px] h-[400px] bg-red-400"
+      class="min-w-[500px] h-[300px]"
+      :renderer="urlQuery.get('renderer') === 'pixi' ? 'pixi' : 'canvas'"
+    >
+      <BarChart width="100%" height="100%" />
+    </RenderWrapper>
+    <RenderWrapper
+      class="min-w-[500px] h-[300px]"
       :renderer="urlQuery.get('renderer') === 'pixi' ? 'pixi' : 'canvas'"
     >
       <BarChart width="100%" height="100%" />

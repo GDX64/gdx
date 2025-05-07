@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, useSlots } from "vue";
-import Game from "./components/LayoutTest.vue";
+import { onBeforeUnmount, onMounted, ref } from "vue";
 import { createPixiRoot, createCanvasRoot } from "#els/appRenderers.ts";
 
 const canvas = ref<HTMLCanvasElement>();
