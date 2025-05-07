@@ -48,7 +48,7 @@ function appRenderer() {
       if (index === -1) {
         parent.addChild(el);
       } else {
-        parent.addChildAt(el, index + 1);
+        parent.addChildAt(el, index - 1);
       }
     },
     nextSibling(node) {
