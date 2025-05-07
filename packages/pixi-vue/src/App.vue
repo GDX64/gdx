@@ -8,18 +8,12 @@ const urlQuery = new URLSearchParams(window.location.search);
 </script>
 
 <template>
-  <RenderWrapper
-    style="width: 100vw; height: 100vh; background-color: antiquewhite"
-    :renderer="urlQuery.get('renderer') === 'pixi' ? 'pixi' : 'canvas'"
-  >
-    <g-container
-      height="100%"
-      width="100%"
-      :justify="Justify.SpaceAround"
-      :align="Align.FlexStart"
-      :paddingX="30"
+  <div class="w-full min-h-screen bg-orange-100 p-8">
+    <RenderWrapper
+      class="min-w-[500px] h-[400px] bg-red-400"
+      :renderer="urlQuery.get('renderer') === 'pixi' ? 'pixi' : 'canvas'"
     >
-      <BarChart />
-    </g-container>
-  </RenderWrapper>
+      <BarChart width="100%" height="100%" />
+    </RenderWrapper>
+  </div>
 </template>

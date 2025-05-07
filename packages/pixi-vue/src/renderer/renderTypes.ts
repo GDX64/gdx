@@ -8,7 +8,7 @@ import {
 } from "yoga-layout";
 type Percent = `${number}%`;
 
-export type BasicAttrs = {
+export interface BasicAttrs {
   fill?: number | string;
   width?: number | "auto" | Percent;
   maxWidth?: number | "auto" | Percent;
@@ -49,7 +49,8 @@ export type BasicAttrs = {
   onPointerleave?: (event: PointerEvent) => any;
   onPointerdown?: (event: PointerEvent) => any;
   onPointerup?: (event: PointerEvent) => any;
-};
+  onLayoutupdate?: (element: ElementInterface<BasicAttrs>) => any;
+}
 
 export type CacheElementAttrs = BasicAttrs & {
   cacheKey?: string | number;

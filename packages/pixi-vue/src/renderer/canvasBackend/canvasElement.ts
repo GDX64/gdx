@@ -89,7 +89,12 @@ export class CanvasElement<T extends BasicAttrs = BasicAttrs>
 
   setText(text: string) {}
 
-  updateLayout() {}
+  updateLayout() {
+    this.children.forEach((child) => {
+      child.updateLayout();
+    });
+    this.attrs.onLayoutupdate?.(this);
+  }
 
   drawSelf(ctx: CanvasRenderingContext2D) {
     const fillStyle = numberToHexString(this.attrs.fill);

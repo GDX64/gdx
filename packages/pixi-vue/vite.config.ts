@@ -2,6 +2,9 @@ import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import path from "path";
 import dts from "vite-plugin-dts";
+import auto from "autoprefixer";
+import tailwind from "tailwindcss";
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
@@ -12,7 +15,7 @@ export default defineConfig({
         },
       },
     }),
-    dts({ rollupTypes: true }),
+    dts({ rollupTypes: true }) as any,
   ],
   build: {
     minify: false,
@@ -29,6 +32,7 @@ export default defineConfig({
       external: ["vue", "pixi.js"],
     },
   },
+  css: { postcss: { plugins: [auto(), tailwind()] } },
   esbuild: {
     target: "es2022",
   },

@@ -1,12 +1,11 @@
 <template>
   <g-raw
     fill="white"
-    :width="size.width"
-    :height="size.height"
     :drawFunction="drawFn"
     :border="1"
     borderColor="#000000"
     :padding="30"
+    @layoutupdate="onLayoutUpdate"
   >
     <g-rect
       height="100%"
@@ -99,6 +98,12 @@ type ScaleLimits = {
   maxX: number;
 };
 
+function onLayoutUpdate(element: ElementInterface) {
+  size.width = element.getWidth();
+  size.height = element.getHeight();
+  console.log("size", size.width, size.height);
+}
+
 function drawFn(ctx: CanvasRenderingContext2D, element: ElementInterface) {
   const { scaleX, scaleY } = scales.value;
   const { minY, maxY, minX, maxX } = limits.value;
@@ -106,8 +111,11 @@ function drawFn(ctx: CanvasRenderingContext2D, element: ElementInterface) {
   ctx.fillStyle = "#ffffff";
   ctx.strokeStyle = "#000000";
   ctx.lineWidth = 1;
+  ctx.beginPath();
   ctx.rect(0, 0, element.getWidth(), element.getHeight());
   ctx.fill();
+  ctx.beginPath();
+  ctx.rect(0.5, 0.5, element.getWidth() - 1, element.getHeight() - 1);
   ctx.stroke();
   ctx.moveTo(scaleX.scale(0), scaleY.scale(0));
   ctx.lineTo(scaleX.scale(0), scaleY.scale(maxY));
