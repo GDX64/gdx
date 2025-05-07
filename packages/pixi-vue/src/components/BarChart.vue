@@ -1,18 +1,12 @@
 <template>
-  <g-raw
-    fill="white"
-    :border="1"
-    borderColor="#000000"
-    :padding="30"
-    @layoutupdate="onLayoutUpdate"
-    :drawFunction="drawScale"
-  >
+  <ScaleComponent :domain="limits" v-slot="{ scales }">
     <g-rect
       height="100%"
       width="100%"
       :flexDirection="FlexDirection.Row"
       :gap="10"
-      :paddingX="30"
+      :paddingX="scales.scaleX(0) + 30"
+      :paddingY="scales.scaleY(0)"
       :align="Align.FlexEnd"
     >
       <g-raw
@@ -28,7 +22,7 @@
       >
       </g-raw>
     </g-rect>
-  </g-raw>
+  </ScaleComponent>
 </template>
 
 <script setup lang="ts">
@@ -36,7 +30,7 @@ import { Align, FlexDirection, GRaw, GRect } from "#els/appRenderers.ts";
 import { ElementInterface } from "#els/renderTypes.ts";
 import { computed, reactive, watchEffect } from "vue";
 import { interpolateReds } from "d3";
-import { useScales } from "./scale/scaleComposable";
+import ScaleComponent from "./scale/ScaleComponent.vue";
 
 const hovered = reactive(new Set<number>());
 
@@ -54,14 +48,6 @@ const barsRaw: BarData[] = [
   { value: 89, label: ".svg" },
 ];
 
-const paddingX = computed(() => {
-  const maxValue = Math.max(...barsRaw.map((bar) => bar.value));
-  const maxLabel = maxValue.toString().length * 10;
-  return Math.max(30, maxLabel + 10);
-});
-
-const paddingY = 30;
-
 const limits = computed(() => {
   const minY = 0;
   const maxY = Math.max(...barsRaw.map((bar) => bar.value));
@@ -69,18 +55,6 @@ const limits = computed(() => {
   const maxX = barsRaw.length - 1;
   return { minY, maxY, minX, maxX };
 });
-
-const { scales, drawScale } = useScales(
-  () => limits.value,
-  () => {
-    return {
-      minX: paddingX.value,
-      maxX: size.width - paddingX.value,
-      minY: paddingY,
-      maxY: size.height - paddingY,
-    };
-  }
-);
 
 const bars = computed(() => {
   return barsRaw.map((bar) => {

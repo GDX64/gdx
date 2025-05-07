@@ -58,6 +58,10 @@ export class YogaAndAttrs<T extends BasicAttrs> {
         this.yogaNode?.setPadding(Edge.Horizontal, next);
         break;
       }
+      case "paddingY": {
+        this.yogaNode?.setPadding(Edge.Vertical, next);
+        break;
+      }
       case "margin": {
         this.yogaNode?.setMargin(Yoga.EDGE_ALL, next);
         break;

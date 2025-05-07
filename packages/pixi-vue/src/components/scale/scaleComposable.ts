@@ -1,15 +1,20 @@
-import { computed } from "vue";
-import { scaleLinear } from "d3";
+import { computed, reactive } from "vue";
+import { min, scaleLinear } from "d3";
 import { ElementInterface } from "#els/renderTypes.ts";
 
-type ScaleLimits = {
+export type ScaleLimits = {
   minY: number;
   maxY: number;
   minX: number;
   maxX: number;
 };
 
-export function useScales(domain: () => ScaleLimits, image: () => ScaleLimits) {
+export function useScales(domain: () => ScaleLimits) {
+  const size = reactive({
+    width: 0,
+    height: 0,
+  });
+
   const scales = computed(() => {
     const { minY, maxY, minX, maxX } = domain();
     const imageLimits = image();
@@ -81,5 +86,14 @@ export function useScales(domain: () => ScaleLimits, image: () => ScaleLimits) {
     ctx.restore();
   }
 
-  return { scales, drawScale };
+  function image() {
+    const padding = 30;
+    const minX = padding;
+    const maxX = size.width - padding;
+    const minY = padding;
+    const maxY = size.height - padding;
+    return { minX, maxX, minY, maxY };
+  }
+
+  return { scales, drawScale, size };
 }

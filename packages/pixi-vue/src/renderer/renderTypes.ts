@@ -30,6 +30,7 @@ export interface BasicAttrs {
   gapCol?: number | Percent;
   padding?: number | Percent;
   paddingX?: number | Percent;
+  paddingY?: number | Percent;
   margin?: number | Percent;
   grow?: number;
   wrap?: Wrap;

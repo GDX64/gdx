@@ -3,6 +3,7 @@ import RenderWrapper from "./components/RenderWrapper.vue";
 import { Align, Justify } from "yoga-layout";
 import { GContainer } from "#els/appRenderers.ts";
 import BarChart from "./components/BarChart.vue";
+import LineChart from "./components/charts/LineChart.vue";
 
 const urlQuery = new URLSearchParams(window.location.search);
 </script>
@@ -19,7 +20,7 @@ const urlQuery = new URLSearchParams(window.location.search);
       class="min-w-[500px] h-[300px]"
       :renderer="urlQuery.get('renderer') === 'pixi' ? 'pixi' : 'canvas'"
     >
-      <BarChart width="100%" height="100%" />
+      <LineChart width="100%" height="100%" />
     </RenderWrapper>
   </div>
 </template>
