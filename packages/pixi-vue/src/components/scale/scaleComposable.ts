@@ -10,6 +10,9 @@ export type ScaleLimits = {
 };
 
 export function useScales(domain: () => ScaleLimits) {
+  const padding = 15;
+  const gridColor = "#e5e5e5";
+
   const size = reactive({
     width: 0,
     height: 0,
@@ -46,9 +49,9 @@ export function useScales(domain: () => ScaleLimits) {
     ctx.beginPath();
     ctx.rect(0.5, 0.5, element.getWidth() - 1, element.getHeight() - 1);
     ctx.stroke();
-    ctx.moveTo(scaleX(0), scaleY(0));
+    ctx.moveTo(scaleX(0), scaleY(minY));
     ctx.lineTo(scaleX(0), scaleY(maxY));
-    ctx.moveTo(scaleX(0), scaleY(0));
+    ctx.moveTo(scaleX(minX), scaleY(0));
     ctx.lineTo(scaleX(maxX), scaleY(0));
     ctx.stroke();
 
@@ -58,36 +61,66 @@ export function useScales(domain: () => ScaleLimits) {
   function drawTicks(ctx: CanvasRenderingContext2D) {
     ctx.save();
     const { scaleX, scaleY } = scales.value;
-    const [_, maxX] = scaleX.domain();
-    const ticks = scaleY.ticks();
-    ticks.forEach((tickValue) => {
+    const [minX, maxX] = scaleX.domain();
+    const [minY, maxY] = scaleY.domain();
+    const ticksY = scaleY.ticks();
+    ticksY.forEach((tickValue) => {
+      if (tickValue === 0) {
+        return;
+      }
       const y = scaleY(tickValue);
+      ctx.beginPath();
+      ctx.save();
+      ctx.moveTo(scaleX(minX), y);
+      ctx.setLineDash([5, 5]);
+      ctx.lineTo(scaleX(maxX), y);
+      ctx.strokeStyle = gridColor;
+      ctx.stroke();
+      ctx.restore();
+
       ctx.beginPath();
       ctx.strokeStyle = "black";
       const x0 = scaleX(0);
       ctx.moveTo(x0 - 5, y);
       ctx.lineTo(x0 + 5, y);
       ctx.stroke();
-      ctx.beginPath();
-      if (tickValue !== 0) {
-        ctx.save();
-        ctx.moveTo(x0 + 5, y);
-        ctx.setLineDash([5, 5]);
-        ctx.lineTo(scaleX(maxX), y);
-        ctx.strokeStyle = "#d7d7d7";
-        ctx.stroke();
-        ctx.restore();
-      }
+
       ctx.fillStyle = "black";
       ctx.textBaseline = "middle";
       ctx.textAlign = "right";
       ctx.fillText(tickValue.toString(), x0 - 8, y);
     });
+    const ticksX = scaleX.ticks();
+    ticksX.forEach((tickValue) => {
+      if (tickValue === 0) {
+        return;
+      }
+      const x = scaleX(tickValue);
+      ctx.beginPath();
+      ctx.save();
+      ctx.moveTo(x, scaleY(minY));
+      ctx.setLineDash([5, 5]);
+      ctx.lineTo(x, scaleY(maxY));
+      ctx.strokeStyle = gridColor;
+      ctx.stroke();
+      ctx.restore();
+
+      ctx.beginPath();
+      ctx.strokeStyle = "black";
+      const y0 = scaleY(0);
+      ctx.moveTo(x, y0 - 5);
+      ctx.lineTo(x, y0 + 5);
+      ctx.stroke();
+
+      ctx.fillStyle = "black";
+      ctx.textBaseline = "top";
+      ctx.textAlign = "center";
+      ctx.fillText(tickValue.toString(), x, y0 + 8);
+    });
     ctx.restore();
   }
 
   function image() {
-    const padding = 30;
     const minX = padding;
     const maxX = size.width - padding;
     const minY = padding;

@@ -17,13 +17,13 @@ type DataRaw = {
   y: number;
 };
 
-const dataRaw: DataRaw[] = [
-  { x: 0, y: 0 },
-  { x: 1, y: 1 },
-  { x: 2, y: 4 },
-  { x: 3, y: 9 },
-  { x: 4, y: 16 },
-];
+const dataRaw: DataRaw[] = [...Array(100)].map((_, index) => {
+  const x = index / 10 - 5;
+  return {
+    x,
+    y: x ** 3,
+  };
+});
 
 const limits = computed((): ScaleLimits => {
   const minY = Math.min(...dataRaw.map((bar) => bar.y));
@@ -41,7 +41,6 @@ function lineDrawFn(ctx: CanvasRenderingContext2D, element: ElementInterface) {
     scaleX: ScaleLinear<number, number>;
     scaleY: ScaleLinear<number, number>;
   } = element.attrs.metaData;
-  console.log(scaleX(0), scaleY(0));
   ctx.beginPath();
   ctx.moveTo(scaleX(dataRaw[0].x), scaleY(dataRaw[0].y));
   dataRaw.slice(1).forEach((value) => {
