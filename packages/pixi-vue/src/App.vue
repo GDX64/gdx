@@ -2,7 +2,7 @@
 import RenderWrapper from "./components/RenderWrapper.vue";
 import { Align, Justify } from "yoga-layout";
 import { GContainer } from "#els/appRenderers.ts";
-import BarChart from "./BarChart.vue";
+import BarChart from "./components/BarChart.vue";
 
 const urlQuery = new URLSearchParams(window.location.search);
 </script>

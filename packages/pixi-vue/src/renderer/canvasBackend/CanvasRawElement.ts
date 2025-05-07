@@ -7,7 +7,6 @@ export class CanvasRawElement extends CanvasElement<RawElementAttrs> {
   }
 
   drawSelf(ctx: CanvasRenderingContext2D): void {
-    super.drawSelf(ctx);
     ctx.save();
     this.attrs.drawFunction?.(ctx, this);
     ctx.restore();

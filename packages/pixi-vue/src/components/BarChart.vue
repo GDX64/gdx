@@ -16,15 +16,16 @@
       :paddingX="30"
       :align="Align.FlexEnd"
     >
-      <g-rect
+      <g-raw
         v-for="(bar, index) of bars"
         :height="Math.abs(scales.scaleY.deltaScale(bar.value))"
         :grow="1"
         :fill="hovered.has(index) ? 'red' : bar.color"
         @pointerenter="hovered.add(index)"
         @pointerleave="hovered.delete(index)"
+        :drawFunction="barDrawFn"
       >
-      </g-rect>
+      </g-raw>
     </g-rect>
   </g-raw>
 </template>
@@ -91,6 +92,12 @@ function drawFn(ctx: CanvasRenderingContext2D, element: ElementInterface) {
   const { scaleX, scaleY } = scales.value;
   const { minY, maxY, minX, maxX } = limits.value;
   ctx.beginPath();
+  ctx.fillStyle = "#ffffff";
+  ctx.strokeStyle = "#000000";
+  ctx.lineWidth = 1;
+  ctx.rect(0, 0, element.getWidth(), element.getHeight());
+  ctx.fill();
+  ctx.stroke();
   ctx.moveTo(scaleX.scale(0), scaleY.scale(0));
   ctx.lineTo(scaleX.scale(0), scaleY.scale(maxY));
   ctx.moveTo(scaleX.scale(0), scaleY.scale(0));
@@ -98,6 +105,14 @@ function drawFn(ctx: CanvasRenderingContext2D, element: ElementInterface) {
   ctx.stroke();
 
   drawTicks(ctx);
+}
+
+function barDrawFn(ctx: CanvasRenderingContext2D, element: ElementInterface) {
+  ctx.fillStyle = element.attrs.fill?.toString() ?? "white";
+  ctx.beginPath();
+  ctx.roundRect(0, 0, element.getWidth(), element.getHeight(), 5);
+  ctx.closePath();
+  ctx.fill();
 }
 
 function useScales(limits: () => ScaleLimits) {
