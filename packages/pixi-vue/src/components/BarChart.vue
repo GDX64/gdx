@@ -20,7 +20,7 @@
         :key="bar.label"
         :metaData="bar"
         :grow="1"
-        :height="Math.abs(scales.scaleY.deltaScale(bar.value))"
+        :height="Math.abs(scales.scaleY(bar.value) - scales.scaleY(0))"
         :fill="hovered.has(index) ? 'red' : bar.color"
         @pointerenter="hovered.add(index)"
         @pointerleave="hovered.delete(index)"
@@ -34,9 +34,8 @@
 <script setup lang="ts">
 import { Align, FlexDirection, GRaw, GRect } from "#els/appRenderers.ts";
 import { ElementInterface } from "#els/renderTypes.ts";
-import { LinScale } from "@gdx/utils";
 import { computed, reactive, watchEffect } from "vue";
-import { interpolateReds } from "d3";
+import { scaleLinear, interpolateReds } from "d3";
 
 const hovered = reactive(new Set<number>());
 
@@ -47,11 +46,11 @@ type BarData = {
 };
 
 const barsRaw: BarData[] = [
-  { value: 8, label: ".ts" },
-  { value: 3, label: ".js" },
-  { value: 2, label: ".html" },
-  { value: 3, label: ".css" },
-  { value: 1, label: ".svg" },
+  { value: 131, label: ".ts" },
+  { value: 77, label: ".js" },
+  { value: 52, label: ".html" },
+  { value: 66, label: ".css" },
+  { value: 89, label: ".svg" },
 ];
 
 const paddingX = computed(() => {
@@ -82,10 +81,6 @@ const bars = computed(() => {
   });
 });
 
-watchEffect(() => {
-  console.log([...bars.value]);
-});
-
 const size = reactive({
   width: 800,
   height: 500,
@@ -105,7 +100,8 @@ function onLayoutUpdate(element: ElementInterface) {
 
 function drawFn(ctx: CanvasRenderingContext2D, element: ElementInterface) {
   const { scaleX, scaleY } = scales.value;
-  const { minY, maxY, minX, maxX } = limits.value;
+  const [minX, maxX] = scaleX.domain();
+  const [minY, maxY] = scaleY.domain();
   ctx.beginPath();
   ctx.fillStyle = "#ffffff";
   ctx.strokeStyle = "#000000";
@@ -116,10 +112,10 @@ function drawFn(ctx: CanvasRenderingContext2D, element: ElementInterface) {
   ctx.beginPath();
   ctx.rect(0.5, 0.5, element.getWidth() - 1, element.getHeight() - 1);
   ctx.stroke();
-  ctx.moveTo(scaleX.scale(0), scaleY.scale(0));
-  ctx.lineTo(scaleX.scale(0), scaleY.scale(maxY));
-  ctx.moveTo(scaleX.scale(0), scaleY.scale(0));
-  ctx.lineTo(scaleX.scale(maxX), scaleY.scale(0));
+  ctx.moveTo(scaleX(0), scaleY(0));
+  ctx.lineTo(scaleX(0), scaleY(maxY));
+  ctx.moveTo(scaleX(0), scaleY(0));
+  ctx.lineTo(scaleX(maxX), scaleY(0));
   ctx.stroke();
 
   drawTicks(ctx);
@@ -145,48 +141,45 @@ function barDrawFn(ctx: CanvasRenderingContext2D, element: ElementInterface) {
 function useScales(limits: () => ScaleLimits) {
   const scales = computed(() => {
     const { minY, maxY, minX, maxX } = limits();
-    const scaleX = LinScale.fromPoints(
-      minX,
-      paddingX.value,
-      maxX,
-      size.width - paddingX.value
-    );
-    const scaleY = LinScale.fromPoints(
-      minY,
-      size.height - paddingY,
-      maxY,
-      paddingY
-    );
+    const scaleX = scaleLinear()
+      .domain([minX, maxX])
+      .range([paddingX.value, size.width])
+      .nice(10);
+    const scaleY = scaleLinear()
+      .domain([minY, maxY])
+      .range([size.height - paddingY, paddingY])
+      .nice(10);
     return { scaleX, scaleY };
   });
 
   function drawTicks(ctx: CanvasRenderingContext2D) {
     ctx.save();
     const { scaleX, scaleY } = scales.value;
-    const { maxX, maxY } = limits();
-    const maxTicksSupported = Math.abs(scaleY.deltaScale(maxY) / 20);
-    let ticks = Math.floor(Math.min(maxTicksSupported, maxY));
-    const increment = Math.floor(maxY / ticks);
-    ticks = Math.floor(maxY / increment);
-    for (let i = 1; i < ticks + 1; i++) {
-      const tickValue = i * increment;
-      const y = scaleY.scale(tickValue);
+    const [_, maxX] = scaleX.range();
+    const ticks = scaleY.ticks();
+    ticks.forEach((tickValue) => {
+      const y = scaleY(tickValue);
       ctx.beginPath();
       ctx.strokeStyle = "black";
-      const x0 = scaleX.scale(0);
+      const x0 = scaleX(0);
       ctx.moveTo(x0 - 5, y);
       ctx.lineTo(x0 + 5, y);
       ctx.stroke();
       ctx.beginPath();
-      ctx.moveTo(x0 + 5, y);
-      ctx.lineTo(scaleX.scale(maxX), y);
-      ctx.strokeStyle = "#d7d7d7";
-      ctx.stroke();
+      if (tickValue !== 0) {
+        ctx.save();
+        ctx.moveTo(x0 + 5, y);
+        ctx.setLineDash([5, 5]);
+        ctx.lineTo(scaleX(maxX), y);
+        ctx.strokeStyle = "#d7d7d7";
+        ctx.stroke();
+        ctx.restore();
+      }
       ctx.fillStyle = "black";
       ctx.textBaseline = "middle";
       ctx.textAlign = "right";
       ctx.fillText(tickValue.toString(), x0 - 8, y);
-    }
+    });
     ctx.restore();
   }
 
