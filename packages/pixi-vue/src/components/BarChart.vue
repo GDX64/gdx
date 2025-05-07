@@ -33,8 +33,8 @@
 import { Align, FlexDirection, GRaw, GRect } from "#els/appRenderers.ts";
 import { ElementInterface } from "#els/renderTypes.ts";
 import { LinScale } from "@gdx/utils";
-import { computed, reactive, watchEffect } from "vue";
-import { interpolateReds, max, min } from "d3";
+import { computed, reactive } from "vue";
+import { interpolateReds } from "d3";
 
 const hovered = reactive(new Set<number>());
 
@@ -55,8 +55,6 @@ const paddingX = computed(() => {
 
 const paddingY = 30;
 
-function onPointerEnter() {}
-
 const limits = computed(() => {
   const minY = 0;
   const maxY = Math.max(...barsRaw.map((bar) => bar.value));
@@ -65,11 +63,14 @@ const limits = computed(() => {
   return { minY, maxY, minX, maxX };
 });
 
+const { scales, drawTicks } = useScales(() => limits.value);
+
 const bars = computed(() => {
   return barsRaw.map((bar) => {
+    const maxValue = Math.max(...barsRaw.map((b) => b.value));
     return {
       ...bar,
-      color: interpolateReds(bar.value / 10),
+      color: interpolateReds(bar.value / maxValue),
     };
   });
 });
@@ -79,52 +80,12 @@ const size = reactive({
   height: 500,
 });
 
-const scales = computed(() => {
-  const { minY, maxY, minX, maxX } = limits.value;
-  const scaleX = LinScale.fromPoints(
-    minX,
-    paddingX.value,
-    maxX,
-    size.width - paddingX.value
-  );
-  const scaleY = LinScale.fromPoints(
-    minY,
-    size.height - paddingY,
-    maxY,
-    paddingY
-  );
-  return { scaleX, scaleY };
-});
-
-function drawTicks(ctx: CanvasRenderingContext2D) {
-  ctx.save();
-  const { scaleX, scaleY } = scales.value;
-  const { maxX, maxY } = limits.value;
-  const maxTicksSupported = Math.abs(scaleY.deltaScale(maxY) / 20);
-  let ticks = Math.floor(Math.min(maxTicksSupported, maxY));
-  const increment = Math.floor(maxY / ticks);
-  ticks = Math.floor(maxY / increment);
-  for (let i = 1; i < ticks + 1; i++) {
-    const tickValue = i * increment;
-    const y = scaleY.scale(tickValue);
-    ctx.beginPath();
-    ctx.strokeStyle = "black";
-    const x0 = scaleX.scale(0);
-    ctx.moveTo(x0 - 5, y);
-    ctx.lineTo(x0 + 5, y);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(x0 + 5, y);
-    ctx.lineTo(scaleX.scale(maxX), y);
-    ctx.strokeStyle = "#d7d7d7";
-    ctx.stroke();
-    ctx.fillStyle = "black";
-    ctx.textBaseline = "middle";
-    ctx.textAlign = "right";
-    ctx.fillText(tickValue.toString(), x0 - 8, y);
-  }
-  ctx.restore();
-}
+type ScaleLimits = {
+  minY: number;
+  maxY: number;
+  minX: number;
+  maxX: number;
+};
 
 function drawFn(ctx: CanvasRenderingContext2D, element: ElementInterface) {
   const { scaleX, scaleY } = scales.value;
@@ -137,5 +98,56 @@ function drawFn(ctx: CanvasRenderingContext2D, element: ElementInterface) {
   ctx.stroke();
 
   drawTicks(ctx);
+}
+
+function useScales(limits: () => ScaleLimits) {
+  const scales = computed(() => {
+    const { minY, maxY, minX, maxX } = limits();
+    const scaleX = LinScale.fromPoints(
+      minX,
+      paddingX.value,
+      maxX,
+      size.width - paddingX.value
+    );
+    const scaleY = LinScale.fromPoints(
+      minY,
+      size.height - paddingY,
+      maxY,
+      paddingY
+    );
+    return { scaleX, scaleY };
+  });
+
+  function drawTicks(ctx: CanvasRenderingContext2D) {
+    ctx.save();
+    const { scaleX, scaleY } = scales.value;
+    const { maxX, maxY } = limits();
+    const maxTicksSupported = Math.abs(scaleY.deltaScale(maxY) / 20);
+    let ticks = Math.floor(Math.min(maxTicksSupported, maxY));
+    const increment = Math.floor(maxY / ticks);
+    ticks = Math.floor(maxY / increment);
+    for (let i = 1; i < ticks + 1; i++) {
+      const tickValue = i * increment;
+      const y = scaleY.scale(tickValue);
+      ctx.beginPath();
+      ctx.strokeStyle = "black";
+      const x0 = scaleX.scale(0);
+      ctx.moveTo(x0 - 5, y);
+      ctx.lineTo(x0 + 5, y);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x0 + 5, y);
+      ctx.lineTo(scaleX.scale(maxX), y);
+      ctx.strokeStyle = "#d7d7d7";
+      ctx.stroke();
+      ctx.fillStyle = "black";
+      ctx.textBaseline = "middle";
+      ctx.textAlign = "right";
+      ctx.fillText(tickValue.toString(), x0 - 8, y);
+    }
+    ctx.restore();
+  }
+
+  return { scales, drawTicks };
 }
 </script>
