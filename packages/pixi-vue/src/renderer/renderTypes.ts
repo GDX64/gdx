@@ -42,6 +42,7 @@ export type BasicAttrs = {
   image?: HTMLImageElement | string;
   border?: number;
   borderColor?: string;
+  metaData?: any;
   onClick?: (event: MouseEvent) => any;
   onPointermove?: (event: PointerEvent) => any;
   onPointerenter?: (event: PointerEvent) => any;

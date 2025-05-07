@@ -18,8 +18,10 @@
     >
       <g-raw
         v-for="(bar, index) of bars"
-        :height="Math.abs(scales.scaleY.deltaScale(bar.value))"
+        :key="bar.label"
+        :metaData="bar"
         :grow="1"
+        :height="Math.abs(scales.scaleY.deltaScale(bar.value))"
         :fill="hovered.has(index) ? 'red' : bar.color"
         @pointerenter="hovered.add(index)"
         @pointerleave="hovered.delete(index)"
@@ -34,18 +36,23 @@
 import { Align, FlexDirection, GRaw, GRect } from "#els/appRenderers.ts";
 import { ElementInterface } from "#els/renderTypes.ts";
 import { LinScale } from "@gdx/utils";
-import { computed, reactive } from "vue";
+import { computed, reactive, watchEffect } from "vue";
 import { interpolateReds } from "d3";
 
 const hovered = reactive(new Set<number>());
 
-const barsRaw = [
-  { value: 5 },
-  { value: 6 },
-  { value: 8 },
-  { value: 3 },
-  { value: 131 },
-  { value: 21 },
+type BarData = {
+  value: number;
+  label: string;
+  color?: string;
+};
+
+const barsRaw: BarData[] = [
+  { value: 8, label: ".ts" },
+  { value: 3, label: ".js" },
+  { value: 2, label: ".html" },
+  { value: 3, label: ".css" },
+  { value: 1, label: ".svg" },
 ];
 
 const paddingX = computed(() => {
@@ -74,6 +81,10 @@ const bars = computed(() => {
       color: interpolateReds(bar.value / maxValue),
     };
   });
+});
+
+watchEffect(() => {
+  console.log([...bars.value]);
 });
 
 const size = reactive({
@@ -113,6 +124,15 @@ function barDrawFn(ctx: CanvasRenderingContext2D, element: ElementInterface) {
   ctx.roundRect(0, 0, element.getWidth(), element.getHeight(), 5);
   ctx.closePath();
   ctx.fill();
+  const metaData: BarData = element.attrs.metaData;
+  ctx.fillStyle = "black";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(
+    metaData.label,
+    element.getWidth() / 2,
+    element.getHeight() + 10
+  );
 }
 
 function useScales(limits: () => ScaleLimits) {
