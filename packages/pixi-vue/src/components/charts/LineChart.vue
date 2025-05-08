@@ -1,14 +1,14 @@
 <template>
-  <ScaleComponent :domain="limits" v-slot="{ scales }">
+  <ScaleComponent :domain="limits" v-slot="{ scales }" drawXTicks drawYTicks>
     <g-raw :metaData="scales" :grow="1" :drawFunction="lineDrawFn"> </g-raw>
   </ScaleComponent>
 </template>
 
 <script setup lang="ts">
-import { Align, FlexDirection, GRaw, GRect } from "#els/appRenderers.ts";
+import { GRaw } from "#els/appRenderers.ts";
 import { ElementInterface } from "#els/renderTypes.ts";
-import { computed, reactive, watchEffect } from "vue";
-import { interpolateReds, min, ScaleLinear } from "d3";
+import { computed } from "vue";
+import { ScaleLinear } from "d3";
 import ScaleComponent from "../scale/ScaleComponent.vue";
 import { ScaleLimits } from "../scale/scaleComposable";
 
@@ -21,7 +21,7 @@ const dataRaw: DataRaw[] = [...Array(100)].map((_, index) => {
   const x = index / 10 - 5;
   return {
     x,
-    y: x ** 3,
+    y: x ** 2 * Math.sign(x),
   };
 });
 
@@ -47,7 +47,7 @@ function lineDrawFn(ctx: CanvasRenderingContext2D, element: ElementInterface) {
     const { x, y } = value;
     ctx.lineTo(scaleX(x), scaleY(y));
   });
-  ctx.strokeStyle = "black";
+  ctx.strokeStyle = "red";
   ctx.stroke();
 }
 </script>

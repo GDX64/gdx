@@ -1,5 +1,5 @@
 <template>
-  <ScaleComponent :domain="limits" v-slot="{ scales }">
+  <ScaleComponent :domain="limits" v-slot="{ scales }" draw-y-ticks>
     <g-rect
       height="100%"
       width="100%"

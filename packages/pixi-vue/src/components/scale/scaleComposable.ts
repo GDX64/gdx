@@ -9,8 +9,14 @@ export type ScaleLimits = {
   maxX: number;
 };
 
-export function useScales(domain: () => ScaleLimits) {
-  const padding = 15;
+export function useScales(
+  domain: () => ScaleLimits,
+  options: {
+    drawXTicks?: boolean;
+    drawYTicks?: boolean;
+  }
+) {
+  const padding = 30;
   const gridColor = "#e5e5e5";
 
   const size = reactive({
@@ -65,7 +71,7 @@ export function useScales(domain: () => ScaleLimits) {
     const [minY, maxY] = scaleY.domain();
     const ticksY = scaleY.ticks();
     ticksY.forEach((tickValue) => {
-      if (tickValue === 0) {
+      if (tickValue === 0 || !options.drawYTicks) {
         return;
       }
       const y = scaleY(tickValue);
@@ -92,7 +98,7 @@ export function useScales(domain: () => ScaleLimits) {
     });
     const ticksX = scaleX.ticks();
     ticksX.forEach((tickValue) => {
-      if (tickValue === 0) {
+      if (tickValue === 0 || !options.drawXTicks) {
         return;
       }
       const x = scaleX(tickValue);
@@ -121,10 +127,10 @@ export function useScales(domain: () => ScaleLimits) {
   }
 
   function image() {
-    const minX = padding;
-    const maxX = size.width - padding;
-    const minY = padding;
-    const maxY = size.height - padding;
+    let minX = padding;
+    let maxX = size.width - padding;
+    let minY = padding;
+    let maxY = size.height - padding;
     return { minX, maxX, minY, maxY };
   }
 
