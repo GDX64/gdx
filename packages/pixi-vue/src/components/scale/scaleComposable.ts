@@ -1,4 +1,4 @@
-import { computed, reactive } from "vue";
+import { computed, inject, provide, reactive } from "vue";
 import { min, scaleLinear } from "d3";
 import { ElementInterface } from "#els/renderTypes.ts";
 
@@ -134,5 +134,17 @@ export function useScales(
     return { minX, maxX, minY, maxY };
   }
 
-  return { scales, drawScale, size };
+  const data = { scales, drawScale, size };
+  provide("scales", data);
+  return data;
+}
+
+export function useInjectScales() {
+  const scales = inject("scales") as ReturnType<typeof useScales>;
+  if (!scales) {
+    throw new Error(
+      "useScales must be used within a component that provides it."
+    );
+  }
+  return scales;
 }
