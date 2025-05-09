@@ -8,7 +8,7 @@
 import { GRaw } from "#els/appRenderers.ts";
 import { ElementInterface } from "#els/renderTypes.ts";
 import { computed } from "vue";
-import { ScaleLinear } from "d3";
+import * as d3 from "d3";
 import ScaleComponent from "../scale/ScaleComponent.vue";
 import { ScaleLimits } from "../scale/scaleComposable";
 
@@ -17,8 +17,8 @@ type DataRaw = {
   y: number;
 };
 
-const dataRaw: DataRaw[] = [...Array(100)].map((_, index) => {
-  const x = index / 10 - 5;
+const dataRaw: DataRaw[] = [...Array(10)].map((_, index) => {
+  const x = index - 5;
   return {
     x,
     y: x ** 2 * Math.sign(x),
@@ -38,16 +38,23 @@ function lineDrawFn(ctx: CanvasRenderingContext2D, element: ElementInterface) {
     scaleX,
     scaleY,
   }: {
-    scaleX: ScaleLinear<number, number>;
-    scaleY: ScaleLinear<number, number>;
+    scaleX: d3.ScaleLinear<number, number>;
+    scaleY: d3.ScaleLinear<number, number>;
   } = element.attrs.metaData;
-  ctx.beginPath();
-  ctx.moveTo(scaleX(dataRaw[0].x), scaleY(dataRaw[0].y));
-  dataRaw.slice(1).forEach((value) => {
-    const { x, y } = value;
-    ctx.lineTo(scaleX(x), scaleY(y));
-  });
+  const line = d3
+    .line<DataRaw>()
+    .x((d) => scaleX(d.x))
+    .y((d) => scaleY(d.y))
+    .context(ctx);
+  line.curve(d3.curveCatmullRom.alpha(1));
+  line(dataRaw);
   ctx.strokeStyle = "red";
   ctx.stroke();
+  dataRaw.forEach((d) => {
+    ctx.beginPath();
+    ctx.arc(scaleX(d.x), scaleY(d.y), 3, 0, Math.PI * 2);
+    ctx.fillStyle = "red";
+    ctx.fill();
+  });
 }
 </script>
