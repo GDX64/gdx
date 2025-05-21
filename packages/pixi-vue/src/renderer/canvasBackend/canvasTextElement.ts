@@ -36,8 +36,10 @@ export class CanvasTextElement extends CanvasElement {
     this.textMeasure = ctx.measureText(text);
     const { actualBoundingBoxAscent, actualBoundingBoxDescent, width } =
       this.textMeasure;
-    this.yogaNode.setWidth(width);
-    this.yogaNode.setHeight(actualBoundingBoxAscent + actualBoundingBoxDescent);
+    this.yogaNode?.setWidth(width);
+    this.yogaNode?.setHeight(
+      actualBoundingBoxAscent + actualBoundingBoxDescent
+    );
   }
 
   drawSelf(ctx: CanvasRenderingContext2D): void {

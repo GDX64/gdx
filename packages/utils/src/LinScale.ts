@@ -5,6 +5,10 @@ export class LinScale {
     return this.alpha * x + this.beta;
   }
 
+  deltaScale(x: number): number {
+    return this.alpha * x;
+  }
+
   static fromPoints(x1: number, y1: number, x2: number, y2: number): LinScale {
     const alpha = (y2 - y1) / (x2 - x1);
     const beta = y1 - alpha * x1;

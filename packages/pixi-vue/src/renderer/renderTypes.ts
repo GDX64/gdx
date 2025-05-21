@@ -8,7 +8,7 @@ import {
 } from "yoga-layout";
 type Percent = `${number}%`;
 
-export type BasicAttrs = {
+export interface BasicAttrs {
   fill?: number | string;
   width?: number | "auto" | Percent;
   maxWidth?: number | "auto" | Percent;
@@ -30,6 +30,7 @@ export type BasicAttrs = {
   gapCol?: number | Percent;
   padding?: number | Percent;
   paddingX?: number | Percent;
+  paddingY?: number | Percent;
   margin?: number | Percent;
   grow?: number;
   wrap?: Wrap;
@@ -42,14 +43,33 @@ export type BasicAttrs = {
   image?: HTMLImageElement | string;
   border?: number;
   borderColor?: string;
+  metaData?: any;
   onClick?: (event: MouseEvent) => any;
-  onPointerMove?: (event: PointerEvent) => any;
-  onPointerEnter?: (event: PointerEvent) => any;
-  onPointerLeave?: (event: PointerEvent) => any;
-  onPointerDown?: (event: PointerEvent) => any;
-  onPointerUp?: (event: PointerEvent) => any;
-};
+  onPointermove?: (event: PointerEvent) => any;
+  onPointerenter?: (event: PointerEvent) => any;
+  onPointerleave?: (event: PointerEvent) => any;
+  onPointerdown?: (event: PointerEvent) => any;
+  onPointerup?: (event: PointerEvent) => any;
+  onLayoutupdate?: (element: ElementInterface<BasicAttrs>) => any;
+}
 
 export type CacheElementAttrs = BasicAttrs & {
   cacheKey?: string | number;
 };
+
+export type RawElementAttrs = BasicAttrs & {
+  drawFunction?: (
+    ctx: CanvasRenderingContext2D,
+    element: ElementInterface<RawElementAttrs>
+  ) => void;
+};
+
+export interface ElementInterface<T extends BasicAttrs = BasicAttrs> {
+  patch(prop: string, prev: any, next: any): void;
+  getWidth(): number;
+  getHeight(): number;
+  getLeft(): number;
+  getTop(): number;
+  hovered: boolean;
+  attrs: Partial<T>;
+}

@@ -10,6 +10,7 @@ import { CanvasElement } from "./canvasElement";
 import { CanvasTextElement } from "./canvasTextElement";
 import { CanvasImageElement } from "./CanvasImageElement";
 import { CanvasCacheElement } from "./CanvasCacheElement";
+import { CanvasRawElement } from "./CanvasRawElement";
 
 function appRenderer() {
   const { createApp } = createRenderer<CanvasElement, CanvasElement>({
@@ -30,6 +31,9 @@ function appRenderer() {
         case "g-cache": {
           return new CanvasCacheElement();
         }
+        case "g-raw": {
+          return new CanvasRawElement();
+        }
         default:
           return new CanvasElement();
       }
@@ -44,7 +48,7 @@ function appRenderer() {
       if (index === -1) {
         parent.addChild(el);
       } else {
-        parent.addChildAt(el, index + 1);
+        parent.addChildAt(el, index - 1);
       }
     },
     nextSibling(node) {
@@ -110,11 +114,21 @@ export async function createCanvasRoot(
       if (isDestroyed) {
         return;
       }
-      if (checkUpdateDims()) {
+      const dimsUpdated = checkUpdateDims();
+      if (dimsUpdated) {
         appData.width = lastWidth;
         appData.height;
       }
-      drawCanvas();
+      if (nodeRoot.yogaNode?.isDirty() || dimsUpdated) {
+        nodeRoot.yogaNode?.calculateLayout(lastWidth, lastHeight);
+        nodeRoot.updateLayout();
+      }
+      const ctx = canvas.getContext("2d")!;
+      ctx.save();
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.scale(devicePixelRatio, devicePixelRatio);
+      nodeRoot.draw(ctx);
+      ctx.restore();
     }
   }
 
@@ -141,19 +155,6 @@ export async function createCanvasRoot(
   });
 
   drawLoop();
-
-  function drawCanvas() {
-    if (nodeRoot.yogaNode.isDirty()) {
-      nodeRoot.yogaNode.calculateLayout(lastWidth, lastHeight);
-      nodeRoot.updateLayout();
-    }
-    const ctx = canvas.getContext("2d")!;
-    ctx.save();
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.scale(devicePixelRatio, devicePixelRatio);
-    nodeRoot.draw(ctx);
-    ctx.restore();
-  }
 
   app.mount(nodeRoot);
 

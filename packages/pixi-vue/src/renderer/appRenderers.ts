@@ -1,5 +1,5 @@
 import { Component } from "vue";
-import { BasicAttrs, CacheElementAttrs } from "./renderTypes";
+import { BasicAttrs, CacheElementAttrs, RawElementAttrs } from "./renderTypes";
 export { createPixiRoot } from "./pixiBackend/pixirRenderer";
 export { createCanvasRoot } from "./canvasBackend/canvasRenderer";
 
@@ -15,11 +15,12 @@ export {
 } from "yoga-layout";
 
 export const GRect = makeComponent("g-rect");
+export const GRaw = makeComponent<RawElementAttrs>("g-raw");
 export const GText = makeComponent("g-text");
 export const GContainer = makeComponent("g-container");
 export const GImage = makeComponent("g-image");
 export const GCache = makeComponent<CacheElementAttrs>("g-cache");
 
 function makeComponent<Attrs = BasicAttrs>(name: string) {
-  return name as any as Component<Attrs>;
+  return name as unknown as Component<Attrs>;
 }

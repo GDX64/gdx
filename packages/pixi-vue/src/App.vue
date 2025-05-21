@@ -1,42 +1,26 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from "vue";
-import Game from "./components/LayoutTest.vue";
-import { createPixiRoot, createCanvasRoot } from "#els/appRenderers.ts";
-
-const canvas = ref<HTMLCanvasElement>();
+import RenderWrapper from "./components/RenderWrapper.vue";
+import { Align, Justify } from "yoga-layout";
+import { GContainer } from "#els/appRenderers.ts";
+import BarChart from "./components/BarChart.vue";
+import LineChart from "./components/charts/LineChart.vue";
 
 const urlQuery = new URLSearchParams(window.location.search);
-
-let destroy = () => {};
-onMounted(async () => {
-  let app;
-  if (urlQuery.get("renderer") === "pixi") {
-    app = await createPixiRoot(canvas.value!, Game);
-  } else {
-    app = await createCanvasRoot(canvas.value!, Game);
-  }
-  destroy = app.destroy;
-});
-
-onBeforeUnmount(() => {
-  destroy();
-});
 </script>
 
 <template>
-  <div
-    style="
-      width: 100vw;
-      height: 100vh;
-      position: relative;
-      background-color: antiquewhite;
-    "
-  >
-    <canvas
-      ref="canvas"
-      style="position: absolute; top: 0; left: 0; width: 100%; height: 100%"
-    ></canvas>
+  <div class="w-full min-h-screen bg-orange-100 p-8 flex flex-col gap-8">
+    <RenderWrapper
+      class="min-w-[500px] h-[300px]"
+      :renderer="urlQuery.get('renderer') === 'pixi' ? 'pixi' : 'canvas'"
+    >
+      <BarChart width="100%" height="100%" />
+    </RenderWrapper>
+    <RenderWrapper
+      class="min-w-[500px] h-[300px]"
+      :renderer="urlQuery.get('renderer') === 'pixi' ? 'pixi' : 'canvas'"
+    >
+      <LineChart width="100%" height="100%" />
+    </RenderWrapper>
   </div>
 </template>
-
-<style scoped></style>

@@ -26,11 +26,11 @@ export class GElement {
   pixiRef: PIXI.Container = new PIXI.Container();
   parent = null as GElement | null;
   children: GElement[] = [];
-  yats = new YogaAndAttrs();
+  yats = YogaAndAttrs.new<BasicAttrs>();
   elKey = null as ELKey;
 
   get yogaNode() {
-    return this.yats.yogaNode;
+    return this.yats.yogaNode!;
   }
 
   get attrs() {

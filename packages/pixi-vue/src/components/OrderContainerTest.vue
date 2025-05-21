@@ -4,6 +4,8 @@
     width="100%"
     :justify="Justify.SpaceAround"
     :align="Align.FlexStart"
+    :scaleX="2"
+    :scaleY="2"
   >
     <g-rect
       width="100%"
@@ -32,7 +34,7 @@ const img = new Image();
 img.src = testImg;
 
 const orders = reactive(
-  [...Array(44)].map((_, i) => {
+  [...Array(10)].map((_, i) => {
     return {
       id: i,
       position: i * 20 + 20,
