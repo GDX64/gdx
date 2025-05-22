@@ -1,4 +1,4 @@
-import { DependencyGraph, exportToCSV, GraphNode } from "../src/lib";
+import { DependencyGraph, exportToCSV, exportToJSON } from "../src/lib";
 import path from "path";
 
 test("hello", async () => {
@@ -8,4 +8,5 @@ test("hello", async () => {
   const out = path.resolve(__dirname, "../public");
 
   exportToCSV(graph!, out);
+  exportToJSON(graph!, out);
 });

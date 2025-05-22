@@ -1,0 +1,1069 @@
+[
+  {
+    "path": "C:/projects/gdx/packages/front/src/main.ts",
+    "children": [
+      "vue",
+      "vue-router",
+      "C:/projects/gdx/packages/front/src/App.vue",
+      "C:/projects/gdx/packages/front/src/pages/Home.vue",
+      "primevue",
+      "@primevue/themes",
+      "@primevue/themes",
+      "primevue",
+      "C:\\projects\\gdx\\packages\\front\\src\\index.css",
+      "C:\\projects\\gdx\\packages\\front\\src\\primeicons\\primeicons.css",
+      "C:/projects/gdx/packages/front/src/design/design.ts",
+      "C:/projects/gdx/packages/front/src/components/Grid.vue",
+      "C:/projects/gdx/packages/front/src/pages/CVs/CVGabriel.vue",
+      "C:/projects/gdx/packages/front/src/pages/CVs/CVSilvia.vue",
+      "C:/projects/gdx/packages/front/src/pages/TippyTest.vue",
+      "C:/projects/gdx/packages/front/src/pages/Layers.vue",
+      "C:/projects/gdx/packages/front/src/pages/Noise/PerlinNoise.vue",
+      "C:/projects/gdx/packages/front/src/pages/Base64.vue",
+      "C:/projects/gdx/packages/front/src/pages/WasmChart.vue",
+      "C:/projects/gdx/packages/front/src/pages/Gravity.vue",
+      "C:/projects/gdx/packages/front/src/pages/Projection/Projection.vue",
+      "C:/projects/gdx/packages/front/src/pages/LibTest.vue",
+      "C:/projects/gdx/packages/front/src/pages/CanvasGame.vue",
+      "C:/projects/gdx/packages/front/src/pages/orderStack/OrderStack.vue",
+      "C:/projects/gdx/packages/front/src/components/kite/Kite.vue",
+      "C:/projects/gdx/packages/front/src/pages/graphs/Graphs.vue",
+      "C:/projects/gdx/packages/front/src/pages/YogaTest/YogaTest.vue",
+      "C:/projects/gdx/packages/front/src/pages/webgpu/Webgpu.vue",
+      "C:/projects/gdx/packages/front/src/pages/logview/LogView.vue",
+      "C:/projects/gdx/packages/front/src/pages/RelativeImportFixer/RelativeImportsFixer.vue",
+      "C:/projects/gdx/packages/front/src/pages/MoreFunStuff/MoreFunStuff.vue",
+      "C:/projects/gdx/packages/front/src/pages/spaceIndex/SpaceIndex.vue",
+      "C:/projects/gdx/packages/front/src/pages/audioExperiments/AudiosThings.vue",
+      "C:/projects/gdx/packages/front/src/pages/SIMDRasterization/SIMDRasterization.vue"
+    ]
+  },
+  { "path": "vue", "children": [] },
+  { "path": "vue-router", "children": [] },
+  {
+    "path": "C:/projects/gdx/packages/front/src/App.vue",
+    "children": ["vue-router", "primevue"]
+  },
+  { "path": "primevue", "children": [] },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/Home.vue",
+    "children": [
+      "C:\\projects\\gdx\\packages\\front\\src\\assets\\arrow-down.svg?component",
+      "C:/projects/gdx/packages/front/src/components/Button.vue",
+      "C:/projects/gdx/packages/front/src/components/NavBar.vue",
+      "C:/projects/gdx/packages/front/src/components/Experience.vue",
+      "C:\\projects\\gdx\\packages\\front\\src\\assets\\perfil.jfif?url",
+      "C:/projects/gdx/packages/front/src/components/ProjectPresentation.vue",
+      "C:\\projects\\gdx\\packages\\front\\src\\assets\\project_images\\archpelagus_print.jpg?url",
+      "C:\\projects\\gdx\\packages\\front\\src\\assets\\project_images\\boat_render.jpg?url",
+      "C:\\projects\\gdx\\packages\\front\\src\\assets\\project_images\\quad_tree.png?url",
+      "C:\\projects\\gdx\\packages\\front\\src\\assets\\project_images\\wasm_chart.png?url",
+      "C:\\projects\\gdx\\packages\\front\\src\\assets\\project_images\\triangle_example.ppm?url",
+      "C:\\projects\\gdx\\packages\\front\\src\\assets\\project_images\\birds_example.jpg?url",
+      "C:/projects/gdx/packages/front/src/components/Contacts/LinkedinRound.vue",
+      "C:/projects/gdx/packages/front/src/components/Contacts/GithubRound.vue",
+      "C:/projects/gdx/packages/front/src/components/Contacts/InstagramRound.vue",
+      "C:/projects/gdx/packages/front/src/components/CV/glmachadoCVData.ts",
+      "C:/projects/gdx/packages/front/src/components/kite/Kite.vue",
+      "C:/projects/gdx/packages/utils/dist-ts/src/index.d.ts",
+      "C:/projects/gdx/packages/front/src/components/BorderContainer.vue",
+      "vue"
+    ]
+  },
+  {
+    "path": "C:\\projects\\gdx\\packages\\front\\src\\assets\\arrow-down.svg?component",
+    "children": []
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/components/Button.vue",
+    "children": []
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/components/NavBar.vue",
+    "children": [
+      "C:/projects/gdx/packages/front/src/components/Button.vue",
+      "C:\\projects\\gdx\\packages\\front\\src\\assets\\arrow-down.svg?component",
+      "C:\\projects\\gdx\\packages\\front\\src\\assets\\logo.svg?component"
+    ]
+  },
+  {
+    "path": "C:\\projects\\gdx\\packages\\front\\src\\assets\\logo.svg?component",
+    "children": []
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/components/Experience.vue",
+    "children": [
+      "vue",
+      "C:/projects/gdx/packages/front/src/components/TagList.vue",
+      "C:/projects/gdx/packages/front/src/components/BorderContainer.vue"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/components/TagList.vue",
+    "children": []
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/components/BorderContainer.vue",
+    "children": []
+  },
+  {
+    "path": "C:\\projects\\gdx\\packages\\front\\src\\assets\\perfil.jfif?url",
+    "children": []
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/components/ProjectPresentation.vue",
+    "children": [
+      "C:/projects/gdx/packages/front/src/components/TagList.vue",
+      "C:\\projects\\gdx\\packages\\front\\src\\assets\\arrow-ne.svg?component",
+      "vue-router",
+      "C:/projects/gdx/packages/front/src/components/BorderContainer.vue"
+    ]
+  },
+  {
+    "path": "C:\\projects\\gdx\\packages\\front\\src\\assets\\arrow-ne.svg?component",
+    "children": []
+  },
+  {
+    "path": "C:\\projects\\gdx\\packages\\front\\src\\assets\\project_images\\archpelagus_print.jpg?url",
+    "children": []
+  },
+  {
+    "path": "C:\\projects\\gdx\\packages\\front\\src\\assets\\project_images\\boat_render.jpg?url",
+    "children": []
+  },
+  {
+    "path": "C:\\projects\\gdx\\packages\\front\\src\\assets\\project_images\\quad_tree.png?url",
+    "children": []
+  },
+  {
+    "path": "C:\\projects\\gdx\\packages\\front\\src\\assets\\project_images\\wasm_chart.png?url",
+    "children": []
+  },
+  {
+    "path": "C:\\projects\\gdx\\packages\\front\\src\\assets\\project_images\\triangle_example.ppm?url",
+    "children": []
+  },
+  {
+    "path": "C:\\projects\\gdx\\packages\\front\\src\\assets\\project_images\\birds_example.jpg?url",
+    "children": []
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/components/Contacts/LinkedinRound.vue",
+    "children": [
+      "C:\\projects\\gdx\\packages\\front\\src\\assets\\linkedin-home.svg?component",
+      "C:/projects/gdx/packages/front/src/components/CV/glmachadoCVData.ts"
+    ]
+  },
+  {
+    "path": "C:\\projects\\gdx\\packages\\front\\src\\assets\\linkedin-home.svg?component",
+    "children": []
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/components/CV/glmachadoCVData.ts",
+    "children": [
+      "C:/projects/gdx/packages/front/src/components/CV/SimpleCVTypes.ts"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/components/CV/SimpleCVTypes.ts",
+    "children": []
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/components/Contacts/GithubRound.vue",
+    "children": [
+      "C:\\projects\\gdx\\packages\\front\\src\\assets\\github-home.svg?component",
+      "C:/projects/gdx/packages/front/src/components/CV/glmachadoCVData.ts"
+    ]
+  },
+  {
+    "path": "C:\\projects\\gdx\\packages\\front\\src\\assets\\github-home.svg?component",
+    "children": []
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/components/Contacts/InstagramRound.vue",
+    "children": [
+      "C:\\projects\\gdx\\packages\\front\\src\\assets\\instagran-home.svg?component"
+    ]
+  },
+  {
+    "path": "C:\\projects\\gdx\\packages\\front\\src\\assets\\instagran-home.svg?component",
+    "children": []
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/components/kite/Kite.vue",
+    "children": [
+      "gl-matrix",
+      "C:/projects/gdx/packages/utils/dist-ts/src/index.d.ts",
+      "C:/projects/gdx/packages/front/src/components/kite/HandDraw.ts",
+      "vue",
+      "C:/projects/gdx/packages/front/src/design/design.ts"
+    ]
+  },
+  { "path": "gl-matrix", "children": [] },
+  {
+    "path": "C:/projects/gdx/packages/utils/dist-ts/src/index.d.ts",
+    "children": [
+      "C:/projects/gdx/packages/utils/dist-ts/src/misc.d.ts",
+      "C:/projects/gdx/packages/utils/dist-ts/src/math/Vec2.d.ts",
+      "C:/projects/gdx/packages/utils/dist-ts/src/LinScale.d.ts",
+      "C:/projects/gdx/packages/utils/dist-ts/src/ui-utils.d.ts"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/utils/dist-ts/src/misc.d.ts",
+    "children": ["rxjs", "vue"]
+  },
+  { "path": "rxjs", "children": [] },
+  {
+    "path": "C:/projects/gdx/packages/utils/dist-ts/src/math/Vec2.d.ts",
+    "children": []
+  },
+  {
+    "path": "C:/projects/gdx/packages/utils/dist-ts/src/LinScale.d.ts",
+    "children": []
+  },
+  {
+    "path": "C:/projects/gdx/packages/utils/dist-ts/src/ui-utils.d.ts",
+    "children": ["rxjs"]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/components/kite/HandDraw.ts",
+    "children": [
+      "gl-matrix",
+      "C:/projects/gdx/packages/utils/dist-ts/src/index.d.ts",
+      "roughjs",
+      "roughjs",
+      "C:/projects/gdx/packages/front/src/components/kite/PDBRope.ts",
+      "C:/projects/gdx/packages/front/src/components/kite/IIRFilter.ts"
+    ]
+  },
+  { "path": "roughjs", "children": [] },
+  {
+    "path": "C:/projects/gdx/packages/front/src/components/kite/PDBRope.ts",
+    "children": ["gl-matrix"]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/components/kite/IIRFilter.ts",
+    "children": []
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/design/design.ts",
+    "children": ["tailwindcss"]
+  },
+  { "path": "tailwindcss", "children": [] },
+  { "path": "@primevue/themes", "children": [] },
+  {
+    "path": "C:\\projects\\gdx\\packages\\front\\src\\index.css",
+    "children": []
+  },
+  {
+    "path": "C:\\projects\\gdx\\packages\\front\\src\\primeicons\\primeicons.css",
+    "children": []
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/components/Grid.vue",
+    "children": []
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/CVs/CVGabriel.vue",
+    "children": [
+      "C:/projects/gdx/packages/front/src/components/CV/CVSimple.vue",
+      "C:/projects/gdx/packages/front/src/components/CV/CVStore.ts",
+      "C:/projects/gdx/packages/front/src/components/CV/glmachadoCVData.ts"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/components/CV/CVSimple.vue",
+    "children": [
+      "C:/projects/gdx/packages/front/src/components/CV/CVField.vue",
+      "C:/projects/gdx/packages/front/src/components/CV/FieldTitle.vue",
+      "C:\\projects\\gdx\\packages\\front\\src\\assets\\github-brands.svg",
+      "C:\\projects\\gdx\\packages\\front\\src\\assets\\globe-solid.svg",
+      "C:\\projects\\gdx\\packages\\front\\src\\assets\\envelope-solid.svg",
+      "C:\\projects\\gdx\\packages\\front\\src\\assets\\location-pin-solid.svg",
+      "C:\\projects\\gdx\\packages\\front\\src\\assets\\mobile-solid.svg",
+      "C:\\projects\\gdx\\packages\\front\\src\\assets\\linkedin-brands.svg",
+      "C:/projects/gdx/packages/front/src/components/CV/SimpleCVTypes.ts",
+      "C:/projects/gdx/packages/front/src/components/CV/CVStore.ts",
+      "C:\\projects\\gdx\\packages\\front\\src\\assets\\download.svg?component"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/components/CV/CVField.vue",
+    "children": [
+      "C:/projects/gdx/packages/front/src/components/CV/LinkProcess.ts",
+      "vue"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/components/CV/LinkProcess.ts",
+    "children": ["vue"]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/components/CV/FieldTitle.vue",
+    "children": []
+  },
+  {
+    "path": "C:\\projects\\gdx\\packages\\front\\src\\assets\\github-brands.svg",
+    "children": []
+  },
+  {
+    "path": "C:\\projects\\gdx\\packages\\front\\src\\assets\\globe-solid.svg",
+    "children": []
+  },
+  {
+    "path": "C:\\projects\\gdx\\packages\\front\\src\\assets\\envelope-solid.svg",
+    "children": []
+  },
+  {
+    "path": "C:\\projects\\gdx\\packages\\front\\src\\assets\\location-pin-solid.svg",
+    "children": []
+  },
+  {
+    "path": "C:\\projects\\gdx\\packages\\front\\src\\assets\\mobile-solid.svg",
+    "children": []
+  },
+  {
+    "path": "C:\\projects\\gdx\\packages\\front\\src\\assets\\linkedin-brands.svg",
+    "children": []
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/components/CV/CVStore.ts",
+    "children": [
+      "vue",
+      "C:/projects/gdx/packages/front/src/components/CV/SimpleCVTypes.ts"
+    ]
+  },
+  {
+    "path": "C:\\projects\\gdx\\packages\\front\\src\\assets\\download.svg?component",
+    "children": []
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/CVs/CVSilvia.vue",
+    "children": [
+      "C:/projects/gdx/packages/front/src/components/CV/CVSimple.vue",
+      "C:/projects/gdx/packages/front/src/components/CV/CVStore.ts",
+      "C:/projects/gdx/packages/front/src/components/CV/silviaCVData.ts"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/components/CV/silviaCVData.ts",
+    "children": [
+      "C:/projects/gdx/packages/front/src/components/CV/SimpleCVTypes.ts"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/TippyTest.vue",
+    "children": [
+      "vue",
+      "C:/projects/gdx/packages/front/src/TippyWrapper/TippyWrap.vue",
+      "C:/projects/gdx/packages/front/src/pages/BackGround.vue"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/TippyWrapper/TippyWrap.vue",
+    "children": ["tippy-headless", "vue"]
+  },
+  { "path": "tippy-headless", "children": [] },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/BackGround.vue",
+    "children": [
+      "C:/projects/gdx/packages/front/src/components/NavBar.vue",
+      "C:/projects/gdx/packages/front/src/components/Contacts/LinkedinRound.vue",
+      "C:/projects/gdx/packages/front/src/components/Contacts/GithubRound.vue",
+      "C:/projects/gdx/packages/front/src/components/Contacts/InstagramRound.vue"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/Layers.vue",
+    "children": ["rxjs", "vue"]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/Noise/PerlinNoise.vue",
+    "children": [
+      "vue",
+      "C:/projects/gdx/packages/front/src/pages/BackGround.vue",
+      "@types/d3",
+      "C:/projects/gdx/packages/front/src/utils/math.ts",
+      "gl-matrix",
+      "C:\\projects\\gdx\\packages\\front\\src\\pages\\Noise\\domain",
+      "@types/ramda"
+    ]
+  },
+  { "path": "@types/d3", "children": [] },
+  {
+    "path": "C:/projects/gdx/packages/front/src/utils/math.ts",
+    "children": ["gl-matrix"]
+  },
+  {
+    "path": "C:\\projects\\gdx\\packages\\front\\src\\pages\\Noise\\domain",
+    "children": []
+  },
+  { "path": "@types/ramda", "children": [] },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/Base64.vue",
+    "children": [
+      "vue",
+      "C:/projects/gdx/packages/front/src/benchmarks/toBase64.ts",
+      "C:/projects/gdx/packages/rust/pkg/wasm.d.ts"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/benchmarks/toBase64.ts",
+    "children": []
+  },
+  { "path": "C:/projects/gdx/packages/rust/pkg/wasm.d.ts", "children": [] },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/WasmChart.vue",
+    "children": [
+      "C:/projects/gdx/packages/incremental_draw/pkg/incremental_draw.d.ts",
+      "vue",
+      "C:/projects/gdx/packages/utils/dist-ts/src/index.d.ts"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/incremental_draw/pkg/incremental_draw.d.ts",
+    "children": []
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/Gravity.vue",
+    "children": [
+      "vue",
+      "C:/projects/gdx/packages/utils/dist-ts/src/index.d.ts",
+      "C:/projects/gdx/packages/rust/pkg/wasm.d.ts"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/Projection/Projection.vue",
+    "children": [
+      "vue",
+      "C:/projects/gdx/packages/utils/dist-ts/src/index.d.ts",
+      "@types/d3",
+      "gl-matrix"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/LibTest.vue",
+    "children": ["C:/projects/gdx/packages/pixi-vue/src/lib.ts", "vue"]
+  },
+  {
+    "path": "C:/projects/gdx/packages/pixi-vue/src/lib.ts",
+    "children": [
+      "vue",
+      "C:\\projects\\gdx\\packages\\pixi-vue\\src\\style.css",
+      "C:/projects/gdx/packages/pixi-vue/src/App.vue"
+    ]
+  },
+  {
+    "path": "C:\\projects\\gdx\\packages\\pixi-vue\\src\\style.css",
+    "children": []
+  },
+  {
+    "path": "C:/projects/gdx/packages/pixi-vue/src/App.vue",
+    "children": [
+      "C:/projects/gdx/packages/pixi-vue/src/components/RenderWrapper.vue",
+      "C:/projects/gdx/packages/pixi-vue/src/components/BarChart.vue",
+      "C:/projects/gdx/packages/pixi-vue/src/components/charts/LineChart.vue",
+      "C:/projects/gdx/packages/pixi-vue/src/components/charts/GraphChart.vue"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/pixi-vue/src/components/RenderWrapper.vue",
+    "children": [
+      "vue",
+      "C:/projects/gdx/packages/pixi-vue/src/renderer/appRenderers.ts"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/pixi-vue/src/renderer/appRenderers.ts",
+    "children": [
+      "vue",
+      "C:/projects/gdx/packages/pixi-vue/src/renderer/renderTypes.ts",
+      "C:/projects/gdx/packages/pixi-vue/src/renderer/pixiBackend/pixirRenderer.ts",
+      "C:/projects/gdx/packages/pixi-vue/src/renderer/canvasBackend/canvasRenderer.ts",
+      "yoga-layout"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/pixi-vue/src/renderer/renderTypes.ts",
+    "children": ["yoga-layout"]
+  },
+  { "path": "yoga-layout", "children": [] },
+  {
+    "path": "C:/projects/gdx/packages/pixi-vue/src/renderer/pixiBackend/pixirRenderer.ts",
+    "children": [
+      "vue",
+      "pixi.js",
+      "C:/projects/gdx/packages/pixi-vue/src/renderer/pixiBackend/Elements.ts",
+      "C:/projects/gdx/packages/pixi-vue/src/renderer/pixiBackend/PixiRectElement.ts",
+      "C:/projects/gdx/packages/pixi-vue/src/renderer/pixiBackend/PixiTextElement.ts",
+      "C:/projects/gdx/packages/pixi-vue/src/renderer/pixiBackend/PixiImageElement.ts"
+    ]
+  },
+  { "path": "pixi.js", "children": [] },
+  {
+    "path": "C:/projects/gdx/packages/pixi-vue/src/renderer/pixiBackend/Elements.ts",
+    "children": [
+      "C:/projects/gdx/packages/pixi-vue/src/renderer/renderTypes.ts",
+      "C:/projects/gdx/packages/pixi-vue/src/renderer/yogaAndAttrs.ts",
+      "pixi.js",
+      "yoga-layout"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/pixi-vue/src/renderer/yogaAndAttrs.ts",
+    "children": [
+      "C:/projects/gdx/packages/pixi-vue/src/renderer/renderTypes.ts",
+      "yoga-layout"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/pixi-vue/src/renderer/pixiBackend/PixiRectElement.ts",
+    "children": [
+      "C:/projects/gdx/packages/pixi-vue/src/renderer/pixiBackend/Elements.ts",
+      "pixi.js"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/pixi-vue/src/renderer/pixiBackend/PixiTextElement.ts",
+    "children": [
+      "pixi.js",
+      "C:/projects/gdx/packages/pixi-vue/src/renderer/pixiBackend/Elements.ts"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/pixi-vue/src/renderer/pixiBackend/PixiImageElement.ts",
+    "children": [
+      "C:/projects/gdx/packages/pixi-vue/src/renderer/pixiBackend/Elements.ts",
+      "pixi.js"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/pixi-vue/src/renderer/canvasBackend/canvasRenderer.ts",
+    "children": [
+      "vue",
+      "C:/projects/gdx/packages/pixi-vue/src/renderer/canvasBackend/canvasElement.ts",
+      "C:/projects/gdx/packages/pixi-vue/src/renderer/canvasBackend/canvasTextElement.ts",
+      "C:/projects/gdx/packages/pixi-vue/src/renderer/canvasBackend/CanvasImageElement.ts",
+      "C:/projects/gdx/packages/pixi-vue/src/renderer/canvasBackend/CanvasCacheElement.ts",
+      "C:/projects/gdx/packages/pixi-vue/src/renderer/canvasBackend/CanvasRawElement.ts"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/pixi-vue/src/renderer/canvasBackend/canvasElement.ts",
+    "children": [
+      "C:/projects/gdx/packages/pixi-vue/src/renderer/renderTypes.ts",
+      "C:/projects/gdx/packages/pixi-vue/src/renderer/yogaAndAttrs.ts",
+      "yoga-layout"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/pixi-vue/src/renderer/canvasBackend/canvasTextElement.ts",
+    "children": [
+      "C:/projects/gdx/packages/pixi-vue/src/renderer/canvasBackend/canvasElement.ts"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/pixi-vue/src/renderer/canvasBackend/CanvasImageElement.ts",
+    "children": [
+      "C:/projects/gdx/packages/pixi-vue/src/renderer/canvasBackend/canvasElement.ts"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/pixi-vue/src/renderer/canvasBackend/CanvasCacheElement.ts",
+    "children": [
+      "C:/projects/gdx/packages/pixi-vue/src/renderer/canvasBackend/canvasElement.ts"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/pixi-vue/src/renderer/canvasBackend/CanvasRawElement.ts",
+    "children": [
+      "C:/projects/gdx/packages/pixi-vue/src/renderer/renderTypes.ts",
+      "C:/projects/gdx/packages/pixi-vue/src/renderer/canvasBackend/canvasElement.ts"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/pixi-vue/src/components/BarChart.vue",
+    "children": [
+      "C:/projects/gdx/packages/pixi-vue/src/renderer/appRenderers.ts",
+      "C:/projects/gdx/packages/pixi-vue/src/renderer/renderTypes.ts",
+      "vue",
+      "@types/d3",
+      "C:/projects/gdx/packages/pixi-vue/src/components/scale/ScaleComponent.vue"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/pixi-vue/src/components/scale/ScaleComponent.vue",
+    "children": [
+      "C:/projects/gdx/packages/pixi-vue/src/renderer/appRenderers.ts",
+      "C:/projects/gdx/packages/pixi-vue/src/components/scale/scaleComposable.ts",
+      "C:/projects/gdx/packages/pixi-vue/src/renderer/renderTypes.ts"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/pixi-vue/src/components/scale/scaleComposable.ts",
+    "children": [
+      "vue",
+      "@types/d3",
+      "C:/projects/gdx/packages/pixi-vue/src/renderer/renderTypes.ts"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/pixi-vue/src/components/charts/LineChart.vue",
+    "children": [
+      "vue",
+      "C:/projects/gdx/packages/pixi-vue/src/components/scale/ScaleComponent.vue",
+      "C:/projects/gdx/packages/pixi-vue/src/components/scale/scaleComposable.ts",
+      "C:/projects/gdx/packages/pixi-vue/src/components/charts/LineComponent.vue"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/pixi-vue/src/components/charts/LineComponent.vue",
+    "children": [
+      "C:/projects/gdx/packages/pixi-vue/src/renderer/appRenderers.ts",
+      "C:/projects/gdx/packages/pixi-vue/src/renderer/renderTypes.ts",
+      "@types/d3",
+      "C:/projects/gdx/packages/pixi-vue/src/components/scale/scaleComposable.ts"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/pixi-vue/src/components/charts/GraphChart.vue",
+    "children": [
+      "C:/projects/gdx/packages/pixi-vue/src/renderer/appRenderers.ts",
+      "@types/d3"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/CanvasGame.vue",
+    "children": [
+      "vue",
+      "C:/projects/gdx/packages/utils/dist-ts/src/index.d.ts",
+      "gl-matrix"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/orderStack/OrderStack.vue",
+    "children": [
+      "vue",
+      "C:/projects/gdx/packages/front/src/pages/orderStack/OrderStack.ts",
+      "C:/projects/gdx/packages/front/src/pages/BackGround.vue",
+      "C:/projects/gdx/packages/utils/dist-ts/src/index.d.ts"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/orderStack/OrderStack.ts",
+    "children": []
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/graphs/Graphs.vue",
+    "children": [
+      "gl-matrix",
+      "C:/projects/gdx/packages/utils/dist-ts/src/index.d.ts",
+      "vue",
+      "pixi.js"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/YogaTest/YogaTest.vue",
+    "children": [
+      "vue",
+      "C:/projects/gdx/packages/utils/dist-ts/src/index.d.ts",
+      "yoga-layout",
+      "C:/projects/gdx/packages/front/src/pages/YogaTest/BoxEl.ts"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/YogaTest/BoxEl.ts",
+    "children": ["yoga-layout"]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/webgpu/Webgpu.vue",
+    "children": [
+      "vue",
+      "C:/projects/gdx/packages/utils/dist-ts/src/index.d.ts",
+      "C:/projects/gdx/packages/pink-lemonade/src/lib.ts"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/pink-lemonade/src/lib.ts",
+    "children": [
+      "C:/projects/gdx/packages/pink-lemonade/src/WebGPU/HelloWebGpu.ts"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/pink-lemonade/src/WebGPU/HelloWebGpu.ts",
+    "children": [
+      "C:\\projects\\gdx\\packages\\pink-lemonade\\src\\WebGPU\\shader1.wgsl?raw"
+    ]
+  },
+  {
+    "path": "C:\\projects\\gdx\\packages\\pink-lemonade\\src\\WebGPU\\shader1.wgsl?raw",
+    "children": []
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/logview/LogView.vue",
+    "children": [
+      "vue",
+      "C:/projects/gdx/packages/front/src/pages/logview/LogsDatabase.ts",
+      "C:/projects/gdx/packages/front/src/pages/logview/LogTimeline.vue",
+      "primevue",
+      "primevue",
+      "C:/projects/gdx/packages/utils/dist-ts/src/index.d.ts",
+      "C:/projects/gdx/packages/front/src/pages/logview/LoadMenu.vue",
+      "primevue",
+      "C:/projects/gdx/packages/front/src/pages/logview/LogTypes.ts",
+      "C:/projects/gdx/packages/front/src/pages/logview/PluginsDrawer.vue",
+      "C:/projects/gdx/packages/front/src/pages/logview/ColorRulesDialog.vue",
+      "C:/projects/gdx/packages/front/src/pages/logview/CodeEditor.vue",
+      "C:/projects/gdx/packages/front/src/pages/logview/LogWindow.vue",
+      "C:/projects/gdx/packages/front/src/pages/logview/SearchDialog.vue",
+      "rxjs",
+      "C:/projects/gdx/packages/front/src/pages/logview/NewAnalysisMenu.vue",
+      "primevue",
+      "C:/projects/gdx/packages/front/src/pages/logview/useLogView.ts"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/logview/LogsDatabase.ts",
+    "children": ["dexie"]
+  },
+  { "path": "dexie", "children": [] },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/logview/LogTimeline.vue",
+    "children": [
+      "vue",
+      "C:/projects/gdx/packages/utils/dist-ts/src/index.d.ts",
+      "C:/projects/gdx/packages/front/src/design/design.ts"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/logview/LoadMenu.vue",
+    "children": [
+      "C:/projects/gdx/packages/front/src/pages/logview/LogsDatabase.ts",
+      "C:/projects/gdx/packages/utils/dist-ts/src/index.d.ts",
+      "primevue",
+      "primevue",
+      "primevue",
+      "vue",
+      "primevue"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/logview/LogTypes.ts",
+    "children": ["primevue"]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/logview/PluginsDrawer.vue",
+    "children": [
+      "C:/projects/gdx/packages/front/src/pages/logview/LogTypes.ts",
+      "primevue",
+      "vue",
+      "C:/projects/gdx/packages/utils/src/misc.ts",
+      "C:/projects/gdx/packages/front/src/pages/logview/LogPluginsLoad.ts",
+      "primevue"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/utils/src/misc.ts",
+    "children": ["rxjs", "vue"]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/logview/LogPluginsLoad.ts",
+    "children": [
+      "rxjs",
+      "C:/projects/gdx/packages/front/src/pages/logview/LogsDatabase.ts",
+      "C:/projects/gdx/packages/front/src/pages/logview/LogTypes.ts",
+      "C:/projects/gdx/packages/front/src/pages/logview/EditorSetup.ts"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/logview/EditorSetup.ts",
+    "children": [
+      "monaco-editor",
+      "C:\\projects\\gdx\\packages\\front\\src\\pages\\logview\\monaco-editor\\esm\\vs\\editor\\editor.worker?worker",
+      "C:\\projects\\gdx\\packages\\front\\src\\pages\\logview\\monaco-editor\\esm\\vs\\language\\json\\json.worker?worker",
+      "C:\\projects\\gdx\\packages\\front\\src\\pages\\logview\\monaco-editor\\esm\\vs\\language\\css\\css.worker?worker",
+      "C:\\projects\\gdx\\packages\\front\\src\\pages\\logview\\monaco-editor\\esm\\vs\\language\\html\\html.worker?worker",
+      "C:\\projects\\gdx\\packages\\front\\src\\pages\\logview\\monaco-editor\\esm\\vs\\language\\typescript\\ts.worker?worker"
+    ]
+  },
+  { "path": "monaco-editor", "children": [] },
+  {
+    "path": "C:\\projects\\gdx\\packages\\front\\src\\pages\\logview\\monaco-editor\\esm\\vs\\editor\\editor.worker?worker",
+    "children": []
+  },
+  {
+    "path": "C:\\projects\\gdx\\packages\\front\\src\\pages\\logview\\monaco-editor\\esm\\vs\\language\\json\\json.worker?worker",
+    "children": []
+  },
+  {
+    "path": "C:\\projects\\gdx\\packages\\front\\src\\pages\\logview\\monaco-editor\\esm\\vs\\language\\css\\css.worker?worker",
+    "children": []
+  },
+  {
+    "path": "C:\\projects\\gdx\\packages\\front\\src\\pages\\logview\\monaco-editor\\esm\\vs\\language\\html\\html.worker?worker",
+    "children": []
+  },
+  {
+    "path": "C:\\projects\\gdx\\packages\\front\\src\\pages\\logview\\monaco-editor\\esm\\vs\\language\\typescript\\ts.worker?worker",
+    "children": []
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/logview/ColorRulesDialog.vue",
+    "children": [
+      "C:/projects/gdx/packages/front/src/pages/logview/LogsDatabase.ts",
+      "primevue",
+      "primevue",
+      "primevue",
+      "primevue",
+      "primevue",
+      "vue",
+      "C:/projects/gdx/packages/utils/dist-ts/src/index.d.ts"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/logview/CodeEditor.vue",
+    "children": [
+      "vue",
+      "primevue",
+      "C:/projects/gdx/packages/front/src/pages/logview/EditorSetup.ts",
+      "primevue",
+      "primevue",
+      "primevue",
+      "C:/projects/gdx/packages/front/src/pages/logview/LogsDatabase.ts",
+      "monaco-editor",
+      "C:/projects/gdx/packages/utils/src/misc.ts",
+      "primevue",
+      "C:\\projects\\gdx\\packages\\front\\src\\pages\\logview\\LogStatePlugins?raw"
+    ]
+  },
+  {
+    "path": "C:\\projects\\gdx\\packages\\front\\src\\pages\\logview\\LogStatePlugins?raw",
+    "children": []
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/logview/LogWindow.vue",
+    "children": [
+      "@vueuse/core",
+      "vue",
+      "C:/projects/gdx/packages/front/src/pages/logview/LogTypes.ts",
+      "C:/projects/gdx/packages/utils/dist-ts/src/index.d.ts",
+      "C:/projects/gdx/packages/front/src/pages/logview/HighlitableText.vue",
+      "C:/projects/gdx/packages/front/src/pages/logview/LogsDatabase.ts",
+      "primevue",
+      "primevue",
+      "C:/projects/gdx/packages/front/src/pages/logview/useLogView.ts",
+      "primevue"
+    ]
+  },
+  { "path": "@vueuse/core", "children": [] },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/logview/HighlitableText.vue",
+    "children": ["vue"]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/logview/useLogView.ts",
+    "children": [
+      "vue",
+      "C:/projects/gdx/packages/front/src/pages/logview/LogsDatabase.ts",
+      "C:/projects/gdx/packages/utils/src/misc.ts",
+      "rxjs",
+      "C:/projects/gdx/packages/front/src/pages/logview/LogTypes.ts"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/logview/SearchDialog.vue",
+    "children": [
+      "C:/projects/gdx/packages/front/src/pages/logview/LogsDatabase.ts",
+      "primevue",
+      "primevue",
+      "primevue",
+      "primevue",
+      "vue",
+      "C:/projects/gdx/packages/utils/dist-ts/src/index.d.ts"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/logview/NewAnalysisMenu.vue",
+    "children": [
+      "C:/projects/gdx/packages/front/src/pages/logview/LogsDatabase.ts",
+      "primevue",
+      "primevue",
+      "primevue",
+      "primevue",
+      "vue",
+      "primevue"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/RelativeImportFixer/RelativeImportsFixer.vue",
+    "children": [
+      "primevue",
+      "vue",
+      "C:/projects/gdx/packages/front/src/pages/RelativeImportFixer/relativeFixer.ts",
+      "primevue"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/RelativeImportFixer/relativeFixer.ts",
+    "children": []
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/MoreFunStuff/MoreFunStuff.vue",
+    "children": [
+      "C:/projects/gdx/packages/front/src/components/NavBar.vue",
+      "C:/projects/gdx/packages/front/src/components/SimpleProjectPresentation.vue",
+      "C:\\projects\\gdx\\packages\\front\\src\\assets\\project_images\\gravity.jpg?url",
+      "C:\\projects\\gdx\\packages\\front\\src\\assets\\project_images\\projections.jpg?url",
+      "C:\\projects\\gdx\\packages\\front\\src\\assets\\project_images\\birds_example.jpg?url",
+      "C:\\projects\\gdx\\packages\\front\\src\\assets\\project_images\\stack_boxes.jpg?url"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/components/SimpleProjectPresentation.vue",
+    "children": [
+      "C:\\projects\\gdx\\packages\\front\\src\\assets\\arrow-ne.svg?component",
+      "vue-router",
+      "C:/projects/gdx/packages/front/src/components/BorderContainer.vue"
+    ]
+  },
+  {
+    "path": "C:\\projects\\gdx\\packages\\front\\src\\assets\\project_images\\gravity.jpg?url",
+    "children": []
+  },
+  {
+    "path": "C:\\projects\\gdx\\packages\\front\\src\\assets\\project_images\\projections.jpg?url",
+    "children": []
+  },
+  {
+    "path": "C:\\projects\\gdx\\packages\\front\\src\\assets\\project_images\\stack_boxes.jpg?url",
+    "children": []
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/spaceIndex/SpaceIndex.vue",
+    "children": [
+      "C:/projects/gdx/packages/front/src/components/BlogFormat.vue",
+      "C:/projects/gdx/packages/front/src/pages/BackGround.vue",
+      "C:\\projects\\gdx\\packages\\front\\src\\pages\\spaceIndex\\SpaceIndex.md",
+      "C:/projects/gdx/packages/front/src/pages/spaceIndex/SpaceIndexExample.ce.vue",
+      "vue"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/components/BlogFormat.vue",
+    "children": [
+      "highlight.js",
+      "highlight.js",
+      "highlight.js",
+      "highlight.js",
+      "highlight.js",
+      "vue",
+      "C:\\projects\\gdx\\packages\\front\\src\\components\\codeStyle.css"
+    ]
+  },
+  { "path": "highlight.js", "children": [] },
+  {
+    "path": "C:\\projects\\gdx\\packages\\front\\src\\components\\codeStyle.css",
+    "children": []
+  },
+  {
+    "path": "C:\\projects\\gdx\\packages\\front\\src\\pages\\spaceIndex\\SpaceIndex.md",
+    "children": []
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/spaceIndex/SpaceIndexExample.ce.vue",
+    "children": [
+      "vue",
+      "C:/projects/gdx/packages/utils/dist-ts/src/index.d.ts",
+      "C:/projects/gdx/packages/front/src/pages/spaceIndex/GridIndex.ts",
+      "C:/projects/gdx/packages/utils/dist-ts/src/index.d.ts",
+      "C:/projects/gdx/packages/front/src/pages/spaceIndex/SpaceIndexTypes.ts",
+      "C:/projects/gdx/packages/utils/dist-ts/src/index.d.ts",
+      "C:/projects/gdx/packages/front/src/utils/benchMark.ts",
+      "C:/projects/gdx/packages/front/src/pages/spaceIndex/QuadTreeIndex.ts",
+      "C:/projects/gdx/packages/front/src/pages/spaceIndex/SpatialGridColors.ts",
+      "C:/projects/gdx/packages/front/src/pages/spaceIndex/HashGridIndex.ts",
+      "C:/projects/gdx/packages/front/src/components/Button.vue"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/spaceIndex/GridIndex.ts",
+    "children": [
+      "C:/projects/gdx/packages/utils/dist-ts/src/index.d.ts",
+      "C:/projects/gdx/packages/utils/dist-ts/src/index.d.ts",
+      "C:/projects/gdx/packages/front/src/pages/spaceIndex/SpaceIndexTypes.ts",
+      "C:/projects/gdx/packages/front/src/pages/spaceIndex/SpatialGridColors.ts"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/spaceIndex/SpaceIndexTypes.ts",
+    "children": [
+      "C:/projects/gdx/packages/utils/dist-ts/src/index.d.ts",
+      "C:/projects/gdx/packages/utils/dist-ts/src/index.d.ts"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/spaceIndex/SpatialGridColors.ts",
+    "children": []
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/utils/benchMark.ts",
+    "children": []
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/spaceIndex/QuadTreeIndex.ts",
+    "children": [
+      "C:/projects/gdx/packages/utils/dist-ts/src/index.d.ts",
+      "C:/projects/gdx/packages/utils/dist-ts/src/index.d.ts",
+      "C:/projects/gdx/packages/front/src/pages/spaceIndex/SpaceIndexTypes.ts",
+      "C:/projects/gdx/packages/front/src/pages/spaceIndex/SpatialGridColors.ts"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/spaceIndex/HashGridIndex.ts",
+    "children": [
+      "C:/projects/gdx/packages/utils/dist-ts/src/index.d.ts",
+      "C:/projects/gdx/packages/utils/dist-ts/src/index.d.ts",
+      "C:/projects/gdx/packages/front/src/pages/spaceIndex/SpaceIndexTypes.ts",
+      "C:/projects/gdx/packages/front/src/pages/spaceIndex/SpatialGridColors.ts"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/audioExperiments/AudiosThings.vue",
+    "children": [
+      "vue",
+      "C:/projects/gdx/packages/front/src/pages/BackGround.vue",
+      "C:\\projects\\gdx\\packages\\front\\src\\pages\\audioExperiments\\sample.mp3"
+    ]
+  },
+  {
+    "path": "C:\\projects\\gdx\\packages\\front\\src\\pages\\audioExperiments\\sample.mp3",
+    "children": []
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/SIMDRasterization/SIMDRasterization.vue",
+    "children": [
+      "C:/projects/gdx/packages/front/src/components/BlogFormat.vue",
+      "C:/projects/gdx/packages/front/src/pages/SIMDRasterization/BigTriangleExample.ce.vue",
+      "C:\\projects\\gdx\\packages\\front\\src\\pages\\SIMDRasterization\\SIMDPost.md",
+      "vue",
+      "C:/projects/gdx/packages/front/src/pages/BackGround.vue"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/SIMDRasterization/BigTriangleExample.ce.vue",
+    "children": [
+      "C:/projects/gdx/packages/raytracer/pkg/raytracer.d.ts",
+      "C:/projects/gdx/packages/utils/dist-ts/src/index.d.ts",
+      "vue"
+    ]
+  },
+  {
+    "path": "C:/projects/gdx/packages/raytracer/pkg/raytracer.d.ts",
+    "children": []
+  },
+  {
+    "path": "C:\\projects\\gdx\\packages\\front\\src\\pages\\SIMDRasterization\\SIMDPost.md",
+    "children": []
+  }
+]

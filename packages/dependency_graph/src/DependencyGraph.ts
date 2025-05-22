@@ -155,6 +155,27 @@ function flatGraph(graph: GraphNode): GraphNode[] {
   return [graph, ...flat];
 }
 
+export async function exportToJSON(graph: GraphNode, to: string) {
+  function flatAll(graph: GraphNode) {
+    const flat = uniqueBy(flatGraph(graph), (node) => node.filePath);
+    return flat.map((node) => {
+      return {
+        path: node.filePath,
+        children: node.children.map((child) => child.filePath),
+      };
+    });
+  }
+
+  try {
+    await fs.mkdir(to, {});
+  } catch (e) {
+    console.log("Directory already exists.");
+  }
+
+  const data = JSON.stringify(flatAll(graph));
+  await fs.writeFile(path.resolve(to, "./graphData.json"), data, "utf8");
+}
+
 export async function exportToCSV(graph: GraphNode, to: string) {
   const file1 = getCSVNames(graph);
   const file2 = getAllLinks(graph);

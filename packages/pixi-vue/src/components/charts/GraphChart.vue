@@ -1,30 +1,27 @@
 <template>
-  <GRaw :drawFunction="drawFunction"></GRaw>
+  <GRaw :drawFunction="drawFunction" width="100%" height="100%"></GRaw>
 </template>
 
 <script setup lang="ts">
 import { GRaw } from "#els/appRenderers.ts";
 import * as d3 from "d3";
+import data from "./data.json";
+import { ElementInterface } from "#els/renderTypes.ts";
 
-const nodes: (d3.SimulationNodeDatum & { id: number })[] = [
-  { id: 0 },
-  { id: 1 },
-  { id: 2 },
-  { id: 3 },
-  { id: 4 },
-];
+const nodes: (d3.SimulationNodeDatum & { id: string })[] = data.map((data) => {
+  return {
+    id: data.path,
+  };
+});
 
-const links = [
-  { source: nodes[0], target: nodes[1] },
-  { source: nodes[1], target: nodes[2] },
-  { source: nodes[2], target: nodes[0] },
-  { source: nodes[2], target: nodes[3] },
-  { source: nodes[3], target: nodes[4] },
-  { source: nodes[4], target: nodes[0] },
-  { source: nodes[4], target: nodes[1] },
-  { source: nodes[0], target: nodes[3] },
-  { source: nodes[1], target: nodes[4] },
-];
+const links = data.flatMap((data) => {
+  return data.children.map((child) => {
+    return {
+      source: nodes.find((node) => node.id === data.path)!,
+      target: nodes.find((node) => node.id === child)!,
+    };
+  });
+});
 
 const forceSimulation = d3
   .forceSimulation(nodes)
@@ -32,7 +29,10 @@ const forceSimulation = d3
   .force("link", d3.forceLink(links).distance(100).strength(1))
   .force("center", d3.forceCenter(0, 0).strength(1));
 
-function drawFunction(ctx: CanvasRenderingContext2D) {
+function drawFunction(
+  ctx: CanvasRenderingContext2D,
+  element: ElementInterface
+) {
   const nodes = forceSimulation.nodes();
   let minX = Infinity;
   let minY = Infinity;
@@ -47,7 +47,11 @@ function drawFunction(ctx: CanvasRenderingContext2D) {
     }
   });
 
-  ctx.translate(-minX + 10, -minY + 10);
+  const centerX = (minX + maxX) / 2;
+  const centerY = (minY + maxY) / 2;
+
+  ctx.translate(centerX, centerY);
+  ctx.translate(element.getWidth() / 2, element.getHeight() / 2);
 
   links.forEach((link) => {
     const sourceNode = link.source;
