@@ -160,9 +160,7 @@
   },
   {
     "path": "C:/projects/gdx/packages/front/src/components/CV/glmachadoCVData.ts",
-    "children": [
-      "C:/projects/gdx/packages/front/src/components/CV/SimpleCVTypes.ts"
-    ]
+    "children": ["C:/projects/gdx/packages/front/src/components/CV/SimpleCVTypes.ts"]
   },
   {
     "path": "C:/projects/gdx/packages/front/src/components/CV/SimpleCVTypes.ts",
@@ -290,10 +288,7 @@
   },
   {
     "path": "C:/projects/gdx/packages/front/src/components/CV/CVField.vue",
-    "children": [
-      "C:/projects/gdx/packages/front/src/components/CV/LinkProcess.ts",
-      "vue"
-    ]
+    "children": ["C:/projects/gdx/packages/front/src/components/CV/LinkProcess.ts", "vue"]
   },
   {
     "path": "C:/projects/gdx/packages/front/src/components/CV/LinkProcess.ts",
@@ -348,9 +343,7 @@
   },
   {
     "path": "C:/projects/gdx/packages/front/src/components/CV/silviaCVData.ts",
-    "children": [
-      "C:/projects/gdx/packages/front/src/components/CV/SimpleCVTypes.ts"
-    ]
+    "children": ["C:/projects/gdx/packages/front/src/components/CV/SimpleCVTypes.ts"]
   },
   {
     "path": "C:/projects/gdx/packages/front/src/pages/TippyTest.vue",
@@ -469,10 +462,7 @@
   },
   {
     "path": "C:/projects/gdx/packages/pixi-vue/src/components/RenderWrapper.vue",
-    "children": [
-      "vue",
-      "C:/projects/gdx/packages/pixi-vue/src/renderer/appRenderers.ts"
-    ]
+    "children": ["vue", "C:/projects/gdx/packages/pixi-vue/src/renderer/appRenderers.ts"]
   },
   {
     "path": "C:/projects/gdx/packages/pixi-vue/src/renderer/appRenderers.ts",
@@ -686,9 +676,7 @@
   },
   {
     "path": "C:/projects/gdx/packages/pink-lemonade/src/lib.ts",
-    "children": [
-      "C:/projects/gdx/packages/pink-lemonade/src/WebGPU/HelloWebGpu.ts"
-    ]
+    "children": ["C:/projects/gdx/packages/pink-lemonade/src/WebGPU/HelloWebGpu.ts"]
   },
   {
     "path": "C:/projects/gdx/packages/pink-lemonade/src/WebGPU/HelloWebGpu.ts",

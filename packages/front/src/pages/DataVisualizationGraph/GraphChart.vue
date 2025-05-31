@@ -6,22 +6,58 @@
 import * as d3 from 'd3';
 import data from './data.json';
 import { onMounted, ref } from 'vue';
+import { MyNode } from './MyGraph';
 
-const nodes: (d3.SimulationNodeDatum & { id: string })[] = data.map((data) => {
-  return {
-    id: data.path,
-  };
-});
+type RawNodeData = { path: string; children: string[] };
+type NodeData = d3.SimulationNodeDatum & { id: string; children: string[] };
+type LinkData = {
+  source: NodeData;
+  target: NodeData;
+  id: string;
+};
 
-const links = data.flatMap((data) => {
-  return data.children.map((child) => {
+const { nodes, links } = makeDirectAcyclic(data);
+
+function makeDirectAcyclic(data: RawNodeData[]) {
+  const nodes: NodeData[] = data.map((data) => {
     return {
-      source: nodes.find((node) => node.id === data.path)!,
-      target: nodes.find((node) => node.id === child)!,
-      id: `${data.path}-${child}`,
+      id: data.path,
+      children: data.children,
     };
   });
-});
+
+  const nodeMap = new Map<string, NodeData>();
+  nodes.forEach((node) => {
+    nodeMap.set(node.id, node);
+  });
+
+  const myNodesMap = new Map<string, MyNode<NodeData>>();
+
+  function makeMyNode(node: NodeData): MyNode<NodeData> {
+    if (myNodesMap.has(node.id)) {
+      return myNodesMap.get(node.id)!;
+    }
+    const myNodeRoot = new MyNode(node, []);
+    node.children.forEach((childPath) => {
+      const childNode = nodeMap.get(childPath);
+      if (childNode) {
+        const myChildNode = makeMyNode(childNode);
+        myNodeRoot.addChild(myChildNode);
+      }
+    });
+    myNodesMap.set(node.id, myNodeRoot);
+    return myNodeRoot;
+  }
+
+  const myNode = makeMyNode(nodes[0]); // Start from the first node
+
+  const myLinks = myNode.getLinks();
+  const myNodesArr = [...new Set([...myNode.iter()])];
+
+  return { nodes: myNodesArr, links: myLinks };
+}
+
+function makeNodesAndLinks(data: RawNodeData[]) {}
 
 const container = ref<HTMLElement | null>(null);
 onMounted(() => {
