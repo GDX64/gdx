@@ -50,6 +50,7 @@ function makeDirectAcyclic(data: RawNodeData[]) {
   }
 
   const myNode = makeMyNode(nodes[0]); // Start from the first node
+  myNode.turnIntoDAG();
 
   const myLinks = myNode.getLinks();
   const myNodesArr = [...new Set([...myNode.iter()])];
@@ -77,9 +78,13 @@ function startChart({ width = 928, height = 600 } = {}) {
     .forceSimulation(nodes)
     .force(
       'link',
-      d3.forceLink(links).id((d: any) => d.id)
+      d3
+        .forceLink(links)
+        .strength(1)
+        .distance(20)
+        .id((d: any) => d.id)
     )
-    .force('charge', d3.forceManyBody())
+    .force('charge', d3.forceManyBody().strength(-50))
     .force('center', d3.forceCenter(width / 2, height / 2))
     .on('tick', ticked);
 
