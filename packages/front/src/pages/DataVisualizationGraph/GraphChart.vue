@@ -5,7 +5,6 @@
 <script setup lang="ts">
 import * as d3 from 'd3';
 import data from './data.json';
-import exampleData from './example_data.json';
 import { onMounted, ref } from 'vue';
 
 const nodes: (d3.SimulationNodeDatum & { id: string })[] = data.map((data) => {
@@ -42,7 +41,7 @@ function startChart({ width = 928, height = 600 } = {}) {
     .forceSimulation(nodes)
     .force(
       'link',
-      d3.forceLink(links).id((d) => d.id)
+      d3.forceLink(links).id((d: any) => d.id)
     )
     .force('charge', d3.forceManyBody())
     .force('center', d3.forceCenter(width / 2, height / 2))
@@ -79,37 +78,33 @@ function startChart({ width = 928, height = 600 } = {}) {
   node.append('title').text((d) => d.id);
 
   // Add a drag behavior.
-  node.call(d3.drag().on('start', dragstarted).on('drag', dragged).on('end', dragended));
+  const d3Drag = d3
+    .drag()
+    .on('start', (event) => {
+      if (!event.active) simulation.alphaTarget(0.3).restart();
+      event.subject.fx = event.subject.x;
+      event.subject.fy = event.subject.y;
+    })
+    .on('drag', (event) => {
+      event.subject.fx = event.x;
+      event.subject.fy = event.y;
+    })
+    .on('end', (event) => {
+      if (!event.active) simulation.alphaTarget(0);
+      event.subject.fx = null;
+      event.subject.fy = null;
+    });
+
+  node.call(d3Drag as any);
 
   // Set the position attributes of links and nodes each time the simulation ticks.
   function ticked() {
     link
-      .attr('x1', (d) => d.source.x)
-      .attr('y1', (d) => d.source.y)
-      .attr('x2', (d) => d.target.x)
-      .attr('y2', (d) => d.target.y);
-    node.attr('cx', (d) => d.x).attr('cy', (d) => d.y);
-  }
-
-  // Reheat the simulation when drag starts, and fix the subject position.
-  function dragstarted(event: any) {
-    if (!event.active) simulation.alphaTarget(0.3).restart();
-    event.subject.fx = event.subject.x;
-    event.subject.fy = event.subject.y;
-  }
-
-  // Update the subject (dragged node) position during drag.
-  function dragged(event: any) {
-    event.subject.fx = event.x;
-    event.subject.fy = event.y;
-  }
-
-  // Restore the target alpha so the simulation cools after dragging ends.
-  // Unfix the subject position now that it’s no longer being dragged.
-  function dragended(event: any) {
-    if (!event.active) simulation.alphaTarget(0);
-    event.subject.fx = null;
-    event.subject.fy = null;
+      .attr('x1', (d: any) => d.source.x)
+      .attr('y1', (d: any) => d.source.y)
+      .attr('x2', (d: any) => d.target.x)
+      .attr('y2', (d: any) => d.target.y);
+    node.attr('cx', (d: any) => d.x).attr('cy', (d: any) => d.y);
   }
 
   return svg.node()!;
