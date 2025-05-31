@@ -7,19 +7,20 @@ import * as d3 from 'd3';
 import data from './data.json';
 import { onMounted, ref } from 'vue';
 import { MyNode } from './MyGraph';
-import { all } from 'ramda';
 
 type RawNodeData = { path: string; children: string[] };
-type NodeData = d3.SimulationNodeDatum & {
+type NodeData = {
   id: string;
   children: string[];
   group: number;
 };
 type LinkData = {
-  source: NodeData;
-  target: NodeData;
+  source: MyD3Node;
+  target: MyD3Node;
   id: string;
 };
+
+type MyD3Node = MyNode<NodeData> & d3.SimulationNodeDatum;
 
 const { nodes, links } = makeDirectAcyclic(data);
 
@@ -67,8 +68,8 @@ function makeDirectAcyclic(data: RawNodeData[]) {
   const myNode = makeMyNode(nodes[0]); // Start from the first node
   myNode.turnIntoDAG();
 
-  const myLinks = myNode.getLinks();
-  const myNodesArr = [...new Set([...myNode.iter()])];
+  const myLinks = myNode.getLinks() as LinkData[];
+  const myNodesArr: MyD3Node[] = [...new Set([...myNode.iter()])];
 
   return { nodes: myNodesArr, links: myLinks };
 }
@@ -109,7 +110,12 @@ function startChart({ width = 928, height = 600 } = {}) {
     .attr('width', width)
     .attr('height', height)
     .attr('viewBox', [0, 0, width, height])
-    .attr('style', 'max-width: 100%; height: auto;');
+    .attr('style', 'max-width: 100%; height: auto;') as any as d3.Selection<
+    SVGSVGElement,
+    MyD3Node,
+    null,
+    undefined
+  >;
 
   // Add a line for each link, and a circle for each node.
   const link = svg
@@ -118,8 +124,7 @@ function startChart({ width = 928, height = 600 } = {}) {
     .attr('stroke-opacity', 0.6)
     .selectAll()
     .data(links)
-    .join('line')
-    .attr('stroke-width', (d) => 1);
+    .join('line');
 
   const node = svg
     .append('g')
@@ -129,7 +134,7 @@ function startChart({ width = 928, height = 600 } = {}) {
     .data(nodes)
     .join('circle')
     .attr('r', 5)
-    .attr('fill', (d) => color(d.data.group));
+    .attr('fill', (d: MyD3Node) => color(d.data.group.toString()));
 
   node.append('title').text((d) => d.id);
 
@@ -156,11 +161,11 @@ function startChart({ width = 928, height = 600 } = {}) {
   // Set the position attributes of links and nodes each time the simulation ticks.
   function ticked() {
     link
-      .attr('x1', (d: any) => d.source.x)
-      .attr('y1', (d: any) => d.source.y)
-      .attr('x2', (d: any) => d.target.x)
-      .attr('y2', (d: any) => d.target.y);
-    node.attr('cx', (d: any) => d.x).attr('cy', (d: any) => d.y);
+      .attr('x1', (d) => d.source.x ?? 0)
+      .attr('y1', (d) => d.source.y ?? 0)
+      .attr('x2', (d) => d.target.x ?? 0)
+      .attr('y2', (d) => d.target.y ?? 0);
+    node.attr('cx', (d) => d.x ?? 0).attr('cy', (d) => d.y ?? 0);
   }
 
   return svg.node()!;

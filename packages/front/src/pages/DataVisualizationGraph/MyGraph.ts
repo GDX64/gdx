@@ -56,7 +56,6 @@ export class MyNode<T extends { id: string }> {
     }
     const shortestPaths = findShortestPaths(this, [this]);
     for (const node of [...this.iter()]) {
-      console.log('Clearing children for node:', node.id);
       node.clearChildren();
     }
     for (const path of shortestPaths.values()) {
@@ -68,7 +67,6 @@ export class MyNode<T extends { id: string }> {
         }
       }
     }
-    console.log('Shortest paths:', shortestPaths);
     return {
       root: this,
       shortestPaths,
