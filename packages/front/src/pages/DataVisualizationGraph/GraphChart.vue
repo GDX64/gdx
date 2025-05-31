@@ -7,9 +7,14 @@ import * as d3 from 'd3';
 import data from './data.json';
 import { onMounted, ref } from 'vue';
 import { MyNode } from './MyGraph';
+import { all } from 'ramda';
 
 type RawNodeData = { path: string; children: string[] };
-type NodeData = d3.SimulationNodeDatum & { id: string; children: string[] };
+type NodeData = d3.SimulationNodeDatum & {
+  id: string;
+  children: string[];
+  group: number;
+};
 type LinkData = {
   source: NodeData;
   target: NodeData;
@@ -18,17 +23,27 @@ type LinkData = {
 
 const { nodes, links } = makeDirectAcyclic(data);
 
+function nodeFolder(path: string) {
+  return path.split('/').slice(0, -1).join('/');
+}
+
 function makeDirectAcyclic(data: RawNodeData[]) {
+  const allFolders = new Map<string, number>();
   const nodes: NodeData[] = data.map((data) => {
     return {
       id: data.path,
       children: data.children,
+      group: 0,
     };
   });
 
   const nodeMap = new Map<string, NodeData>();
   nodes.forEach((node) => {
     nodeMap.set(node.id, node);
+    const folder = nodeFolder(node.id);
+    const currentCount = allFolders.get(folder) ?? allFolders.size;
+    allFolders.set(folder, currentCount);
+    node.group = currentCount;
   });
 
   const myNodesMap = new Map<string, MyNode<NodeData>>();
@@ -114,7 +129,7 @@ function startChart({ width = 928, height = 600 } = {}) {
     .data(nodes)
     .join('circle')
     .attr('r', 5)
-    .attr('fill', (d) => '#ff0000');
+    .attr('fill', (d) => color(d.data.group));
 
   node.append('title').text((d) => d.id);
 
