@@ -16,6 +16,10 @@
         ></i>
       </label>
       <div class="">Selected: {{ currentSelectedNode?.id }}</div>
+      <div class="flex gap-2">
+        <Button @click="makeSelectedTheRoot">Use Selected As Root</Button>
+        <Button @click="selectedRoot = null">Use Main As Root</Button>
+      </div>
     </div>
     <div class="bg-prime-50 flex-1" ref="container"></div>
   </div>
@@ -28,6 +32,7 @@ import { onMounted, ref, shallowRef, watch } from 'vue';
 import { MyNode } from './MyGraph';
 import Checkbox from 'primevue/checkbox';
 import vTooltip from 'primevue/tooltip';
+import Button from 'primevue/button';
 
 const showAsDAG = ref(true);
 
@@ -44,18 +49,33 @@ type LinkData = {
 };
 
 type MyD3Node = MyNode<NodeData> & d3.SimulationNodeDatum;
+type UIState = {
+  container: HTMLElement | null;
+  showAsDAG: boolean;
+  selectedRoot: null | string;
+};
 
 const currentSelectedNode = shallowRef<MyD3Node | null>(null);
-
+const selectedRoot = ref<null | string>(null);
 const container = ref<HTMLElement | null>(null);
+
 watch(
-  () => [container.value, showAsDAG.value] as const,
-  ([container, showAsDAG], _old, clear) => {
+  (): UIState => {
+    return {
+      container: container.value,
+      showAsDAG: showAsDAG.value,
+      selectedRoot: selectedRoot.value,
+    };
+  },
+  (uiState, _old, clear) => {
+    const { container } = uiState;
     if (!container) {
       return;
     }
+
     const { width, height } = container.getBoundingClientRect();
-    const { svg, simulation, root } = startChart({ width, height, showAsDAG });
+    const { svg, simulation, root } = startChart({ width, height }, uiState);
+
     container.appendChild(svg.node()!);
     clear(() => {
       simulation.stop();
@@ -64,11 +84,17 @@ watch(
   }
 );
 
+function makeSelectedTheRoot() {
+  if (currentSelectedNode.value) {
+    selectedRoot.value = currentSelectedNode.value.id;
+  }
+}
+
 function nodeFolder(path: string) {
   return path.split('/').slice(0, -1).join('/');
 }
 
-function makeDirectAcyclic(data: RawNodeData[], showAsDAG: boolean) {
+function makeDirectAcyclic(data: RawNodeData[], uiState: UIState) {
   const allFolders = new Map<string, number>();
   const nodes: NodeData[] = data.map((data) => {
     return {
@@ -105,8 +131,18 @@ function makeDirectAcyclic(data: RawNodeData[], showAsDAG: boolean) {
     return myNodeRoot;
   }
 
-  const myNode = makeMyNode(nodes[0]); // Start from the first node
-  if (showAsDAG) {
+  let myNode;
+  if (uiState.selectedRoot) {
+    const root = makeMyNode(nodes[0]); // Start from the first node
+    myNode = root.findNodeById(uiState.selectedRoot);
+    if (!myNode) {
+      throw new Error(`Node with id ${uiState.selectedRoot} not found`);
+    }
+  } else {
+    const root = makeMyNode(nodes[0]); // Start from the first node
+    myNode = root;
+  }
+  if (uiState.showAsDAG) {
     myNode.turnIntoDAG();
   }
 
@@ -117,8 +153,8 @@ function makeDirectAcyclic(data: RawNodeData[], showAsDAG: boolean) {
   return { nodes: myNodesArr, links: myLinks, root };
 }
 
-function startChart({ width = 928, height = 600, showAsDAG = false } = {}) {
-  const { nodes, links, root } = makeDirectAcyclic(data, showAsDAG);
+function startChart({ width = 928, height = 600 }, uiState: UIState) {
+  const { nodes, links, root } = makeDirectAcyclic(data, uiState);
   // Specify the color scale.
   const color = d3.scaleOrdinal(d3.schemeCategory10);
   // const { nodes, links } = exampleData;

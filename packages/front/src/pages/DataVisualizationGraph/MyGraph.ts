@@ -73,6 +73,19 @@ export class MyNode<T extends { id: string }> {
     };
   }
 
+  findNodeById(id: string): MyNode<T> | null {
+    if (this.id === id) {
+      return this;
+    }
+    for (const child of this.children) {
+      const foundNode = child.findNodeById(id);
+      if (foundNode) {
+        return foundNode;
+      }
+    }
+    return null;
+  }
+
   clearChildren(): void {
     this.children = [];
   }
