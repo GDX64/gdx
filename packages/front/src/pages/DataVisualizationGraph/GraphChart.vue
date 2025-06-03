@@ -1,12 +1,35 @@
 <template>
-  <div class="w-full min-h-screen bg-pink-100" ref="container"></div>
+  <div class="w-full min-h-screen flex flex-col text-text-prime">
+    <div class="absolute top-0 left-0 right-0 p-4">
+      <p class="text-lg font-bold">
+        <span>Codebase:</span>
+        <a href="https://github.com/GDX64/gdx">https://github.com/GDX64/gdx</a>
+      </p>
+      <label class="flex items-center gap-2 w-fit">
+        <Checkbox v-model="showAsDAG" binary></Checkbox>
+        <span>Show as DAG</span>
+        <i
+          class="pi pi-info-circle"
+          v-tooltip="
+            'Show as Directed Acyclic Graph, with every node represented by its shortest path'
+          "
+        ></i>
+      </label>
+      <div class="">Selected: {{ currentSelectedNode?.id }}</div>
+    </div>
+    <div class="bg-prime-50 flex-1" ref="container"></div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import * as d3 from 'd3';
 import data from './data.json';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, shallowRef, watch } from 'vue';
 import { MyNode } from './MyGraph';
+import Checkbox from 'primevue/checkbox';
+import vTooltip from 'primevue/tooltip';
+
+const showAsDAG = ref(true);
 
 type RawNodeData = { path: string; children: string[] };
 type NodeData = {
@@ -22,13 +45,30 @@ type LinkData = {
 
 type MyD3Node = MyNode<NodeData> & d3.SimulationNodeDatum;
 
-const { nodes, links } = makeDirectAcyclic(data);
+const currentSelectedNode = shallowRef<MyD3Node | null>(null);
+
+const container = ref<HTMLElement | null>(null);
+watch(
+  () => [container.value, showAsDAG.value] as const,
+  ([container, showAsDAG], _old, clear) => {
+    if (!container) {
+      return;
+    }
+    const { width, height } = container.getBoundingClientRect();
+    const { svg, simulation, root } = startChart({ width, height, showAsDAG });
+    container.appendChild(svg.node()!);
+    clear(() => {
+      simulation.stop();
+      svg.remove();
+    });
+  }
+);
 
 function nodeFolder(path: string) {
   return path.split('/').slice(0, -1).join('/');
 }
 
-function makeDirectAcyclic(data: RawNodeData[]) {
+function makeDirectAcyclic(data: RawNodeData[], showAsDAG: boolean) {
   const allFolders = new Map<string, number>();
   const nodes: NodeData[] = data.map((data) => {
     return {
@@ -66,26 +106,19 @@ function makeDirectAcyclic(data: RawNodeData[]) {
   }
 
   const myNode = makeMyNode(nodes[0]); // Start from the first node
-  myNode.turnIntoDAG();
+  if (showAsDAG) {
+    myNode.turnIntoDAG();
+  }
 
   const myLinks = myNode.getLinks() as LinkData[];
   const myNodesArr: MyD3Node[] = [...new Set([...myNode.iter()])];
+  const root = myNode;
 
-  return { nodes: myNodesArr, links: myLinks };
+  return { nodes: myNodesArr, links: myLinks, root };
 }
 
-function makeNodesAndLinks(data: RawNodeData[]) {}
-
-const container = ref<HTMLElement | null>(null);
-onMounted(() => {
-  if (container.value) {
-    const { width, height } = container.value.getBoundingClientRect();
-    const svgNode = startChart({ width, height });
-    container.value.appendChild(svgNode);
-  }
-});
-
-function startChart({ width = 928, height = 600 } = {}) {
+function startChart({ width = 928, height = 600, showAsDAG = false } = {}) {
+  const { nodes, links, root } = makeDirectAcyclic(data, showAsDAG);
   // Specify the color scale.
   const color = d3.scaleOrdinal(d3.schemeCategory10);
   // const { nodes, links } = exampleData;
@@ -97,11 +130,11 @@ function startChart({ width = 928, height = 600 } = {}) {
       d3
         .forceLink(links)
         .strength(1)
-        .distance(20)
+        .distance(50)
         .id((d: any) => d.id)
     )
     .force('charge', d3.forceManyBody().strength(-50))
-    .force('center', d3.forceCenter(width / 2, height / 2))
+    .force('center', d3.forceCenter(width / 2, height / 2).strength(1))
     .on('tick', ticked);
 
   // Create the SVG container.
@@ -138,6 +171,10 @@ function startChart({ width = 928, height = 600 } = {}) {
 
   node.append('title').text((d) => d.id);
 
+  node.on('click', (event, d) => {
+    currentSelectedNode.value = d;
+  });
+
   // Add a drag behavior.
   const d3Drag = d3
     .drag()
@@ -168,6 +205,6 @@ function startChart({ width = 928, height = 600 } = {}) {
     node.attr('cx', (d) => d.x ?? 0).attr('cy', (d) => d.y ?? 0);
   }
 
-  return svg.node()!;
+  return { svg, simulation, root };
 }
 </script>
