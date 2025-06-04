@@ -1,6 +1,11 @@
 <template>
   <div class="min-h-screen flex text-text-prime w-full">
-    <Drawer v-model:visible="isLeftDrawerVisible" header="Filesystem" class="!w-[500px]">
+    <Drawer
+      v-model:visible="isDrawer"
+      header="Filesystem"
+      class="!w-[500px]"
+      position="right"
+    >
       <Tree
         :value="treeValue"
         v-model:expandedKeys="treeExpandedKeys"
@@ -11,7 +16,7 @@
       <div class="flex gap-2">
         <Button @click="makeSelectedTheRoot">Use Selected As Root</Button>
         <Button @click="selectedRoot = null">Use Main As Root</Button>
-        <Button @click="isLeftDrawerVisible = true">Show FileSystem</Button>
+        <Button @click="isDrawer = true">Show FileSystem</Button>
       </div>
       <p class="text-lg font-bold">
         <span>Codebase:</span>
@@ -48,7 +53,7 @@ import Drawer from 'primevue/drawer';
 const treeValue = ref<TreeNode[]>();
 
 const showAsDAG = ref(true);
-const isLeftDrawerVisible = ref(false);
+const isDrawer = ref(false);
 
 type RawNodeData = { path: string; children: string[] };
 type NodeData = {
