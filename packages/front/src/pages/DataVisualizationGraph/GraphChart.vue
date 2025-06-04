@@ -24,7 +24,7 @@
       <div class="">Selected: {{ currentSelectedNode }}</div>
     </div>
     <div class="bg-prime-100 flex-1 h-full" ref="container"></div>
-    <div class="h-full max-h-full overflow-y-scroll">
+    <div class="h-full max-h-full overflow-scroll !bg-bg-0 w-[400px]">
       <Tree
         :value="treeValue"
         v-model:expandedKeys="treeExpandedKeys"
@@ -32,6 +32,7 @@
         :selectionKeys="selectionKeys"
         @nodeSelect="onNodeSelected"
         selectionMode="single"
+        class="!bg-bg-0"
       >
         <template #default="slotProps">
           <span class="flex gap-2 items-center">
