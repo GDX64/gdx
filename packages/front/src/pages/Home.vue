@@ -295,18 +295,18 @@ const selectedExperienceGroup = computed(() => {
           url="https://archpelagus.glmachado.com"
         ></ProjectPresentation>
         <ProjectPresentation
-          title="Spatial indexing"
-          description="Some approaches to spatial indexing, wich is a technique to optimize searchs in space widly used in games like my own."
-          :tags="['Algorithms', 'Canvas2D', 'Typescript']"
-          :imgURL="quadTreeURL"
-          url="/space-index"
-        ></ProjectPresentation>
-        <ProjectPresentation
           title="Code Base Visualization"
           description="Visualize your codebase with graphs!"
           :tags="['Algorithms', 'Canvas2D', 'Typescript']"
           :imgURL="dataViz"
           url="/data-visualization"
+        ></ProjectPresentation>
+        <ProjectPresentation
+          title="Spatial indexing"
+          description="Some approaches to spatial indexing, wich is a technique to optimize searchs in space widly used in games like my own."
+          :tags="['Algorithms', 'Canvas2D', 'Typescript']"
+          :imgURL="quadTreeURL"
+          url="/space-index"
         ></ProjectPresentation>
         <ProjectPresentation
           title="Wasm Chart"
