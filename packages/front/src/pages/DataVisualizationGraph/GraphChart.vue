@@ -6,7 +6,6 @@
       <div class="flex gap-2">
         <Button @click="makeSelectedTheRoot">Use Selected As Root</Button>
         <Button @click="selectedRoot = null">Use Main As Root</Button>
-        <Button @click="isDrawer = true">Show FileSystem</Button>
       </div>
       <p class="text-lg font-bold">
         <span>Codebase:</span>
@@ -53,19 +52,17 @@
 <script setup lang="ts">
 import * as d3 from 'd3';
 import data from './data.json';
-import { computed, ref, shallowRef, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { MyNode } from './MyGraph';
 import Checkbox from 'primevue/checkbox';
 import vTooltip from 'primevue/tooltip';
 import Button from 'primevue/button';
 import Tree from 'primevue/tree';
 import { TreeNode } from 'primevue/treenode';
-import Drawer from 'primevue/drawer';
 
 const treeValue = ref<TreeNode[]>();
 
 const showAsDAG = ref(true);
-const isDrawer = ref(false);
 
 type RawNodeData = { path: string; children: string[] };
 type NodeData = {
