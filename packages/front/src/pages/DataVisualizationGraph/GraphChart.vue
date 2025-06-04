@@ -1,6 +1,6 @@
 <template>
-  <div class="w-full min-h-screen flex flex-col text-text-prime">
-    <div class="absolute top-0 left-0 right-0 p-4">
+  <div class="min-h-screen flex flex-col text-text-prime w-full">
+    <div class="absolute top-0 left-0 right-0 p-4 w-fit">
       <p class="text-lg font-bold">
         <span>Codebase:</span>
         <a href="https://github.com/GDX64/gdx">https://github.com/GDX64/gdx</a>
@@ -21,7 +21,7 @@
         <Button @click="selectedRoot = null">Use Main As Root</Button>
       </div>
     </div>
-    <div class="bg-prime-50 flex-1" ref="container"></div>
+    <div class="bg-prime-100 flex-1" ref="container"></div>
   </div>
 </template>
 
@@ -197,13 +197,14 @@ function startChart({ width = 928, height = 600 }, uiState: UIState) {
 
   const node = svg
     .append('g')
-    .attr('stroke', '#fff')
-    .attr('stroke-width', 1.5)
+    .attr('stroke', '#000')
+    .attr('stroke-width', 1)
     .selectAll()
     .data(nodes)
     .join('circle')
-    .attr('r', 5)
-    .attr('fill', (d: MyD3Node) => color(d.data.group.toString()));
+    .attr('r', 7)
+    .attr('fill', (d: MyD3Node) => color(d.data.group.toString()))
+    .classed('node-svg-simulation', true);
 
   node.append('title').text((d) => d.id);
 
@@ -244,3 +245,14 @@ function startChart({ width = 928, height = 600 }, uiState: UIState) {
   return { svg, simulation, root };
 }
 </script>
+
+<style>
+.node-svg-simulation {
+  cursor: pointer;
+  transition: fill 0.3s ease;
+}
+.node-svg-simulation:hover {
+  transform-origin: center;
+  fill: #fff; /* Tomato color on hover */
+}
+</style>
