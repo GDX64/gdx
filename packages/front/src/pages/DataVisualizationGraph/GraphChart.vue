@@ -1,32 +1,7 @@
 <template>
-  <div class="min-h-screen flex text-text-prime w-full">
-    <Drawer
-      v-model:visible="isDrawer"
-      header="Filesystem"
-      class="!w-[500px]"
-      position="right"
-    >
-      <Tree
-        :value="treeValue"
-        v-model:expandedKeys="treeExpandedKeys"
-        :filter="true"
-        :selectionKeys="selectionKeys"
-        @nodeSelect="onNodeSelected"
-        selectionMode="single"
-      >
-        <template #default="slotProps">
-          <span class="flex gap-2 items-center">
-            <p class="">
-              {{ slotProps.node.label }}
-            </p>
-            <div
-              class="w-4 h-4 rounded-full"
-              :style="{ background: slotProps.node.data }"
-            ></div>
-          </span>
-        </template>
-      </Tree>
-    </Drawer>
+  <div
+    class="min-h-screen max-h-screen h-screen flex text-text-prime w-full overflow-hidden"
+  >
     <div class="absolute top-0 left-0 right-0 p-4 w-fit">
       <div class="flex gap-2">
         <Button @click="makeSelectedTheRoot">Use Selected As Root</Button>
@@ -49,7 +24,29 @@
       </label>
       <div class="">Selected: {{ currentSelectedNode }}</div>
     </div>
-    <div class="bg-prime-100 flex-1" ref="container"></div>
+    <div class="bg-prime-100 flex-1 h-full" ref="container"></div>
+    <div class="h-full max-h-full overflow-y-scroll">
+      <Tree
+        :value="treeValue"
+        v-model:expandedKeys="treeExpandedKeys"
+        :filter="true"
+        :selectionKeys="selectionKeys"
+        @nodeSelect="onNodeSelected"
+        selectionMode="single"
+      >
+        <template #default="slotProps">
+          <span class="flex gap-2 items-center">
+            <p class="">
+              {{ slotProps.node.label }}
+            </p>
+            <div
+              class="w-4 h-4 rounded-full"
+              :style="{ background: slotProps.node.data }"
+            ></div>
+          </span>
+        </template>
+      </Tree>
+    </div>
   </div>
 </template>
 
@@ -253,9 +250,7 @@ function startChart({ width = 928, height = 600 }, uiState: UIState) {
   // Create the SVG container.
   const svg = d3
     .create('svg')
-    .attr('width', width)
-    .attr('height', height)
-    .attr('viewBox', [0, 0, width, height])
+
     .attr('style', 'max-width: 100%; height: auto;') as any as d3.Selection<
     SVGSVGElement,
     MyD3Node,
@@ -318,6 +313,12 @@ function startChart({ width = 928, height = 600 }, uiState: UIState) {
       .attr('x2', (d) => d.target.x ?? 0)
       .attr('y2', (d) => d.target.y ?? 0);
     node.attr('cx', (d) => d.x ?? 0).attr('cy', (d) => d.y ?? 0);
+
+    const { width, height } = container.value!.getBoundingClientRect();
+    svg
+      .attr('width', width)
+      .attr('height', height)
+      .attr('viewBox', [0, 0, width, height]);
   }
 
   return { svg, simulation, root, nodeSelection: node, ...graphResult };
