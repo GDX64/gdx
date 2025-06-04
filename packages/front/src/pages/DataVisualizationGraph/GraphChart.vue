@@ -1,6 +1,18 @@
 <template>
-  <div class="min-h-screen flex flex-col text-text-prime w-full">
+  <div class="min-h-screen flex text-text-prime w-full">
+    <Drawer v-model:visible="isLeftDrawerVisible" header="Filesystem" class="!w-[500px]">
+      <Tree
+        :value="treeValue"
+        v-model:expandedKeys="treeExpandedKeys"
+        :filter="true"
+      ></Tree>
+    </Drawer>
     <div class="absolute top-0 left-0 right-0 p-4 w-fit">
+      <div class="flex gap-2">
+        <Button @click="makeSelectedTheRoot">Use Selected As Root</Button>
+        <Button @click="selectedRoot = null">Use Main As Root</Button>
+        <Button @click="isLeftDrawerVisible = true">Show FileSystem</Button>
+      </div>
       <p class="text-lg font-bold">
         <span>Codebase:</span>
         <a href="https://github.com/GDX64/gdx">https://github.com/GDX64/gdx</a>
@@ -16,10 +28,6 @@
         ></i>
       </label>
       <div class="">Selected: {{ currentSelectedNode?.id }}</div>
-      <div class="flex gap-2">
-        <Button @click="makeSelectedTheRoot">Use Selected As Root</Button>
-        <Button @click="selectedRoot = null">Use Main As Root</Button>
-      </div>
     </div>
     <div class="bg-prime-100 flex-1" ref="container"></div>
   </div>
@@ -33,8 +41,14 @@ import { MyNode } from './MyGraph';
 import Checkbox from 'primevue/checkbox';
 import vTooltip from 'primevue/tooltip';
 import Button from 'primevue/button';
+import Tree from 'primevue/tree';
+import { TreeNode } from 'primevue/treenode';
+import Drawer from 'primevue/drawer';
+
+const treeValue = ref<TreeNode[]>();
 
 const showAsDAG = ref(true);
+const isLeftDrawerVisible = ref(false);
 
 type RawNodeData = { path: string; children: string[] };
 type NodeData = {
@@ -58,6 +72,7 @@ type UIState = {
 const currentSelectedNode = shallowRef<MyD3Node | null>(null);
 const selectedRoot = ref<null | string>(null);
 const container = ref<HTMLElement | null>(null);
+const treeExpandedKeys = ref<Record<string, boolean>>({});
 
 watch(
   (): UIState => {
@@ -74,7 +89,12 @@ watch(
     }
 
     const { width, height } = container.getBoundingClientRect();
-    const { svg, simulation, root } = startChart({ width, height }, uiState);
+    const { svg, simulation, fileSystemNode, expandedKeys } = startChart(
+      { width, height },
+      uiState
+    );
+    treeValue.value = [fileSystemNode];
+    treeExpandedKeys.value = expandedKeys;
 
     container.appendChild(svg.node()!);
     clear(() => {
@@ -132,15 +152,14 @@ function makeDirectAcyclic(data: RawNodeData[], uiState: UIState) {
   }
 
   let myNode;
+  const mainRoot = makeMyNode(nodes[0]); // Start from the first node
   if (uiState.selectedRoot) {
-    const root = makeMyNode(nodes[0]); // Start from the first node
-    myNode = root.findNodeById(uiState.selectedRoot);
+    myNode = mainRoot.findNodeById(uiState.selectedRoot);
     if (!myNode) {
       throw new Error(`Node with id ${uiState.selectedRoot} not found`);
     }
   } else {
-    const root = makeMyNode(nodes[0]); // Start from the first node
-    myNode = root;
+    myNode = mainRoot;
   }
   if (uiState.showAsDAG) {
     myNode.turnIntoDAG();
@@ -149,12 +168,25 @@ function makeDirectAcyclic(data: RawNodeData[], uiState: UIState) {
   const myLinks = myNode.getLinks() as LinkData[];
   const myNodesArr: MyD3Node[] = [...new Set([...myNode.iter()])];
   const root = myNode;
+  const expandedKeys: Record<string, boolean> = {};
+  function mapeToFileSystemTreeNode(node: MyNode<any>): TreeNode {
+    expandedKeys[node.id] = true; // Mark this node as expanded
+    return {
+      key: node.id,
+      data: node.data,
+      label: node.id.split('/').pop() || node.id,
+      children: node.children.map(mapeToFileSystemTreeNode),
+    };
+  }
 
-  return { nodes: myNodesArr, links: myLinks, root };
+  const fileSystemRoot = MyNode.fromFileSystemArr(data.map((item) => item.path));
+  const fileSystemNode = mapeToFileSystemTreeNode(fileSystemRoot);
+
+  return { nodes: myNodesArr, links: myLinks, root, fileSystemNode, expandedKeys };
 }
 
 function startChart({ width = 928, height = 600 }, uiState: UIState) {
-  const { nodes, links, root } = makeDirectAcyclic(data, uiState);
+  const { nodes, links, root, ...graphResult } = makeDirectAcyclic(data, uiState);
   // Specify the color scale.
   const color = d3.scaleOrdinal(d3.schemeCategory10);
   // const { nodes, links } = exampleData;
@@ -242,7 +274,7 @@ function startChart({ width = 928, height = 600 }, uiState: UIState) {
     node.attr('cx', (d) => d.x ?? 0).attr('cy', (d) => d.y ?? 0);
   }
 
-  return { svg, simulation, root };
+  return { svg, simulation, root, ...graphResult };
 }
 </script>
 

@@ -105,4 +105,36 @@ export class MyNode<T extends { id: string }> {
       yield* child.iter();
     }
   }
+
+  static fromFileSystemArr(files: string[]) {
+    const allFolders = new Set<string>();
+    const nodes = new Map<string, MyNode<{ id: string }>>();
+    const getNode = (id: string) => {
+      const node = nodes.get(id);
+      if (node) {
+        return node;
+      }
+      const newNode = new MyNode({ id }, []);
+      nodes.set(id, newNode);
+      return newNode;
+    };
+
+    for (const file of files) {
+      const paths = file.split('/');
+      for (let i = 0; i < paths.length; i++) {
+        const slice = paths.slice(0, i + 1);
+        const fileOrFolder = slice.join('/');
+        allFolders.add(fileOrFolder);
+        if (!nodes.has(fileOrFolder)) {
+          const node = getNode(fileOrFolder);
+          const parentID = slice.slice(0, -1).join('/');
+          const parentNode = getNode(parentID);
+          parentNode.addChild(node);
+        }
+      }
+    }
+
+    const root = getNode('C:');
+    return root;
+  }
 }
