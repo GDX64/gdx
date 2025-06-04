@@ -28,7 +28,7 @@
 <script setup lang="ts">
 import * as d3 from 'd3';
 import data from './data.json';
-import { onMounted, ref, shallowRef, watch } from 'vue';
+import { ref, shallowRef, watch } from 'vue';
 import { MyNode } from './MyGraph';
 import Checkbox from 'primevue/checkbox';
 import vTooltip from 'primevue/tooltip';
