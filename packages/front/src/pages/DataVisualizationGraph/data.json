@@ -14,6 +14,7 @@
       "C:\\projects\\gdx\\packages\\front\\src\\primeicons\\primeicons.css",
       "C:/projects/gdx/packages/front/src/design/design.ts",
       "C:/projects/gdx/packages/front/src/components/Grid.vue",
+      "C:/projects/gdx/packages/front/src/pages/DataVisualizationGraph/GraphChart.vue",
       "C:/projects/gdx/packages/front/src/pages/CVs/CVGabriel.vue",
       "C:/projects/gdx/packages/front/src/pages/CVs/CVSilvia.vue",
       "C:/projects/gdx/packages/front/src/pages/TippyTest.vue",
@@ -74,10 +75,7 @@
     "path": "C:\\projects\\gdx\\packages\\front\\src\\assets\\arrow-down.svg?component",
     "children": []
   },
-  {
-    "path": "C:/projects/gdx/packages/front/src/components/Button.vue",
-    "children": []
-  },
+  { "path": "C:/projects/gdx/packages/front/src/components/Button.vue", "children": [] },
   {
     "path": "C:/projects/gdx/packages/front/src/components/NavBar.vue",
     "children": [
@@ -98,10 +96,7 @@
       "C:/projects/gdx/packages/front/src/components/BorderContainer.vue"
     ]
   },
-  {
-    "path": "C:/projects/gdx/packages/front/src/components/TagList.vue",
-    "children": []
-  },
+  { "path": "C:/projects/gdx/packages/front/src/components/TagList.vue", "children": [] },
   {
     "path": "C:/projects/gdx/packages/front/src/components/BorderContainer.vue",
     "children": []
@@ -212,14 +207,8 @@
     "children": ["rxjs", "vue"]
   },
   { "path": "rxjs", "children": [] },
-  {
-    "path": "C:/projects/gdx/packages/utils/dist-ts/src/math/Vec2.d.ts",
-    "children": []
-  },
-  {
-    "path": "C:/projects/gdx/packages/utils/dist-ts/src/LinScale.d.ts",
-    "children": []
-  },
+  { "path": "C:/projects/gdx/packages/utils/dist-ts/src/math/Vec2.d.ts", "children": [] },
+  { "path": "C:/projects/gdx/packages/utils/dist-ts/src/LinScale.d.ts", "children": [] },
   {
     "path": "C:/projects/gdx/packages/utils/dist-ts/src/ui-utils.d.ts",
     "children": ["rxjs"]
@@ -250,16 +239,33 @@
   },
   { "path": "tailwindcss", "children": [] },
   { "path": "@primevue/themes", "children": [] },
-  {
-    "path": "C:\\projects\\gdx\\packages\\front\\src\\index.css",
-    "children": []
-  },
+  { "path": "C:\\projects\\gdx\\packages\\front\\src\\index.css", "children": [] },
   {
     "path": "C:\\projects\\gdx\\packages\\front\\src\\primeicons\\primeicons.css",
     "children": []
   },
+  { "path": "C:/projects/gdx/packages/front/src/components/Grid.vue", "children": [] },
   {
-    "path": "C:/projects/gdx/packages/front/src/components/Grid.vue",
+    "path": "C:/projects/gdx/packages/front/src/pages/DataVisualizationGraph/GraphChart.vue",
+    "children": [
+      "@types/d3",
+      "C:/projects/gdx/packages/front/src/pages/DataVisualizationGraph/data.json",
+      "vue",
+      "C:/projects/gdx/packages/front/src/pages/DataVisualizationGraph/MyGraph.ts",
+      "primevue",
+      "primevue",
+      "primevue",
+      "primevue",
+      "primevue"
+    ]
+  },
+  { "path": "@types/d3", "children": [] },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/DataVisualizationGraph/data.json",
+    "children": []
+  },
+  {
+    "path": "C:/projects/gdx/packages/front/src/pages/DataVisualizationGraph/MyGraph.ts",
     "children": []
   },
   {
@@ -383,7 +389,6 @@
       "@types/ramda"
     ]
   },
-  { "path": "@types/d3", "children": [] },
   {
     "path": "C:/projects/gdx/packages/front/src/utils/math.ts",
     "children": ["gl-matrix"]
@@ -401,10 +406,7 @@
       "C:/projects/gdx/packages/rust/pkg/wasm.d.ts"
     ]
   },
-  {
-    "path": "C:/projects/gdx/packages/front/src/benchmarks/toBase64.ts",
-    "children": []
-  },
+  { "path": "C:/projects/gdx/packages/front/src/benchmarks/toBase64.ts", "children": [] },
   { "path": "C:/projects/gdx/packages/rust/pkg/wasm.d.ts", "children": [] },
   {
     "path": "C:/projects/gdx/packages/front/src/pages/WasmChart.vue",
@@ -447,17 +449,13 @@
       "C:/projects/gdx/packages/pixi-vue/src/App.vue"
     ]
   },
-  {
-    "path": "C:\\projects\\gdx\\packages\\pixi-vue\\src\\style.css",
-    "children": []
-  },
+  { "path": "C:\\projects\\gdx\\packages\\pixi-vue\\src\\style.css", "children": [] },
   {
     "path": "C:/projects/gdx/packages/pixi-vue/src/App.vue",
     "children": [
       "C:/projects/gdx/packages/pixi-vue/src/components/RenderWrapper.vue",
       "C:/projects/gdx/packages/pixi-vue/src/components/BarChart.vue",
-      "C:/projects/gdx/packages/pixi-vue/src/components/charts/LineChart.vue",
-      "C:/projects/gdx/packages/pixi-vue/src/components/charts/GraphChart.vue"
+      "C:/projects/gdx/packages/pixi-vue/src/components/charts/LineChart.vue"
     ]
   },
   {
@@ -617,13 +615,6 @@
     ]
   },
   {
-    "path": "C:/projects/gdx/packages/pixi-vue/src/components/charts/GraphChart.vue",
-    "children": [
-      "C:/projects/gdx/packages/pixi-vue/src/renderer/appRenderers.ts",
-      "@types/d3"
-    ]
-  },
-  {
     "path": "C:/projects/gdx/packages/front/src/pages/CanvasGame.vue",
     "children": [
       "vue",
@@ -751,10 +742,7 @@
       "primevue"
     ]
   },
-  {
-    "path": "C:/projects/gdx/packages/utils/src/misc.ts",
-    "children": ["rxjs", "vue"]
-  },
+  { "path": "C:/projects/gdx/packages/utils/src/misc.ts", "children": ["rxjs", "vue"] },
   {
     "path": "C:/projects/gdx/packages/front/src/pages/logview/LogPluginsLoad.ts",
     "children": [
@@ -994,10 +982,7 @@
     "path": "C:/projects/gdx/packages/front/src/pages/spaceIndex/SpatialGridColors.ts",
     "children": []
   },
-  {
-    "path": "C:/projects/gdx/packages/front/src/utils/benchMark.ts",
-    "children": []
-  },
+  { "path": "C:/projects/gdx/packages/front/src/utils/benchMark.ts", "children": [] },
   {
     "path": "C:/projects/gdx/packages/front/src/pages/spaceIndex/QuadTreeIndex.ts",
     "children": [
@@ -1046,10 +1031,7 @@
       "vue"
     ]
   },
-  {
-    "path": "C:/projects/gdx/packages/raytracer/pkg/raytracer.d.ts",
-    "children": []
-  },
+  { "path": "C:/projects/gdx/packages/raytracer/pkg/raytracer.d.ts", "children": [] },
   {
     "path": "C:\\projects\\gdx\\packages\\front\\src\\pages\\SIMDRasterization\\SIMDPost.md",
     "children": []
