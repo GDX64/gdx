@@ -6,6 +6,7 @@ import Experience from '../components/Experience.vue';
 import perfil from '../assets/perfil.jfif?url';
 import ProjectPresentation from '../components/ProjectPresentation.vue';
 import archpelagusURL from '../assets/project_images/archpelagus_print.jpg?url';
+import dataViz from '../assets/project_images/data-visualization.png?url';
 import archpelagusURL2 from '../assets/project_images/boat_render.jpg?url';
 import quadTreeURL from '../assets/project_images/quad_tree.png?url';
 import wasmChart from '../assets/project_images/wasm_chart.png?url';
@@ -299,6 +300,13 @@ const selectedExperienceGroup = computed(() => {
           :tags="['Algorithms', 'Canvas2D', 'Typescript']"
           :imgURL="quadTreeURL"
           url="/space-index"
+        ></ProjectPresentation>
+        <ProjectPresentation
+          title="Code Base Visualization"
+          description="Visualize your codebase with graphs!"
+          :tags="['Algorithms', 'Canvas2D', 'Typescript']"
+          :imgURL="dataViz"
+          url="/data-visualization"
         ></ProjectPresentation>
         <ProjectPresentation
           title="Wasm Chart"
