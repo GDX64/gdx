@@ -10,7 +10,22 @@
         :value="treeValue"
         v-model:expandedKeys="treeExpandedKeys"
         :filter="true"
-      ></Tree>
+        :selectionKeys="selectionKeys"
+        @nodeSelect="onNodeSelected"
+        selectionMode="single"
+      >
+        <template #default="slotProps">
+          <span class="flex gap-2 items-center">
+            <p class="">
+              {{ slotProps.node.label }}
+            </p>
+            <div
+              class="w-4 h-4 rounded-full"
+              :style="{ background: slotProps.node.data }"
+            ></div>
+          </span>
+        </template>
+      </Tree>
     </Drawer>
     <div class="absolute top-0 left-0 right-0 p-4 w-fit">
       <div class="flex gap-2">
@@ -32,7 +47,7 @@
           "
         ></i>
       </label>
-      <div class="">Selected: {{ currentSelectedNode?.id }}</div>
+      <div class="">Selected: {{ currentSelectedNode }}</div>
     </div>
     <div class="bg-prime-100 flex-1" ref="container"></div>
   </div>
@@ -41,7 +56,7 @@
 <script setup lang="ts">
 import * as d3 from 'd3';
 import data from './data.json';
-import { ref, shallowRef, watch } from 'vue';
+import { computed, ref, shallowRef, watch } from 'vue';
 import { MyNode } from './MyGraph';
 import Checkbox from 'primevue/checkbox';
 import vTooltip from 'primevue/tooltip';
@@ -59,7 +74,7 @@ type RawNodeData = { path: string; children: string[] };
 type NodeData = {
   id: string;
   children: string[];
-  group: number;
+  group: string;
 };
 type LinkData = {
   source: MyD3Node;
@@ -74,10 +89,30 @@ type UIState = {
   selectedRoot: null | string;
 };
 
-const currentSelectedNode = shallowRef<MyD3Node | null>(null);
+const currentSelectedNode = ref<string | null>(null);
 const selectedRoot = ref<null | string>(null);
 const container = ref<HTMLElement | null>(null);
 const treeExpandedKeys = ref<Record<string, boolean>>({});
+const color = d3.scaleOrdinal(d3.schemeCategory10);
+let d3NodeSelection: d3.Selection<
+  SVGCircleElement | null,
+  MyD3Node,
+  SVGGElement,
+  MyD3Node
+>;
+
+const selectionKeys = computed(() => {
+  if (!currentSelectedNode.value) {
+    return {};
+  }
+  return { [currentSelectedNode.value]: true };
+});
+
+function onNodeSelected(node: TreeNode) {
+  console.log('Node selected:', node);
+  currentSelectedNode.value = node.key;
+  d3NodeSelection.attr('fill', fillFunction);
+}
 
 watch(
   (): UIState => {
@@ -94,12 +129,13 @@ watch(
     }
 
     const { width, height } = container.getBoundingClientRect();
-    const { svg, simulation, fileSystemNode, expandedKeys } = startChart(
+    const { svg, simulation, fileSystemNode, expandedKeys, nodeSelection } = startChart(
       { width, height },
       uiState
     );
     treeValue.value = [fileSystemNode];
     treeExpandedKeys.value = expandedKeys;
+    d3NodeSelection = nodeSelection;
 
     container.appendChild(svg.node()!);
     clear(() => {
@@ -111,7 +147,7 @@ watch(
 
 function makeSelectedTheRoot() {
   if (currentSelectedNode.value) {
-    selectedRoot.value = currentSelectedNode.value.id;
+    selectedRoot.value = currentSelectedNode.value;
   }
 }
 
@@ -125,17 +161,21 @@ function makeDirectAcyclic(data: RawNodeData[], uiState: UIState) {
     return {
       id: data.path,
       children: data.children,
-      group: 0,
+      group: '#ffffff',
     };
   });
+
+  function folderColor(path: string): string {
+    const folder = nodeFolder(path);
+    const currentCount = allFolders.get(folder) ?? allFolders.size;
+    allFolders.set(folder, currentCount);
+    return color(currentCount.toString());
+  }
 
   const nodeMap = new Map<string, NodeData>();
   nodes.forEach((node) => {
     nodeMap.set(node.id, node);
-    const folder = nodeFolder(node.id);
-    const currentCount = allFolders.get(folder) ?? allFolders.size;
-    allFolders.set(folder, currentCount);
-    node.group = currentCount;
+    node.group = folderColor(node.id);
   });
 
   const myNodesMap = new Map<string, MyNode<NodeData>>();
@@ -178,7 +218,7 @@ function makeDirectAcyclic(data: RawNodeData[], uiState: UIState) {
     expandedKeys[node.id] = true; // Mark this node as expanded
     return {
       key: node.id,
-      data: node.data,
+      data: folderColor(node.id),
       label: node.id.split('/').pop() || node.id,
       children: node.children.map(mapeToFileSystemTreeNode),
     };
@@ -193,7 +233,7 @@ function makeDirectAcyclic(data: RawNodeData[], uiState: UIState) {
 function startChart({ width = 928, height = 600 }, uiState: UIState) {
   const { nodes, links, root, ...graphResult } = makeDirectAcyclic(data, uiState);
   // Specify the color scale.
-  const color = d3.scaleOrdinal(d3.schemeCategory10);
+
   // const { nodes, links } = exampleData;
   // Create a simulation with several forces.
   const simulation = d3
@@ -240,13 +280,14 @@ function startChart({ width = 928, height = 600 }, uiState: UIState) {
     .data(nodes)
     .join('circle')
     .attr('r', 7)
-    .attr('fill', (d: MyD3Node) => color(d.data.group.toString()))
+    .attr('fill', fillFunction)
     .classed('node-svg-simulation', true);
 
   node.append('title').text((d) => d.id);
 
   node.on('click', (event, d) => {
-    currentSelectedNode.value = d;
+    currentSelectedNode.value = d.id;
+    node.attr('fill', fillFunction);
   });
 
   // Add a drag behavior.
@@ -279,7 +320,15 @@ function startChart({ width = 928, height = 600 }, uiState: UIState) {
     node.attr('cx', (d) => d.x ?? 0).attr('cy', (d) => d.y ?? 0);
   }
 
-  return { svg, simulation, root, ...graphResult };
+  return { svg, simulation, root, nodeSelection: node, ...graphResult };
+}
+
+function fillFunction(d: MyD3Node) {
+  const isSelected = currentSelectedNode.value === d.id;
+  if (isSelected) {
+    return '#ffffff';
+  }
+  return color(d.data.group.toString());
 }
 </script>
 
