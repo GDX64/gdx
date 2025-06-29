@@ -61,7 +61,7 @@ const glmachadoCVData: CVData = {
       title: 'Experiences',
       fields: [
         {
-          title: 'Nelogica - Software Development Lead',
+          title: 'Nelogica - Software Development Lead III',
           description: `
           Nelogica is the biggest trading software company in Brazil, and has several trading platforms. 
           I came to the company I to work as a web developer in the homebrokers, 
@@ -76,7 +76,7 @@ const glmachadoCVData: CVData = {
         },
         {
           title: 'Nelogica - Software Developer IV',
-          schoolPlaceDate: 'Porto Alegre - RS, BR. 2023-(Now)',
+          schoolPlaceDate: 'Porto Alegre - RS, BR. 2024',
         },
         {
           title: 'Nelogica - Software Developer III',

@@ -39,17 +39,24 @@ const glmachadoCVData: CVData = {
       title: 'Experiências',
       fields: [
         {
+          title: 'Farmacêutica do Centro Cirúrgico',
+          description: `
+           Participação em reuniões do MAPA cirúrgico, gestão dos auxiliares de farmácia e estagiários, gerenciamento do estoque, montagem de kits cirúrgicos. Experiência com Tasy.
+          `,
+          schoolPlaceDate: 'Hospital Ernesto Dornelles - Porto Alegre, 2025-Presente',
+        },
+        {
           title: 'Residência em Atenção ao Paciente Crítico',
           description: `
             Atuação nos seguintes setores do Hospital Nossa Senhora da Conceição: Unidade de Terapia Intensiva (UTI) adulto, Emergência, Comissão de Medicamentos (COMEDI), Programa de Atenção Domiciliar (PAD), Comissão de Controle de Infecção Hospitalar (CCIH), Centro de Onco-Hematologia e Cuidados Paliativos; Atuação na UTI do Hospital Cristo Redentor.
  Avaliação de prescrições médicas de pacientes; Participação em rounds multiprofissionais; Atualização da tabela de compatibilidade para administração de medicamentos em Y; Validação de medicamentos próprios do paciente. Experiência com Micromedex IV Compatibility®, Lexicomp®, UpToDate®, VancoCalc®.
           `,
-          schoolPlaceDate: 'GHC - Porto Alegre, 2023-Presente',
+          schoolPlaceDate: 'GHC - Porto Alegre, 2023-2025',
         },
         {
           title: 'Estágio em Farmácia Satélite da UTI',
-          description: `Cargo: Estagiária curricular na farmácia da UTI, e breve passagem pelas farmácias do bloco cirúrgico e emergência.
-           Farmácia clínica; Participação em rounds multiprofissionais; Acompanhamento da dispensação de medicamentos e materiais e montagem de lotes; Acompanhamento da elaboração da escala dos auxiliares de farmácia e ajuste do ponto. Experiência com NoHarm.ai e Tasy®.
+          description: `Cargo: Estagiária curricular na farmácia da UTI.
+           Farmácia clínica; Participação em rounds multiprofissionais; Acompanhamento da dispensação de medicamentos e materiais e montagem de lotes; Experiência com NoHarm.ai e Tasy.
           `,
           schoolPlaceDate: 'Hospital Ernesto Dornelles - Porto Alegre, 2024',
         },
@@ -57,7 +64,7 @@ const glmachadoCVData: CVData = {
           title: 'Estágio em Farmácia Satélite da UTI',
           description: `Farmácia clínica no Centro de Terapia Intensiva e Unidades de Internação. Validação e conciliação de medicamentos. 
           Experiência com NoHarm.ai e Soul MV®.`,
-          schoolPlaceDate: 'Hospital Mãe de Deus - Porto Alegre, Presente',
+          schoolPlaceDate: 'Hospital Mãe de Deus - Porto Alegre, 2025',
         },
         {
           title: 'Farmacêutica Hospitalar',

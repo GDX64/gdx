@@ -10,4 +10,6 @@ import { provideCV } from '../../components/CV/CVStore';
 import cvData from '../../components/CV/silviaCVData';
 
 provideCV(cvData);
+
+document.title = 'CV Silvia';
 </script>
