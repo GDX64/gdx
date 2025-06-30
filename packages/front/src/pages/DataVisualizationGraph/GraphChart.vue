@@ -35,7 +35,7 @@
         class="!bg-bg-0"
       >
         <template #default="slotProps">
-          <span class="flex gap-2 items-center">
+          <span class="flex gap-2 items-center" :id="`fs_${slotProps.node.key}`">
             <p class="">
               {{ slotProps.node.label }}
             </p>
@@ -53,17 +53,20 @@
 <script setup lang="ts">
 import * as d3 from 'd3';
 import data from './data.json';
-import { computed, ref, watch } from 'vue';
+import { computed, onUnmounted, ref, watch } from 'vue';
 import { MyNode } from './MyGraph';
 import Checkbox from 'primevue/checkbox';
 import vTooltip from 'primevue/tooltip';
 import Button from 'primevue/button';
 import Tree from 'primevue/tree';
 import { TreeNode } from 'primevue/treenode';
+import { Subject } from 'rxjs';
+import { useObservable } from '../../../../utils/src/misc';
 
 const treeValue = ref<TreeNode[]>();
 
 const showAsDAG = ref(true);
+const nodeClicked$ = new Subject<string>();
 
 type RawNodeData = { path: string; children: string[] };
 type NodeData = {
@@ -85,6 +88,14 @@ type UIState = {
 };
 
 const currentSelectedNode = ref<string | null>(null);
+useObservable(nodeClicked$, (id) => {
+  currentSelectedNode.value = id;
+  const fsElement = document.getElementById(`fs_${id}`);
+  fsElement?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'center',
+  });
+});
 const selectedRoot = ref<null | string>(null);
 const container = ref<HTMLElement | null>(null);
 const treeExpandedKeys = ref<Record<string, boolean>>({});
@@ -286,8 +297,8 @@ function startChart({ width = 928, height = 600 }, uiState: UIState) {
   node.append('title').text((d) => d.id);
 
   node.on('click', (event, d) => {
-    currentSelectedNode.value = d.id;
     node.attr('fill', fillFunction);
+    nodeClicked$.next(d.id);
   });
 
   // Add a drag behavior.
