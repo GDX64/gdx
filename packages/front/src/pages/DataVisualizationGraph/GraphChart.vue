@@ -239,7 +239,7 @@ function makeDirectAcyclic(data: RawNodeData[], uiState: UIState) {
   }
 
   const fileSystemRoot = MyNode.fromFileSystemArr(data.map((item) => item.path));
-  const fileSystemNode = mapeToFileSystemTreeNode(fileSystemRoot);
+  const fileSystemNode = mapeToFileSystemTreeNode(fileSystemRoot!);
 
   return { nodes: myNodesArr, links: myLinks, root, fileSystemNode, expandedKeys };
 }

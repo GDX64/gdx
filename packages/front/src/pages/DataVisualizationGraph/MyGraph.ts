@@ -135,6 +135,17 @@ export class MyNode<T extends { id: string }> {
     }
 
     const root = getNode('C:');
-    return root;
+    function firstFolderWithMoreThanOneChild(
+      node: MyNode<{ id: string }>
+    ): MyNode<{ id: string }> | null {
+      if (!node.children.length) {
+        return null;
+      }
+      if (node.children.length > 1) {
+        return node;
+      }
+      return firstFolderWithMoreThanOneChild(node.children.at(0)!);
+    }
+    return firstFolderWithMoreThanOneChild(root);
   }
 }
