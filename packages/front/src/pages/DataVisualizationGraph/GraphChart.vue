@@ -52,8 +52,8 @@
 
 <script setup lang="ts">
 import * as d3 from 'd3';
-import data from './data.json';
-import { computed, onUnmounted, ref, watch } from 'vue';
+import rawData from './data.json';
+import { computed, ref, watch } from 'vue';
 import { MyNode } from './MyGraph';
 import Checkbox from 'primevue/checkbox';
 import vTooltip from 'primevue/tooltip';
@@ -64,6 +64,7 @@ import { Subject } from 'rxjs';
 import { useObservable } from '../../../../utils/src/misc';
 
 const treeValue = ref<TreeNode[]>();
+const data = adjustPathBars();
 
 const showAsDAG = ref(true);
 const nodeClicked$ = new Subject<string>();
@@ -346,6 +347,18 @@ function fillFunction(d: MyD3Node) {
     return '#ffffff';
   }
   return d.data.group;
+}
+
+function adjustPathBars() {
+  function replaceBars(path: string) {
+    return path.replaceAll('\\', '/');
+  }
+  return rawData.map(({ children, path }) => {
+    return {
+      path: replaceBars(path),
+      children: children.map((item) => replaceBars(item)),
+    };
+  });
 }
 </script>
 
