@@ -41,7 +41,7 @@
             </p>
             <div
               class="w-4 h-4 rounded-full"
-              :style="{ background: slotProps.node.data }"
+              :style="{ background: slotProps.node.data.folder }"
             ></div>
           </span>
         </template>
@@ -161,10 +161,17 @@ function makeDirectAcyclic(data: RawNodeData[], uiState: UIState) {
   });
 
   function folderColor(path: string): string {
-    const folder = nodeFolder(path);
+    const isFile = path.includes('.');
+    let folder;
+    if (isFile) {
+      folder = nodeFolder(path);
+    } else {
+      folder = path;
+    }
     const currentCount = allFolders.get(folder) ?? allFolders.size;
     allFolders.set(folder, currentCount);
-    return color(currentCount.toString());
+    const finalColor = color(currentCount.toString());
+    return finalColor;
   }
 
   const nodeMap = new Map<string, NodeData>();
@@ -213,7 +220,7 @@ function makeDirectAcyclic(data: RawNodeData[], uiState: UIState) {
     expandedKeys[node.id] = true; // Mark this node as expanded
     return {
       key: node.id,
-      data: folderColor(node.id),
+      data: { folder: folderColor(node.id) },
       label: node.id.split('/').pop() || node.id,
       children: node.children.map(mapeToFileSystemTreeNode),
     };
@@ -327,7 +334,7 @@ function fillFunction(d: MyD3Node) {
   if (isSelected) {
     return '#ffffff';
   }
-  return color(d.data.group.toString());
+  return d.data.group;
 }
 </script>
 
