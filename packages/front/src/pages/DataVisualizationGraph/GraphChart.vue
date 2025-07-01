@@ -89,6 +89,7 @@ type UIState = {
 };
 
 const currentSelectedNode = ref<string | null>(null);
+
 useObservable(nodeClicked$, (id) => {
   currentSelectedNode.value = id;
   const fsElement = document.getElementById(`fs_${id}`);
@@ -302,6 +303,15 @@ function startChart({ width = 928, height = 600 }, uiState: UIState) {
     nodeClicked$.next(d.id);
   });
 
+  // Add hover events
+  node.on('mouseover', (event, d) => {
+    d3.select(event.currentTarget).transition().duration(150).attr('r', 14); // Example: scale up radius on hover
+  });
+
+  node.on('mouseout', (event, d) => {
+    d3.select(event.currentTarget).transition().duration(150).attr('r', 7); // Reset radius
+  });
+
   // Add a drag behavior.
   const d3Drag = d3
     .drag()
@@ -368,7 +378,6 @@ function adjustPathBars() {
   transition: fill 0.3s ease;
 }
 .node-svg-simulation:hover {
-  transform-origin: center;
-  fill: #fff; /* Tomato color on hover */
+  fill: #fff;
 }
 </style>
