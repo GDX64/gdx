@@ -53,7 +53,7 @@
 <script setup lang="ts">
 import * as d3 from 'd3';
 import rawData from './data.json';
-import { computed, ref, watch } from 'vue';
+import { computed, ref, watch, watchEffect } from 'vue';
 import { MyNode } from './MyGraph';
 import Checkbox from 'primevue/checkbox';
 import vTooltip from 'primevue/tooltip';
@@ -121,6 +121,14 @@ function onNodeSelected(node: TreeNode) {
   currentSelectedNode.value = node.key;
   d3NodeSelection.attr('fill', fillFunction);
 }
+
+watchEffect((clear) => {
+  const node = d3.select(`[data-id="${currentSelectedNode.value}"]`);
+  node?.transition().attr('r', 14);
+  clear(() => {
+    node?.transition().attr('r', 7);
+  });
+});
 
 watch(
   (): UIState => {
@@ -297,6 +305,7 @@ function startChart({ width = 928, height = 600 }, uiState: UIState) {
     .join('circle')
     .attr('r', 7)
     .attr('fill', fillFunction)
+    .attr('data-id', (d) => d.id)
     .classed('node-svg-simulation', true);
 
   // Add zoom behavior
