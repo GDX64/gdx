@@ -276,8 +276,11 @@ function startChart({ width = 928, height = 600 }, uiState: UIState) {
     undefined
   >;
 
+  // Add a group for zoom/pan
+  const zoomGroup = svg.append('g').attr('class', 'zoom-group');
+
   // Add a line for each link, and a circle for each node.
-  const link = svg
+  const link = zoomGroup
     .append('g')
     .attr('stroke', '#999')
     .attr('stroke-opacity', 0.6)
@@ -285,7 +288,7 @@ function startChart({ width = 928, height = 600 }, uiState: UIState) {
     .data(links)
     .join('line');
 
-  const node = svg
+  const node = zoomGroup
     .append('g')
     .attr('stroke', '#000')
     .attr('stroke-width', 1)
@@ -295,6 +298,16 @@ function startChart({ width = 928, height = 600 }, uiState: UIState) {
     .attr('r', 7)
     .attr('fill', fillFunction)
     .classed('node-svg-simulation', true);
+
+  // Add zoom behavior
+  svg.call(
+    d3
+      .zoom<SVGSVGElement, unknown>()
+      .scaleExtent([0.5, 3]) // min/max zoom
+      .on('zoom', (event) => {
+        zoomGroup.attr('transform', event.transform);
+      }) as any
+  );
 
   node.append('title').text((d) => d.id);
 
