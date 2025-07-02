@@ -1,8 +1,31 @@
 <template>
   <div
-    class="min-h-screen max-h-screen h-screen flex text-text-prime w-full overflow-hidden"
+    class="min-h-screen max-h-screen h-screen flex text-text-prime w-full overflow-hidden chart-container"
   >
-    <div class="absolute top-0 left-0 right-0 p-4 w-fit">
+    <div class="h-full max-h-full overflow-scroll !bg-bg-0 w-[300px]">
+      <Tree
+        :value="treeValue"
+        v-model:expandedKeys="treeExpandedKeys"
+        :filter="true"
+        :selectionKeys="selectionKeys"
+        @nodeSelect="onNodeSelected"
+        selectionMode="single"
+        class="!bg-bg-0"
+      >
+        <template #default="slotProps">
+          <span class="flex gap-2 items-center" :id="`fs_${slotProps.node.key}`">
+            <p class="">
+              {{ slotProps.node.label }}
+            </p>
+            <div
+              class="w-4 h-4 rounded-full aspect-square"
+              :style="{ background: slotProps.node.data.folder }"
+            ></div>
+          </span>
+        </template>
+      </Tree>
+    </div>
+    <div class="absolute top-0 right-0 p-4 w-fit flex flex-col items-end">
       <div class="flex gap-2">
         <Button @click="makeSelectedTheRoot">Use Selected As Root</Button>
         <Button @click="selectedRoot = null">Use Main As Root</Button>
@@ -21,36 +44,12 @@
           "
         ></i>
       </label>
-      <div class="">Selected: {{ currentSelectedNode }}</div>
     </div>
     <div
       class="bg-prime-100 flex-1 h-full"
       ref="container"
       @click="onContainerClick"
     ></div>
-    <div class="h-full max-h-full overflow-scroll !bg-bg-0 w-[400px]">
-      <Tree
-        :value="treeValue"
-        v-model:expandedKeys="treeExpandedKeys"
-        :filter="true"
-        :selectionKeys="selectionKeys"
-        @nodeSelect="onNodeSelected"
-        selectionMode="single"
-        class="!bg-bg-0"
-      >
-        <template #default="slotProps">
-          <span class="flex gap-2 items-center" :id="`fs_${slotProps.node.key}`">
-            <p class="">
-              {{ slotProps.node.label }}
-            </p>
-            <div
-              class="w-4 h-4 rounded-full"
-              :style="{ background: slotProps.node.data.folder }"
-            ></div>
-          </span>
-        </template>
-      </Tree>
-    </div>
   </div>
 </template>
 
@@ -379,7 +378,6 @@ function startChart({ width = 928, height = 600 }, uiState: UIState) {
 
   node.on('pointerup', (event, d) => {
     nodeClicked$.next(d.id);
-    event.stopPropagation();
   });
   node.on('click', (event, d) => {
     event.stopPropagation();
@@ -477,5 +475,10 @@ function adjustPathBars() {
 .node-svg-simulation {
   cursor: pointer;
   transition: fill 0.3s ease;
+}
+
+.chart-container {
+  --p-tree-node-toggle-button-size: min-content;
+  --p-tree-indent: 0.5rem;
 }
 </style>
