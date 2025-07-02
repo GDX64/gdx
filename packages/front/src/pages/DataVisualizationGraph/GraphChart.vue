@@ -23,7 +23,11 @@
       </label>
       <div class="">Selected: {{ currentSelectedNode }}</div>
     </div>
-    <div class="bg-prime-100 flex-1 h-full" ref="container"></div>
+    <div
+      class="bg-prime-100 flex-1 h-full"
+      ref="container"
+      @click="onContainerClick"
+    ></div>
     <div class="h-full max-h-full overflow-scroll !bg-bg-0 w-[400px]">
       <Tree
         :value="treeValue"
@@ -53,7 +57,7 @@
 <script setup lang="ts">
 import * as d3 from 'd3';
 import rawData from './data.json';
-import { computed, ref, watch, watchEffect } from 'vue';
+import { computed, ref, shallowRef, watch, watchEffect } from 'vue';
 import { MyNode } from './MyGraph';
 import Checkbox from 'primevue/checkbox';
 import vTooltip from 'primevue/tooltip';
@@ -98,6 +102,9 @@ useObservable(nodeClicked$, (id) => {
     block: 'center',
   });
 });
+
+const allNodes = shallowRef(new Map<string, MyNode<NodeData>>());
+const hoveredNode = ref<null | string>(null);
 const selectedRoot = ref<null | string>(null);
 const container = ref<HTMLElement | null>(null);
 const treeExpandedKeys = ref<Record<string, boolean>>({});
@@ -108,6 +115,7 @@ let d3NodeSelection: d3.Selection<
   SVGGElement,
   MyD3Node
 >;
+let d3LinkSelection: d3.Selection<SVGLineElement | null, LinkData, SVGGElement, MyD3Node>;
 
 const selectionKeys = computed(() => {
   if (!currentSelectedNode.value) {
@@ -117,18 +125,54 @@ const selectionKeys = computed(() => {
 });
 
 function onNodeSelected(node: TreeNode) {
-  console.log('Node selected:', node);
   currentSelectedNode.value = node.key;
-  d3NodeSelection.attr('fill', fillFunction);
 }
 
-watchEffect((clear) => {
-  const node = d3.select(`[data-id="${currentSelectedNode.value}"]`);
-  node?.transition().attr('r', 14);
-  clear(() => {
-    node?.transition().attr('r', 7);
-  });
+function onContainerClick() {
+  currentSelectedNode.value = null;
+}
+
+const currentParents = computed(() => {
+  if (!currentSelectedNode.value) {
+    return;
+  }
+  const parents = allNodes.value.get(currentSelectedNode.value)?.allParents();
+  if (!parents || parents.length === 0) {
+    return;
+  }
+  return new Set(parents.map((p) => p.id));
 });
+
+watch(
+  () => [currentSelectedNode.value, currentParents.value, hoveredNode.value],
+  () => {
+    d3LinkSelection
+      .transition()
+      .duration(300)
+      .attr('stroke', (d) => {
+        const isParentLink = currentParents.value?.has(d.target.id);
+        const isSelctedLink = currentSelectedNode.value === d.target.id;
+        if (isParentLink || isSelctedLink) {
+          return '#000';
+        }
+        return '#999';
+      })
+      .attr('stroke-width', (d) => {
+        const isParentLink = currentParents.value?.has(d.target.id);
+        const isSelctedLink = currentSelectedNode.value === d.target.id;
+        if (isParentLink || isSelctedLink) {
+          return 2;
+        }
+        return 1;
+      });
+
+    d3NodeSelection
+      .transition()
+      .duration(300)
+      .attr('fill', fillFunction)
+      .attr('r', radiusFunction);
+  }
+);
 
 watch(
   (): UIState => {
@@ -145,13 +189,20 @@ watch(
     }
 
     const { width, height } = container.getBoundingClientRect();
-    const { svg, simulation, fileSystemNode, expandedKeys, nodeSelection } = startChart(
-      { width, height },
-      uiState
-    );
+    const {
+      svg,
+      simulation,
+      link,
+      fileSystemNode,
+      expandedKeys,
+      nodeSelection,
+      myNodesMap,
+    } = startChart({ width, height }, uiState);
+    allNodes.value = myNodesMap;
     treeValue.value = [fileSystemNode];
     treeExpandedKeys.value = expandedKeys;
     d3NodeSelection = nodeSelection;
+    d3LinkSelection = link;
 
     container.appendChild(svg.node()!);
     clear(() => {
@@ -250,7 +301,14 @@ function makeDirectAcyclic(data: RawNodeData[], uiState: UIState) {
   const fileSystemRoot = MyNode.fromFileSystemArr(data.map((item) => item.path));
   const fileSystemNode = mapeToFileSystemTreeNode(fileSystemRoot!);
 
-  return { nodes: myNodesArr, links: myLinks, root, fileSystemNode, expandedKeys };
+  return {
+    nodes: myNodesArr,
+    links: myLinks,
+    root,
+    fileSystemNode,
+    expandedKeys,
+    myNodesMap,
+  };
 }
 
 function startChart({ width = 928, height = 600 }, uiState: UIState) {
@@ -291,7 +349,6 @@ function startChart({ width = 928, height = 600 }, uiState: UIState) {
   const link = zoomGroup
     .append('g')
     .attr('stroke', '#999')
-    .attr('stroke-opacity', 0.6)
     .selectAll()
     .data(links)
     .join('line');
@@ -303,7 +360,7 @@ function startChart({ width = 928, height = 600 }, uiState: UIState) {
     .selectAll()
     .data(nodes)
     .join('circle')
-    .attr('r', 7)
+    .attr('r', radiusFunction)
     .attr('fill', fillFunction)
     .attr('data-id', (d) => d.id)
     .classed('node-svg-simulation', true);
@@ -320,18 +377,21 @@ function startChart({ width = 928, height = 600 }, uiState: UIState) {
 
   node.append('title').text((d) => d.id);
 
-  node.on('click', (event, d) => {
-    node.attr('fill', fillFunction);
+  node.on('pointerup', (event, d) => {
     nodeClicked$.next(d.id);
+    event.stopPropagation();
+  });
+  node.on('click', (event, d) => {
+    event.stopPropagation();
   });
 
   // Add hover events
   node.on('mouseover', (event, d) => {
-    d3.select(event.currentTarget).transition().duration(150).attr('r', 14); // Example: scale up radius on hover
+    hoveredNode.value = d.id;
   });
 
   node.on('mouseout', (event, d) => {
-    d3.select(event.currentTarget).transition().duration(150).attr('r', 7); // Reset radius
+    hoveredNode.value = null;
   });
 
   // Add a drag behavior.
@@ -370,7 +430,7 @@ function startChart({ width = 928, height = 600 }, uiState: UIState) {
       .attr('viewBox', [0, 0, width, height]);
   }
 
-  return { svg, simulation, root, nodeSelection: node, ...graphResult };
+  return { svg, simulation, root, nodeSelection: node, link, ...graphResult };
 }
 
 function fillFunction(d: MyD3Node) {
@@ -378,7 +438,26 @@ function fillFunction(d: MyD3Node) {
   if (isSelected) {
     return '#ffffff';
   }
-  return d.data.group;
+  if (currentParents.value) {
+    const isAParent = currentParents.value?.has(d.id);
+    if (isAParent) {
+      return d.data.group; // Use the group color for other nodes
+    }
+    return `#ffffff22`;
+  }
+  return d.data.group; // Use the group color for other nodes
+}
+
+function radiusFunction(d: MyD3Node) {
+  const isSelected = currentSelectedNode.value === d.id;
+  if (isSelected || hoveredNode.value === d.id) {
+    return 14; // Larger radius for selected nodes
+  }
+  const isAParent = currentParents.value?.has(d.id);
+  if (isAParent) {
+    return 9; // Slightly larger radius for parent nodes
+  }
+  return 7; // Default radius for other nodes
 }
 
 function adjustPathBars() {
@@ -398,8 +477,5 @@ function adjustPathBars() {
 .node-svg-simulation {
   cursor: pointer;
   transition: fill 0.3s ease;
-}
-.node-svg-simulation:hover {
-  fill: #fff;
 }
 </style>

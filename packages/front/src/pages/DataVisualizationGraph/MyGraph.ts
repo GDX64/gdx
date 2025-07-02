@@ -1,9 +1,17 @@
 export class MyNode<T extends { id: string }> {
+  parents: MyNode<T>[] = [];
   constructor(public data: T, public children: MyNode<T>[]) {}
 
   addChild(child: MyNode<T>): void {
     if (this.children.every((c) => c.id !== child.id)) {
       this.children.push(child);
+      child.addParent(this);
+    }
+  }
+
+  private addParent(parent: MyNode<T>): void {
+    if (this.parents.every((p) => p.id !== parent.id)) {
+      this.parents.push(parent);
     }
   }
 
@@ -103,6 +111,21 @@ export class MyNode<T extends { id: string }> {
     yield this;
     for (const child of this.children) {
       yield* child.iter();
+    }
+  }
+
+  allParents(): MyNode<T>[] {
+    const allParents = new Map<string, MyNode<T>>();
+    for (const parent of this.iterParents()) {
+      allParents.set(parent.id, parent);
+    }
+    return [...allParents.values()];
+  }
+
+  *iterParents(): Generator<MyNode<T>> {
+    for (const parent of this.parents) {
+      yield parent;
+      yield* parent.iterParents();
     }
   }
 
