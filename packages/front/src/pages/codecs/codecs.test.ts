@@ -17,7 +17,9 @@ describe('Codecs', () => {
       .add('arrOfCodecs', arrOfCodecs)
       .add('arrOfOptionals', new ArraySerializable(new OptionalSerializable(Int)));
 
-    const encoderFn = codec.createEncoderFunction();
+    const encodeFn = codec.generateEncoderCode();
+    console.log(encodeFn);
+
     const objectToEncode = {
       foo: 42,
       optionalPresent: 99,
@@ -32,14 +34,7 @@ describe('Codecs', () => {
       arrOfCodecs: [{ hello: 100 }, { hello: 200 }],
       arrOfOptionals: [1, undefined, 3, undefined, 5],
     };
-    const encoder = CodecBuilder.createEncoder();
-    encoderFn(encoder, objectToEncode);
-    const buffer = encoder.getBuffer();
-    console.log('Encoded Buffer:', buffer);
-    const decoderFn = codec.createDecoderFunction();
-    const decoder = CodecBuilder.createDecoder(buffer);
-    const decodedObject = decoderFn(decoder);
-    expect(decodedObject).toEqual(objectToEncode);
+    expect(codec.test(objectToEncode)).toEqual(objectToEncode);
   });
 });
 
@@ -54,6 +49,11 @@ class CodecBuilder implements Serializable {
 
   static createDecoder(buffer: number[]) {
     return new Decoder(buffer);
+  }
+
+  test(obj: any) {
+    const encoded = this.createEncoderFunction()(CodecBuilder.createEncoder(), obj);
+    return this.createDecoderFunction()(CodecBuilder.createDecoder(encoded.getBuffer()));
   }
 
   createEncoderFunction() {
@@ -75,6 +75,7 @@ class CodecBuilder implements Serializable {
     this.fields.map((field) => {
       lines.push(`${field.serializable.encoder(`obj.${field.name}`)};`);
     });
+    lines.push(`return encoder;`);
     lines.push(`}`);
     return lines.join('\n');
   }
@@ -122,12 +123,13 @@ class ArraySerializable implements Serializable {
   constructor(private itemSerializable: Serializable) {}
 
   encoder(what: string) {
-    return `(()=>{encoder.int(${what}.length);
+    return `{
+      encoder.int(${what}.length);
       const arr = ${what};
       arr.forEach((item)=>{
         ${this.itemSerializable.encoder('item')};
       })
-    })()`;
+    }`;
   }
 
   decoder(): string {
@@ -144,13 +146,13 @@ class ArraySerializable implements Serializable {
 
 class StringSerializable implements Serializable {
   encoder(what: string) {
-    return `(()=>{
+    return `{
       const str = ${what}; 
       encoder.int(str.length);
       for(let i=0; i<str.length; i++){
         encoder.int(str.charCodeAt(i));
       }
-    })()`;
+    }`;
   }
 
   decoder(): string {
@@ -168,13 +170,13 @@ class StringSerializable implements Serializable {
 class OptionalSerializable implements Serializable {
   constructor(private itemSerializable: Serializable) {}
   encoder(what: string) {
-    return `(()=>{
+    return `{
       const hasValue = ${what} != null;
       encoder.int(hasValue ? 1 : 0);
       if(hasValue){
         ${this.itemSerializable.encoder(what)};
       }
-    })()
+    };
     `;
   }
   decoder(): string {
