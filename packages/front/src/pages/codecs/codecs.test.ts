@@ -1,23 +1,26 @@
 describe('Codecs', () => {
   test('should run tests', () => {
-    const nested = new CodecBuilder().add('a', Int).add('b', Int);
+    const nested = new CodecBuilder('Nested').add('a', Int).add('b', Int);
     const arrOfInts = new ArraySerializable(Int);
     const arrOfArrOfInts = new ArraySerializable(arrOfInts);
-    const helloStruct = new CodecBuilder().add('hello', Int);
+    const helloStruct = new CodecBuilder('Hello').add('hello', Int);
     const arrOfCodecs = new ArraySerializable(helloStruct);
-    const codec = new CodecBuilder()
+    const codec = new CodecBuilder('Codec')
       .add('foo', Int)
       .add('bar', Int)
       .add('name', Str)
-      .add('notPresent', new OptionalSerializable(Int))
-      .add('optionalPresent', new OptionalSerializable(Int))
+      .add('notPresent', new OptionalSerializable(Int, 'notPresent'))
+      .add('optionalPresent', new OptionalSerializable(Int, 'optionalPresent'))
       .add('nested', nested)
       .add('arrOfInts', arrOfInts)
       .add('arrOfArrOfInts', arrOfArrOfInts)
       .add('arrOfCodecs', arrOfCodecs)
-      .add('arrOfOptionals', new ArraySerializable(new OptionalSerializable(Int)));
+      .add(
+        'arrOfOptionals',
+        new ArraySerializable(new OptionalSerializable(Int, 'arrOfOptionals_item'))
+      );
 
-    const encodeFn = codec.generateEncoderCode();
+    const encodeFn = codec.generateDecoderCode();
     console.log(encodeFn);
 
     const objectToEncode = {
@@ -34,6 +37,7 @@ describe('Codecs', () => {
       arrOfCodecs: [{ hello: 100 }, { hello: 200 }],
       arrOfOptionals: [1, undefined, 3, undefined, 5],
     };
+
     expect(codec.test(objectToEncode)).toEqual(objectToEncode);
   });
 });
@@ -43,12 +47,18 @@ type Field = { name: string; serializable: Serializable };
 class CodecBuilder implements Serializable {
   private fields: Field[] = [];
 
+  constructor(private name: string) {}
+
   static createEncoder() {
     return new Encoder();
   }
 
   static createDecoder(buffer: number[]) {
     return new Decoder(buffer);
+  }
+
+  children(): Serializable[] {
+    return this.fields.map((f) => f.serializable);
   }
 
   test(obj: any) {
@@ -61,7 +71,7 @@ class CodecBuilder implements Serializable {
   }
 
   createDecoderFunction() {
-    return eval(this.generateDecoderCode());
+    return new Function('decoder', this.generateDecoderCode());
   }
 
   add(name: string, serializable: Serializable) {
@@ -80,9 +90,9 @@ class CodecBuilder implements Serializable {
     return lines.join('\n');
   }
 
-  generateDecoderCode() {
+  topLevelDecoderCode() {
     const lines: string[] = [];
-    lines.push(`(decoder)=>{`);
+    lines.push(`function ${this.name}_decoder_func(decoder){`);
     lines.push(`let obj = {};`);
     this.fields.map((field) => {
       lines.push(`obj.${field.name} = ${field.serializable.decoder()};`);
@@ -93,23 +103,48 @@ class CodecBuilder implements Serializable {
     return lines.join('\n');
   }
 
+  generateDecoderCode() {
+    const allCodecBuilders = new Set<Serializable>();
+    function traverse(serializable: Serializable) {
+      if (serializable.topLevelDecoderCode) {
+        allCodecBuilders.add(serializable);
+      }
+      serializable.children().forEach((field) => traverse(field));
+    }
+    traverse(this);
+    const functionDeclarations: string[] = [];
+    allCodecBuilders.forEach((cb) => {
+      functionDeclarations.push(cb.topLevelDecoderCode!());
+    });
+    return `
+    ${functionDeclarations.join('\n')}
+    return ${this.name}_decoder_func(decoder);
+    `;
+  }
+
   encoder(what: string): string {
     const encoderFunction = this.generateEncoderCode();
     return `(${encoderFunction})(encoder, ${what})`;
   }
 
   decoder(): string {
-    const decoderFunction = this.generateDecoderCode();
-    return `(${decoderFunction})(decoder)`;
+    const functionName = `${this.name}_decoder_func`;
+    return `${functionName}(decoder)`;
   }
 }
 
 interface Serializable {
   encoder(what: string): string;
+  topLevelDecoderCode?(): string;
   decoder(): string;
+  children(): Serializable[];
 }
 
 class IntSerializable implements Serializable {
+  children() {
+    return [];
+  }
+
   encoder(what: string) {
     return `encoder.int(${what})`;
   }
@@ -121,6 +156,10 @@ class IntSerializable implements Serializable {
 
 class ArraySerializable implements Serializable {
   constructor(private itemSerializable: Serializable) {}
+
+  children(): Serializable[] {
+    return [this.itemSerializable];
+  }
 
   encoder(what: string) {
     return `{
@@ -145,6 +184,9 @@ class ArraySerializable implements Serializable {
 }
 
 class StringSerializable implements Serializable {
+  children(): Serializable[] {
+    return [];
+  }
   encoder(what: string) {
     return `{
       const str = ${what}; 
@@ -168,7 +210,23 @@ class StringSerializable implements Serializable {
 }
 
 class OptionalSerializable implements Serializable {
-  constructor(private itemSerializable: Serializable) {}
+  constructor(private itemSerializable: Serializable, private name: string) {}
+  children(): Serializable[] {
+    return [this.itemSerializable];
+  }
+
+  topLevelDecoderCode(): string {
+    const itemName = `${this.name}_optional_item_decoder_func`;
+    return `function ${itemName}(decoder){
+      const hasValue = decoder.int() === 1;
+      if(hasValue){
+        return ${this.itemSerializable.decoder()};
+      }
+      return undefined;
+  }
+    `;
+  }
+
   encoder(what: string) {
     return `{
       const hasValue = ${what} != null;
@@ -179,15 +237,10 @@ class OptionalSerializable implements Serializable {
     };
     `;
   }
+
   decoder(): string {
-    return `(()=>{
-      const hasValue = decoder.int() === 1;
-      if(hasValue){
-        return ${this.itemSerializable.decoder()};
-      }
-      return undefined;
-  })()
-    `;
+    const itemName = `${this.name}_optional_item_decoder_func`;
+    return `${itemName}(decoder)`;
   }
 }
 

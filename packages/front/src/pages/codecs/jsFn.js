@@ -1,74 +1,94 @@
-(encoder, obj) => {
-  encoder.int(obj.foo);
-  encoder.int(obj.bar);
-  {
-    const str = obj.name;
-    encoder.int(str.length);
-    for (let i = 0; i < str.length; i++) {
-      encoder.int(str.charCodeAt(i));
+function Codec_decoder_func(decoder) {
+  let obj = {};
+  obj.foo = decoder.int();
+  obj.bar = decoder.int();
+  obj.name = ((decoder) => {
+    const length = decoder.int();
+    let str = '';
+    for (let i = 0; i < length; i++) {
+      str += String.fromCharCode(decoder.int());
     }
-  }
-  {
-    const hasValue = obj.notPresent != null;
-    encoder.int(hasValue ? 1 : 0);
-    if (hasValue) {
-      encoder.int(obj.notPresent);
+    return str;
+  })(decoder);
+  obj.notPresent = notPresent_optional_item_decoder_func(decoder);
+  obj.optionalPresent = optionalPresent_optional_item_decoder_func(decoder);
+  obj.nested = Nested_decoder_func(decoder);
+  obj.arrOfInts = ((decoder) => {
+    const arr = [];
+    const length = decoder.int();
+    for (let i = 0; i < length; i++) {
+      arr.push(decoder.int());
     }
-  }
-  {
-    const hasValue = obj.optionalPresent != null;
-    encoder.int(hasValue ? 1 : 0);
-    if (hasValue) {
-      encoder.int(obj.optionalPresent);
+    return arr;
+  })(decoder);
+  obj.arrOfArrOfInts = ((decoder) => {
+    const arr = [];
+    const length = decoder.int();
+    for (let i = 0; i < length; i++) {
+      arr.push(
+        ((decoder) => {
+          const arr = [];
+          const length = decoder.int();
+          for (let i = 0; i < length; i++) {
+            arr.push(decoder.int());
+          }
+          return arr;
+        })(decoder)
+      );
     }
+    return arr;
+  })(decoder);
+  obj.arrOfCodecs = ((decoder) => {
+    const arr = [];
+    const length = decoder.int();
+    for (let i = 0; i < length; i++) {
+      arr.push(Hello_decoder_func(decoder));
+    }
+    return arr;
+  })(decoder);
+  obj.arrOfOptionals = ((decoder) => {
+    const arr = [];
+    const length = decoder.int();
+    for (let i = 0; i < length; i++) {
+      arr.push(arrOfOptionals_item_optional_item_decoder_func(decoder));
+    }
+    return arr;
+  })(decoder);
+  return obj;
+}
+function notPresent_optional_item_decoder_func(decoder) {
+  const hasValue = decoder.int() === 1;
+  if (hasValue) {
+    return decoder.int();
   }
-  ((encoder, obj) => {
-    encoder.int(obj.a);
-    encoder.int(obj.b);
-    return encoder;
-  })(encoder, obj.nested);
-  {
-    encoder.int(obj.arrOfInts.length);
-    const arr = obj.arrOfInts;
-    arr.forEach((item) => {
-      encoder.int(item);
-    });
+  return undefined;
+}
+
+function optionalPresent_optional_item_decoder_func(decoder) {
+  const hasValue = decoder.int() === 1;
+  if (hasValue) {
+    return decoder.int();
   }
-  {
-    encoder.int(obj.arrOfArrOfInts.length);
-    const arr = obj.arrOfArrOfInts;
-    arr.forEach((item) => {
-      {
-        encoder.int(item.length);
-        const arr = item;
-        arr.forEach((item) => {
-          encoder.int(item);
-        });
-      }
-    });
+  return undefined;
+}
+
+function Nested_decoder_func(decoder) {
+  let obj = {};
+  obj.a = decoder.int();
+  obj.b = decoder.int();
+  return obj;
+}
+function Hello_decoder_func(decoder) {
+  let obj = {};
+  obj.hello = decoder.int();
+  return obj;
+}
+function arrOfOptionals_item_optional_item_decoder_func(decoder) {
+  const hasValue = decoder.int() === 1;
+  if (hasValue) {
+    return decoder.int();
   }
-  {
-    encoder.int(obj.arrOfCodecs.length);
-    const arr = obj.arrOfCodecs;
-    arr.forEach((item) => {
-      ((encoder, obj) => {
-        encoder.int(obj.hello);
-        return encoder;
-      })(encoder, item);
-    });
-  }
-  {
-    encoder.int(obj.arrOfOptionals.length);
-    const arr = obj.arrOfOptionals;
-    arr.forEach((item) => {
-      {
-        const hasValue = item != null;
-        encoder.int(hasValue ? 1 : 0);
-        if (hasValue) {
-          encoder.int(item);
-        }
-      }
-    });
-  }
-  return encoder;
-};
+  return undefined;
+}
+
+return Codec_decoder_func(decoder);
