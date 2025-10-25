@@ -9,17 +9,18 @@ describe('Codecs', () => {
       .add('foo', Int)
       .add('bar', Int)
       .add('name', Str)
+      .add('notPresent', new OptionalSerializable(Int))
+      .add('optionalPresent', new OptionalSerializable(Int))
       .add('nested', nested)
       .add('arrOfInts', arrOfInts)
       .add('arrOfArrOfInts', arrOfArrOfInts)
-      .add('arrOfCodecs', arrOfCodecs);
-
-    console.log(codec.generateEncoderCode());
-    // console.log(codec.generateDecoderCode());
+      .add('arrOfCodecs', arrOfCodecs)
+      .add('arrOfOptionals', new ArraySerializable(new OptionalSerializable(Int)));
 
     const encoderFn = codec.createEncoderFunction();
     const objectToEncode = {
       foo: 42,
+      optionalPresent: 99,
       bar: 42,
       name: 'TestName',
       nested: { a: 1, b: 2 },
@@ -29,6 +30,7 @@ describe('Codecs', () => {
         [3, 4, 5],
       ],
       arrOfCodecs: [{ hello: 100 }, { hello: 200 }],
+      arrOfOptionals: [1, undefined, 3, undefined, 5],
     };
     const encoder = CodecBuilder.createEncoder();
     encoderFn(encoder, objectToEncode);
@@ -160,6 +162,30 @@ class StringSerializable implements Serializable {
     }
     return str;
   })(decoder)`;
+  }
+}
+
+class OptionalSerializable implements Serializable {
+  constructor(private itemSerializable: Serializable) {}
+  encoder(what: string) {
+    return `(()=>{
+      const hasValue = ${what} != null;
+      encoder.int(hasValue ? 1 : 0);
+      if(hasValue){
+        ${this.itemSerializable.encoder(what)};
+      }
+    })()
+    `;
+  }
+  decoder(): string {
+    return `(()=>{
+      const hasValue = decoder.int() === 1;
+      if(hasValue){
+        return ${this.itemSerializable.decoder()};
+      }
+      return undefined;
+  })()
+    `;
   }
 }
 
