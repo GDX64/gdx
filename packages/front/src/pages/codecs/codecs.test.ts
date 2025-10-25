@@ -3,10 +3,12 @@ describe('Codecs', () => {
     const nested = new CodecBuilder().add('a', Int).add('b', Int);
     const arrOfInts = new ArraySerializable(Int);
     const arrOfArrOfInts = new ArraySerializable(arrOfInts);
-    const arrOfCodecs = new ArraySerializable(new CodecBuilder().add('hello', Int));
+    const helloStruct = new CodecBuilder().add('hello', Int);
+    const arrOfCodecs = new ArraySerializable(helloStruct);
     const codec = new CodecBuilder()
       .add('foo', Int)
       .add('bar', Int)
+      .add('name', Str)
       .add('nested', nested)
       .add('arrOfInts', arrOfInts)
       .add('arrOfArrOfInts', arrOfArrOfInts)
@@ -19,6 +21,7 @@ describe('Codecs', () => {
     const objectToEncode = {
       foo: 42,
       bar: 42,
+      name: 'TestName',
       nested: { a: 1, b: 2 },
       arrOfInts: [10, 20, 30],
       arrOfArrOfInts: [
@@ -136,6 +139,31 @@ class ArraySerializable implements Serializable {
   })(decoder)`;
   }
 }
+
+class StringSerializable implements Serializable {
+  encoder(what: string) {
+    return `(()=>{
+      const str = ${what}; 
+      encoder.int(str.length);
+      for(let i=0; i<str.length; i++){
+        encoder.int(str.charCodeAt(i));
+      }
+    })()`;
+  }
+
+  decoder(): string {
+    return `((decoder)=>{
+    const length = decoder.int();
+    let str = '';
+    for(let i=0; i<length; i++){
+      str += String.fromCharCode(decoder.int());
+    }
+    return str;
+  })(decoder)`;
+  }
+}
+
+const Str = new StringSerializable();
 
 const Int = new IntSerializable();
 
