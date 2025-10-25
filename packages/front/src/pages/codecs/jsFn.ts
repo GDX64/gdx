@@ -1,15 +1,21 @@
-function Codec_decoder_func(decoder) {
-  let obj = {};
+type Codec = {
+  foo: number;
+  bar: number;
+  name: string;
+  notPresent: number | undefined;
+  optionalPresent: number | undefined;
+  nested: Nested;
+  arrOfInts: number[];
+  arrOfArrOfInts: number[][];
+  arrOfCodecs: Hello[];
+  arrOfOptionals: number | undefined[];
+};
+
+function Codec_decoder_func(decoder: Decoder): Codec {
+  let obj: any = {};
   obj.foo = decoder.int();
   obj.bar = decoder.int();
-  obj.name = ((decoder) => {
-    const length = decoder.int();
-    let str = '';
-    for (let i = 0; i < length; i++) {
-      str += String.fromCharCode(decoder.int());
-    }
-    return str;
-  })(decoder);
+  obj.name = decoder.string();
   obj.notPresent = notPresent_optional_item_decoder_func(decoder);
   obj.optionalPresent = optionalPresent_optional_item_decoder_func(decoder);
   obj.nested = Nested_decoder_func(decoder);
@@ -56,7 +62,7 @@ function Codec_decoder_func(decoder) {
   })(decoder);
   return obj;
 }
-function notPresent_optional_item_decoder_func(decoder) {
+function notPresent_optional_item_decoder_func(decoder: Decoder): number | undefined {
   const hasValue = decoder.int() === 1;
   if (hasValue) {
     return decoder.int();
@@ -64,7 +70,9 @@ function notPresent_optional_item_decoder_func(decoder) {
   return undefined;
 }
 
-function optionalPresent_optional_item_decoder_func(decoder) {
+function optionalPresent_optional_item_decoder_func(
+  decoder: Decoder
+): number | undefined {
   const hasValue = decoder.int() === 1;
   if (hasValue) {
     return decoder.int();
@@ -72,18 +80,30 @@ function optionalPresent_optional_item_decoder_func(decoder) {
   return undefined;
 }
 
-function Nested_decoder_func(decoder) {
-  let obj = {};
+type Nested = {
+  a: number;
+  b: number;
+};
+
+function Nested_decoder_func(decoder: Decoder): Nested {
+  let obj: any = {};
   obj.a = decoder.int();
   obj.b = decoder.int();
   return obj;
 }
-function Hello_decoder_func(decoder) {
-  let obj = {};
+
+type Hello = {
+  hello: number;
+};
+
+function Hello_decoder_func(decoder: Decoder): Hello {
+  let obj: any = {};
   obj.hello = decoder.int();
   return obj;
 }
-function arrOfOptionals_item_optional_item_decoder_func(decoder) {
+function arrOfOptionals_item_optional_item_decoder_func(
+  decoder: Decoder
+): number | undefined {
   const hasValue = decoder.int() === 1;
   if (hasValue) {
     return decoder.int();

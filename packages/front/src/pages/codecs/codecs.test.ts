@@ -57,6 +57,20 @@ class CodecBuilder implements Serializable {
     return new Decoder(buffer);
   }
 
+  private typeDeclaration() {
+    const lineTypes = this.fields.map((f) => `${f.name}: ${f.serializable.typeName()};`);
+
+    return `
+    type ${this.name} = {
+      ${lineTypes.join('\n')}
+    }
+    `;
+  }
+
+  typeName() {
+    return this.name;
+  }
+
   children(): Serializable[] {
     return this.fields.map((f) => f.serializable);
   }
@@ -81,7 +95,7 @@ class CodecBuilder implements Serializable {
 
   generateEncoderCode() {
     const lines: string[] = [];
-    lines.push(`(encoder, obj)=>{`);
+    lines.push(`(encoder: Encoder, obj: ${this.typeName()})=>{`);
     this.fields.map((field) => {
       lines.push(`${field.serializable.encoder(`obj.${field.name}`)};`);
     });
@@ -92,8 +106,11 @@ class CodecBuilder implements Serializable {
 
   topLevelDecoderCode() {
     const lines: string[] = [];
-    lines.push(`function ${this.name}_decoder_func(decoder){`);
-    lines.push(`let obj = {};`);
+    lines.push(this.typeDeclaration());
+    lines.push(
+      `function ${this.name}_decoder_func(decoder: Decoder): ${this.typeName()}{`
+    );
+    lines.push(`let obj: any = {};`);
     this.fields.map((field) => {
       lines.push(`obj.${field.name} = ${field.serializable.decoder()};`);
     });
@@ -124,7 +141,7 @@ class CodecBuilder implements Serializable {
 
   encoder(what: string): string {
     const encoderFunction = this.generateEncoderCode();
-    return `(${encoderFunction})(encoder, ${what})`;
+    return `(${encoderFunction})(encoder: Encoder, ${what})`;
   }
 
   decoder(): string {
@@ -138,11 +155,16 @@ interface Serializable {
   topLevelDecoderCode?(): string;
   decoder(): string;
   children(): Serializable[];
+  typeName(): string;
 }
 
 class IntSerializable implements Serializable {
   children() {
     return [];
+  }
+
+  typeName() {
+    return 'number';
   }
 
   encoder(what: string) {
@@ -159,6 +181,10 @@ class ArraySerializable implements Serializable {
 
   children(): Serializable[] {
     return [this.itemSerializable];
+  }
+
+  typeName(): string {
+    return `${this.itemSerializable.typeName()}[]`;
   }
 
   encoder(what: string) {
@@ -187,6 +213,9 @@ class StringSerializable implements Serializable {
   children(): Serializable[] {
     return [];
   }
+  typeName(): string {
+    return 'string';
+  }
   encoder(what: string) {
     return `{
       const str = ${what}; 
@@ -198,14 +227,7 @@ class StringSerializable implements Serializable {
   }
 
   decoder(): string {
-    return `((decoder)=>{
-    const length = decoder.int();
-    let str = '';
-    for(let i=0; i<length; i++){
-      str += String.fromCharCode(decoder.int());
-    }
-    return str;
-  })(decoder)`;
+    return 'decoder.string()';
   }
 }
 
@@ -215,9 +237,13 @@ class OptionalSerializable implements Serializable {
     return [this.itemSerializable];
   }
 
+  typeName(): string {
+    return `${this.itemSerializable.typeName()} | undefined`;
+  }
+
   topLevelDecoderCode(): string {
     const itemName = `${this.name}_optional_item_decoder_func`;
-    return `function ${itemName}(decoder){
+    return `function ${itemName}(decoder: Decoder): ${this.typeName()}{
       const hasValue = decoder.int() === 1;
       if(hasValue){
         return ${this.itemSerializable.decoder()};
@@ -255,6 +281,13 @@ class Encoder {
     this.buffer.push(value);
   }
 
+  string(value: string) {
+    this.int(value.length);
+    for (let i = 0; i < value.length; i++) {
+      this.int(value.charCodeAt(i));
+    }
+  }
+
   getBuffer() {
     return this.buffer;
   }
@@ -264,5 +297,14 @@ class Decoder {
   constructor(private buffer: number[]) {}
   int() {
     return this.buffer.shift()!;
+  }
+
+  string() {
+    const length = this.int();
+    let str = '';
+    for (let i = 0; i < length; i++) {
+      str += String.fromCharCode(this.int());
+    }
+    return str;
   }
 }
