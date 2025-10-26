@@ -321,10 +321,13 @@ export class Encoder {
 }
 
 export class Decoder {
+  private index = 0;
   constructor(private buffer: number[]) {}
 
   int(): number {
-    return this.buffer.shift()!;
+    const value = this.buffer[this.index];
+    this.index++;
+    return value;
   }
 
   string(): string {
