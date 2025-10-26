@@ -1,3 +1,5 @@
+import { ModuleKind, ScriptTarget, transpileModule } from 'typescript';
+
 describe('Codecs', () => {
   test('should run tests', () => {
     const nested = new CodecBuilder('Nested').add('a', Int).add('b', Int);
@@ -20,8 +22,9 @@ describe('Codecs', () => {
         new ArraySerializable(new OptionalSerializable(Int, 'arrOfOptionals_item'))
       );
 
-    const encodeFn = codec.generateDecoderCode();
-    console.log(encodeFn);
+    // const encodeFn = codec.generateDecoderCode();
+    const decoder = codec.generateDecoderCode();
+    console.log(decoder.transpiled);
 
     const objectToEncode = {
       foo: 42,
@@ -61,7 +64,7 @@ class CodecBuilder implements Serializable {
     const lineTypes = this.fields.map((f) => `${f.name}: ${f.serializable.typeName()};`);
 
     return `
-    type ${this.name} = {
+    export type ${this.name} = {
       ${lineTypes.join('\n')}
     }
     `;
@@ -85,7 +88,8 @@ class CodecBuilder implements Serializable {
   }
 
   createDecoderFunction() {
-    return new Function('decoder', this.generateDecoderCode());
+    const transpiledModule = this.generateDecoderCode().transpiled;
+    return eval(transpiledModule);
   }
 
   add(name: string, serializable: Serializable) {
@@ -95,7 +99,7 @@ class CodecBuilder implements Serializable {
 
   generateEncoderCode() {
     const lines: string[] = [];
-    lines.push(`(encoder: Encoder, obj: ${this.typeName()})=>{`);
+    lines.push(`(encoder, obj)=>{`);
     this.fields.map((field) => {
       lines.push(`${field.serializable.encoder(`obj.${field.name}`)};`);
     });
@@ -133,15 +137,18 @@ class CodecBuilder implements Serializable {
     allCodecBuilders.forEach((cb) => {
       functionDeclarations.push(cb.topLevelDecoderCode!());
     });
-    return `
+    const code = `
+    type Decoder = any;
     ${functionDeclarations.join('\n')}
-    return ${this.name}_decoder_func(decoder);
+    export default ${this.name}_decoder_func 
+    export { ${this.name}_decoder_func };
     `;
+    return { code, transpiled: transpileCode(code).outputText };
   }
 
   encoder(what: string): string {
     const encoderFunction = this.generateEncoderCode();
-    return `(${encoderFunction})(encoder: Encoder, ${what})`;
+    return `(${encoderFunction})(encoder, ${what})`;
   }
 
   decoder(): string {
@@ -307,4 +314,13 @@ class Decoder {
     }
     return str;
   }
+}
+
+function transpileCode(code: string) {
+  return transpileModule(code, {
+    compilerOptions: {
+      target: ScriptTarget.ESNext,
+      module: ModuleKind.CommonJS,
+    },
+  });
 }

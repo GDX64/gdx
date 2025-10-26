@@ -1,4 +1,6 @@
-type Codec = {
+type Decoder = any;
+
+export type Codec = {
   foo: number;
   bar: number;
   name: string;
@@ -80,7 +82,7 @@ function optionalPresent_optional_item_decoder_func(
   return undefined;
 }
 
-type Nested = {
+export type Nested = {
   a: number;
   b: number;
 };
@@ -92,7 +94,7 @@ function Nested_decoder_func(decoder: Decoder): Nested {
   return obj;
 }
 
-type Hello = {
+export type Hello = {
   hello: number;
 };
 
@@ -111,4 +113,5 @@ function arrOfOptionals_item_optional_item_decoder_func(
   return undefined;
 }
 
-return Codec_decoder_func(decoder);
+export default Codec_decoder_func;
+export { Codec_decoder_func };
