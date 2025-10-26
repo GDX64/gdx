@@ -1,6 +1,7 @@
 type Decoder = any;
+type Encoder = any;
 
-export type Codec = {
+export type TestCodec = {
   foo: number;
   bar: number;
   name: string;
@@ -13,8 +14,25 @@ export type Codec = {
   arrOfOptionals: ArrOfOptionals;
 };
 
-function Codec_decoder_func(decoder: Decoder): Codec {
-  const obj = {} as Codec;
+export type Nested = {
+  a: number;
+  b: number;
+};
+
+export type IntArray = Array<number>;
+
+export type ArrOfIntArray = Array<IntArray>;
+
+export type HelloArray = Array<Hello>;
+
+export type Hello = {
+  hello: number;
+};
+
+export type ArrOfOptionals = Array<number | undefined>;
+
+function TestCodec_decoder_func(decoder: Decoder): TestCodec {
+  const obj = {} as TestCodec;
   obj.foo = decoder.int();
   obj.bar = decoder.int();
   obj.name = decoder.string();
@@ -47,11 +65,6 @@ function optionalPresent_optional_item_decoder_func(
   return undefined;
 }
 
-export type Nested = {
-  a: number;
-  b: number;
-};
-
 function Nested_decoder_func(decoder: Decoder): Nested {
   const obj = {} as Nested;
   obj.a = decoder.int();
@@ -59,7 +72,6 @@ function Nested_decoder_func(decoder: Decoder): Nested {
   return obj;
 }
 
-type IntArray = Array<number>;
 function IntArray_array_item_decoder_func(decoder: Decoder): IntArray {
   const arr = [];
   const length = decoder.int();
@@ -69,7 +81,6 @@ function IntArray_array_item_decoder_func(decoder: Decoder): IntArray {
   return arr;
 }
 
-type ArrOfIntArray = Array<IntArray>;
 function ArrOfIntArray_array_item_decoder_func(
   decoder: Decoder,
 ): ArrOfIntArray {
@@ -81,7 +92,6 @@ function ArrOfIntArray_array_item_decoder_func(
   return arr;
 }
 
-type HelloArray = Array<Hello>;
 function HelloArray_array_item_decoder_func(decoder: Decoder): HelloArray {
   const arr = [];
   const length = decoder.int();
@@ -90,18 +100,12 @@ function HelloArray_array_item_decoder_func(decoder: Decoder): HelloArray {
   }
   return arr;
 }
-
-export type Hello = {
-  hello: number;
-};
-
 function Hello_decoder_func(decoder: Decoder): Hello {
   const obj = {} as Hello;
   obj.hello = decoder.int();
   return obj;
 }
 
-type ArrOfOptionals = Array<number | undefined>;
 function ArrOfOptionals_array_item_decoder_func(
   decoder: Decoder,
 ): ArrOfOptionals {
@@ -122,10 +126,9 @@ function arrOfOptionals_item_optional_item_decoder_func(
   return undefined;
 }
 
-export { Codec_decoder_func as moduleDecoder };
+export { TestCodec_decoder_func as moduleDecoder };
 
-type Encoder = any;
-function Codec_encoder_fn(encoder: Encoder, obj: Codec): Encoder {
+function TestCodec_encoder_fn(encoder: Encoder, obj: TestCodec): Encoder {
   encoder.int(obj.foo);
   encoder.int(obj.bar);
   {
@@ -201,4 +204,4 @@ function Hello_encoder_fn(encoder: Encoder, obj: Hello): Encoder {
   encoder.int(obj.hello);
   return encoder;
 }
-export { Codec_encoder_fn as moduleEncoder };
+export { TestCodec_encoder_fn as moduleEncoder };

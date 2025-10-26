@@ -15,7 +15,7 @@ describe("Codecs", () => {
     const arrOfArrOfInts = new ArraySerializable(arrOfInts, "ArrOfIntArray");
     const helloStruct = new CodecBuilder("Hello").add("hello", Int);
     const arrOfCodecs = new ArraySerializable(helloStruct, "HelloArray");
-    const codec = new CodecBuilder("Codec")
+    const codec = new CodecBuilder("TestCodec")
       .add("foo", Int)
       .add("bar", Int)
       .add("name", Str)

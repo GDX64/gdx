@@ -18,7 +18,7 @@ export class CodecBuilder implements Serializable {
     return new Decoder(buffer);
   }
 
-  private typeDeclaration() {
+  typeDeclaration() {
     const lineTypes = this.fields.map(
       (f) => `${f.name}: ${f.serializable.typeName()};`
     );
@@ -90,7 +90,6 @@ export class CodecBuilder implements Serializable {
     });
     const functionName = `${this.name}_encoder_fn`;
     let code = `
-    type Encoder = any;
     ${functionDeclarations.join("\n")}
     export { ${functionName} as moduleEncoder };
     `;
@@ -113,7 +112,6 @@ export class CodecBuilder implements Serializable {
 
   topLevelDecoderCode(): string {
     const lines: string[] = [];
-    lines.push(this.typeDeclaration());
     lines.push(
       `function ${this.name}_decoder_func(decoder: Decoder): ${this.typeName()}{`
     );
@@ -130,18 +128,24 @@ export class CodecBuilder implements Serializable {
   private generateDecoderCode(): { code: string } {
     const allCodecBuilders = new Set<Serializable>();
     function traverse(serializable: Serializable) {
-      if (serializable.topLevelDecoderCode) {
-        allCodecBuilders.add(serializable);
-      }
+      allCodecBuilders.add(serializable);
       serializable.children().forEach((field) => traverse(field));
     }
     traverse(this);
     const functionDeclarations: string[] = [];
     allCodecBuilders.forEach((cb) => {
-      functionDeclarations.push(cb.topLevelDecoderCode!());
+      if (cb.typeDeclaration) {
+        functionDeclarations.push(cb.typeDeclaration());
+      }
+    });
+    allCodecBuilders.forEach((cb) => {
+      if (cb.topLevelDecoderCode) {
+        functionDeclarations.push(cb.topLevelDecoderCode());
+      }
     });
     let code = `
     type Decoder = any;
+    type Encoder = any;
     ${functionDeclarations.join("\n")}
     export { ${this.name}_decoder_func as moduleDecoder };
     `;
@@ -161,6 +165,7 @@ export class CodecBuilder implements Serializable {
 
 interface Serializable {
   encoder(what: string): string;
+  typeDeclaration?(): string;
   topLevelDecoderCode?(): string;
   topLevelEncoderCode?(): string;
   decoder(): string;
@@ -196,6 +201,11 @@ export class ArraySerializable implements Serializable {
     return [this.itemSerializable];
   }
 
+  typeDeclaration(): string {
+    return `export type ${this.name} = Array<${this.itemSerializable.typeName()}>;
+    `;
+  }
+
   typeName(): string {
     return this.name;
   }
@@ -213,7 +223,6 @@ export class ArraySerializable implements Serializable {
   topLevelDecoderCode(): string {
     const functionName = `${this.name}_array_item_decoder_func`;
     return `
-    type ${this.typeName()} = Array<${this.itemSerializable.typeName()}>;
     function ${functionName}(decoder: Decoder): ${this.typeName()}{
     const arr = [];
     const length = decoder.int();
