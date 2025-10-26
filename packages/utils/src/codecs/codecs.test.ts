@@ -37,10 +37,10 @@ describe("Codecs", () => {
     fs.writeFileSync(path.resolve(__dirname, "./codec.example.ts"), file.code);
 
     const objectToEncode = {
+      name: "TestName",
       foo: 42,
       optionalPresent: 99,
       bar: 42,
-      name: "TestName",
       nested: { a: 1, b: 2 },
       arrOfInts: [10, 20, 30],
       arrOfArrOfInts: [

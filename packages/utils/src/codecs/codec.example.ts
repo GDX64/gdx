@@ -123,13 +123,7 @@ export { TestCodec_decoder_func as moduleDecoder };
 function TestCodec_encoder_fn(encoder: Encoder, obj: TestCodec): Encoder {
   encoder.int(obj.foo);
   encoder.int(obj.bar);
-  {
-    const str = obj.name;
-    encoder.int(str.length);
-    for (let i = 0; i < str.length; i++) {
-      encoder.int(str.charCodeAt(i));
-    }
-  }
+  encoder.string(obj.name);
   {
     const hasValue = obj.notPresent != null;
     encoder.int(hasValue ? 1 : 0);

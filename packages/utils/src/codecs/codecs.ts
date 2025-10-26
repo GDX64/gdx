@@ -14,7 +14,7 @@ export class CodecBuilder implements Serializable {
     return new Encoder();
   }
 
-  static createDecoder(buffer: number[]): Decoder {
+  static createDecoder(buffer: ArrayBuffer): Decoder {
     return new Decoder(buffer);
   }
 
@@ -241,13 +241,7 @@ class StringSerializable implements Serializable {
     return "string";
   }
   encoder(what: string) {
-    return `{
-      const str = ${what}; 
-      encoder.int(str.length);
-      for(let i=0; i<str.length; i++){
-        encoder.int(str.charCodeAt(i));
-      }
-    }`;
+    return `encoder.string(${what})`;
   }
 
   decoder(): string {
@@ -302,39 +296,78 @@ export const Str: StringSerializable = new StringSerializable();
 export const Int: IntSerializable = new IntSerializable();
 
 export class Encoder {
-  private buffer: number[] = [];
+  private buffer: ArrayBuffer = new ArrayBuffer(1_000_000, {
+    maxByteLength: 1_000_000,
+  });
+  private dataView = new DataView(this.buffer);
+  private offset = 0;
 
   int(value: number): void {
-    this.buffer.push(value);
+    this.resizeIfNeeded(4);
+    this.dataView.setInt32(this.offset, value);
+    this.offset += 4;
   }
 
-  string(value: string): void {
-    this.int(value.length);
-    for (let i = 0; i < value.length; i++) {
-      this.int(value.charCodeAt(i));
+  byte(value: number): void {
+    this.resizeIfNeeded(1);
+    this.dataView.setUint8(this.offset, value);
+    this.offset += 1;
+  }
+
+  word(value: number): void {
+    this.resizeIfNeeded(2);
+    this.dataView.setUint16(this.offset, value);
+    this.offset += 2;
+  }
+
+  private resizeIfNeeded(additionalBytes: number) {
+    if (this.offset + additionalBytes > this.buffer.byteLength) {
+      this.buffer.resize(this.buffer.byteLength * 2 + additionalBytes);
     }
   }
 
-  getBuffer(): number[] {
+  string(value: string): void {
+    this.word(value.length);
+    for (let i = 0; i < value.length; i++) {
+      this.byte(value.charCodeAt(i));
+    }
+  }
+
+  getBuffer(): ArrayBuffer {
     return this.buffer;
   }
 }
 
 export class Decoder {
   private index = 0;
-  constructor(private buffer: number[]) {}
+  private dataView: DataView;
+  constructor(buffer: ArrayBuffer) {
+    this.dataView = new DataView(buffer);
+  }
 
   int(): number {
-    const value = this.buffer[this.index];
-    this.index++;
+    const value = this.dataView.getInt32(this.index);
+    this.index += 4;
+    return value;
+  }
+
+  word(): number {
+    const value = this.dataView.getUint16(this.index);
+    this.index += 2;
+    return value;
+  }
+
+  byte(): number {
+    const value = this.dataView.getUint8(this.index);
+    this.index += 1;
     return value;
   }
 
   string(): string {
-    const length = this.int();
+    const length = this.word();
     let str = "";
     for (let i = 0; i < length; i++) {
-      str += String.fromCharCode(this.int());
+      str += String.fromCharCode(this.byte());
     }
     return str;
   }
