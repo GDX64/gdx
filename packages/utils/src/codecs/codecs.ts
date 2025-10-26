@@ -297,11 +297,14 @@ export const Str: StringSerializable = new StringSerializable();
 export const Int: IntSerializable = new IntSerializable();
 
 export class Encoder {
-  private buffer: ArrayBuffer = new ArrayBuffer(1_000_000, {
-    maxByteLength: 1_000_000,
-  });
-  private dataView = new DataView(this.buffer);
+  private buffer: ArrayBuffer;
+  private dataView: DataView;
   private offset = 0;
+
+  constructor(initialSize: number = 128) {
+    this.buffer = new ArrayBuffer(initialSize, { maxByteLength: 10_000_000 });
+    this.dataView = new DataView(this.buffer);
+  }
 
   int(value: number): void {
     this.resizeIfNeeded(4);

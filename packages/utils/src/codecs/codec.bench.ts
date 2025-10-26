@@ -3,7 +3,7 @@ import { CodecBuilder } from "./codecs";
 import { moduleDecoder, moduleEncoder } from "./codec.example";
 
 describe("Codecs Benchmark", async () => {
-  const examples = generateExamples(2_000);
+  const examples = generateExamples(1_000);
   bench("ArraySerializable encode/decode", () => {
     const encoder = CodecBuilder.createEncoder();
     moduleEncoder(encoder, examples);
@@ -24,8 +24,8 @@ function generateExamples(n: number) {
   };
 }
 
+const randInt = (max = 2 ** 30) => Math.floor(Math.random() * max);
 function generateExample() {
-  const randInt = () => Math.floor(Math.random() * 1000);
   return {
     foo: randInt(),
     optionalPresent: randInt(),
@@ -33,12 +33,17 @@ function generateExample() {
     bar: randInt(),
     name: "TestName",
     nested: { a: randInt(), b: randInt() },
-    arrOfInts: [randInt(), randInt(), randInt()],
-    arrOfArrOfInts: [
-      [randInt(), randInt()],
-      [randInt(), randInt(), randInt()],
-    ],
+    arrOfInts: Array.from({ length: randInt(100) }, () => randInt()),
+    arrOfArrOfInts: bigMatrix(),
     arrOfCodecs: [{ hello: randInt() }, { hello: randInt() }],
     arrOfOptionals: [randInt(), undefined, randInt(), undefined, randInt()],
   };
+}
+
+function bigMatrix() {
+  const matrix = [];
+  for (let i = 0; i < 100; i++) {
+    matrix.push(Array.from({ length: randInt(10) }, () => randInt()));
+  }
+  return matrix;
 }
