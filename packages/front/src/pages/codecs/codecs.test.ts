@@ -1,7 +1,9 @@
 import { ModuleKind, ScriptTarget, transpileModule } from 'typescript';
+import fs from 'fs';
+import path from 'path';
 
 describe('Codecs', () => {
-  test('should run tests', () => {
+  test('should run tests', async () => {
     const nested = new CodecBuilder('Nested').add('a', Int).add('b', Int);
     const arrOfInts = new ArraySerializable(Int);
     const arrOfArrOfInts = new ArraySerializable(arrOfInts);
@@ -23,8 +25,8 @@ describe('Codecs', () => {
       );
 
     // const encodeFn = codec.generateDecoderCode();
-    const decoder = codec.generateDecoderCode();
-    console.log(decoder.transpiled);
+    const encoderCode = codec.generateEncoderCode();
+    fs.writeFileSync(path.resolve(__dirname, './encoder.example.ts'), encoderCode.code);
 
     const objectToEncode = {
       foo: 42,
@@ -41,7 +43,7 @@ describe('Codecs', () => {
       arrOfOptionals: [1, undefined, 3, undefined, 5],
     };
 
-    expect(codec.test(objectToEncode)).toEqual(objectToEncode);
+    expect(await codec.test(objectToEncode)).toEqual(objectToEncode);
   });
 });
 
@@ -78,18 +80,30 @@ class CodecBuilder implements Serializable {
     return this.fields.map((f) => f.serializable);
   }
 
-  test(obj: any) {
-    const encoded = this.createEncoderFunction()(CodecBuilder.createEncoder(), obj);
-    return this.createDecoderFunction()(CodecBuilder.createDecoder(encoded.getBuffer()));
+  async test(obj: any) {
+    const encoded = (await this.createEncoderFunction())(
+      CodecBuilder.createEncoder(),
+      obj
+    );
+    return (await this.createDecoderFunction())(
+      CodecBuilder.createDecoder(encoded.getBuffer())
+    );
   }
 
-  createEncoderFunction() {
-    return eval(this.generateEncoderCode());
+  async createEncoderFunction() {
+    const transpiledModule = this.generateEncoderCode().transpiled;
+    const { moduleEncoder } = await import(
+      `data:text/javascript;base64,${Buffer.from(transpiledModule).toString('base64')}`
+    );
+    return moduleEncoder;
   }
 
-  createDecoderFunction() {
+  async createDecoderFunction() {
     const transpiledModule = this.generateDecoderCode().transpiled;
-    return eval(transpiledModule);
+    const { moduleDecoder } = await import(
+      `data:text/javascript;base64,${Buffer.from(transpiledModule).toString('base64')}`
+    );
+    return moduleDecoder;
   }
 
   add(name: string, serializable: Serializable) {
@@ -98,14 +112,38 @@ class CodecBuilder implements Serializable {
   }
 
   generateEncoderCode() {
+    const allCodecBuilders = new Set<Serializable>();
+    function traverse(serializable: Serializable) {
+      if (serializable.topLevelEncoderCode) {
+        allCodecBuilders.add(serializable);
+      }
+      serializable.children().forEach((field) => traverse(field));
+    }
+    traverse(this);
+    const functionDeclarations: string[] = [];
+    allCodecBuilders.forEach((cb) => {
+      functionDeclarations.push(cb.topLevelEncoderCode!());
+    });
+    const functionName = `${this.name}_encoder_fn`;
+    const code = `
+    type Encoder = any;
+    ${functionDeclarations.join('\n')}
+    export default ${functionName} 
+    export { ${functionName} as moduleEncoder };
+    `;
+    return { code, transpiled: transpileCode(code).outputText };
+  }
+
+  topLevelEncoderCode() {
     const lines: string[] = [];
-    lines.push(`(encoder, obj)=>{`);
+    lines.push(`function ${this.name}_encoder_fn(encoder: Encoder, obj: any): Encoder {`);
     this.fields.map((field) => {
       lines.push(`${field.serializable.encoder(`obj.${field.name}`)};`);
     });
     lines.push(`return encoder;`);
     lines.push(`}`);
-    return lines.join('\n');
+    const code = lines.join('\n');
+    return code;
   }
 
   topLevelDecoderCode() {
@@ -141,14 +179,14 @@ class CodecBuilder implements Serializable {
     type Decoder = any;
     ${functionDeclarations.join('\n')}
     export default ${this.name}_decoder_func 
-    export { ${this.name}_decoder_func };
+    export { ${this.name}_decoder_func as moduleDecoder };
     `;
     return { code, transpiled: transpileCode(code).outputText };
   }
 
   encoder(what: string): string {
-    const encoderFunction = this.generateEncoderCode();
-    return `(${encoderFunction})(encoder, ${what})`;
+    const functionName = `${this.name}_encoder_fn`;
+    return `${functionName}(encoder, ${what})`;
   }
 
   decoder(): string {
@@ -160,6 +198,7 @@ class CodecBuilder implements Serializable {
 interface Serializable {
   encoder(what: string): string;
   topLevelDecoderCode?(): string;
+  topLevelEncoderCode?(): string;
   decoder(): string;
   children(): Serializable[];
   typeName(): string;
@@ -198,7 +237,7 @@ class ArraySerializable implements Serializable {
     return `{
       encoder.int(${what}.length);
       const arr = ${what};
-      arr.forEach((item)=>{
+      arr.forEach((item: any)=>{
         ${this.itemSerializable.encoder('item')};
       })
     }`;
@@ -320,7 +359,7 @@ function transpileCode(code: string) {
   return transpileModule(code, {
     compilerOptions: {
       target: ScriptTarget.ESNext,
-      module: ModuleKind.CommonJS,
+      module: ModuleKind.ESNext,
     },
   });
 }
