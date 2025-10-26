@@ -7,14 +7,14 @@ export type Codec = {
   notPresent: number | undefined;
   optionalPresent: number | undefined;
   nested: Nested;
-  arrOfInts: number[];
-  arrOfArrOfInts: number[][];
-  arrOfCodecs: Hello[];
-  arrOfOptionals: number | undefined[];
+  arrOfInts: Array<number>;
+  arrOfArrOfInts: Array<Array<number>>;
+  arrOfCodecs: Array<Hello>;
+  arrOfOptionals: Array<number | undefined>;
 };
 
 function Codec_decoder_func(decoder: Decoder): Codec {
-  let obj: any = {};
+  const obj = {} as Codec;
   obj.foo = decoder.int();
   obj.bar = decoder.int();
   obj.name = decoder.string();
@@ -90,7 +90,7 @@ export type Nested = {
 };
 
 function Nested_decoder_func(decoder: Decoder): Nested {
-  let obj: any = {};
+  const obj = {} as Nested;
   obj.a = decoder.int();
   obj.b = decoder.int();
   return obj;
@@ -101,7 +101,7 @@ export type Hello = {
 };
 
 function Hello_decoder_func(decoder: Decoder): Hello {
-  let obj: any = {};
+  const obj = {} as Hello;
   obj.hello = decoder.int();
   return obj;
 }
@@ -115,5 +115,83 @@ function arrOfOptionals_item_optional_item_decoder_func(
   return undefined;
 }
 
-export default Codec_decoder_func;
 export { Codec_decoder_func as moduleDecoder };
+
+type Encoder = any;
+function Codec_encoder_fn(encoder: Encoder, obj: Codec): Encoder {
+  encoder.int(obj.foo);
+  encoder.int(obj.bar);
+  {
+    const str = obj.name;
+    encoder.int(str.length);
+    for (let i = 0; i < str.length; i++) {
+      encoder.int(str.charCodeAt(i));
+    }
+  }
+  {
+    const hasValue = obj.notPresent != null;
+    encoder.int(hasValue ? 1 : 0);
+    if (hasValue) {
+      encoder.int(obj.notPresent);
+    }
+  }
+  {
+    const hasValue = obj.optionalPresent != null;
+    encoder.int(hasValue ? 1 : 0);
+    if (hasValue) {
+      encoder.int(obj.optionalPresent);
+    }
+  }
+  Nested_encoder_fn(encoder, obj.nested);
+  {
+    encoder.int(obj.arrOfInts.length);
+    const arr = obj.arrOfInts;
+    arr.forEach((item: any) => {
+      encoder.int(item);
+    });
+  }
+  {
+    encoder.int(obj.arrOfArrOfInts.length);
+    const arr = obj.arrOfArrOfInts;
+    arr.forEach((item: any) => {
+      {
+        encoder.int(item.length);
+        const arr = item;
+        arr.forEach((item: any) => {
+          encoder.int(item);
+        });
+      }
+    });
+  }
+  {
+    encoder.int(obj.arrOfCodecs.length);
+    const arr = obj.arrOfCodecs;
+    arr.forEach((item: any) => {
+      Hello_encoder_fn(encoder, item);
+    });
+  }
+  {
+    encoder.int(obj.arrOfOptionals.length);
+    const arr = obj.arrOfOptionals;
+    arr.forEach((item: any) => {
+      {
+        const hasValue = item != null;
+        encoder.int(hasValue ? 1 : 0);
+        if (hasValue) {
+          encoder.int(item);
+        }
+      }
+    });
+  }
+  return encoder;
+}
+function Nested_encoder_fn(encoder: Encoder, obj: Nested): Encoder {
+  encoder.int(obj.a);
+  encoder.int(obj.b);
+  return encoder;
+}
+function Hello_encoder_fn(encoder: Encoder, obj: Hello): Encoder {
+  encoder.int(obj.hello);
+  return encoder;
+}
+export { Codec_encoder_fn as moduleEncoder };

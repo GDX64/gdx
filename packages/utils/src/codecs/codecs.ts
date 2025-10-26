@@ -39,29 +39,35 @@ export class CodecBuilder implements Serializable {
   }
 
   async test<T>(obj: T): Promise<T> {
-    const encoded = (await this.createEncoderFunction())(
-      CodecBuilder.createEncoder(),
-      obj
-    );
-    return (await this.createDecoderFunction())(
-      CodecBuilder.createDecoder(encoded.getBuffer())
-    );
+    const { moduleEncoder, moduleDecoder } = await this.createModule();
+    const encoder = CodecBuilder.createEncoder();
+    moduleEncoder(encoder, obj);
+    const buffer = encoder.getBuffer();
+    const decoder = CodecBuilder.createDecoder(buffer);
+    const decoded = moduleDecoder(decoder);
+    return decoded;
   }
 
-  async createEncoderFunction(): Promise<EncoderFn> {
-    const { transpiled } = await this.generateEncoderCode();
-    const { moduleEncoder } = await import(
+  async createModule(): Promise<{
+    moduleEncoder: EncoderFn;
+    moduleDecoder: DecoderFn;
+  }> {
+    const { code } = await this.generateFile();
+    const transpiled = transpileCode(code).outputText;
+    const { moduleEncoder, moduleDecoder } = await import(
       `data:text/javascript;base64,${Buffer.from(transpiled).toString("base64")}`
     );
-    return moduleEncoder;
+    return { moduleEncoder, moduleDecoder };
   }
 
-  async createDecoderFunction(): Promise<DecoderFn> {
-    const { transpiled } = await this.generateDecoderCode();
-    const { moduleDecoder } = await import(
-      `data:text/javascript;base64,${Buffer.from(transpiled).toString("base64")}`
-    );
-    return moduleDecoder;
+  async generateFile(): Promise<{ code: string }> {
+    const { code: encoderCode } = this.generateEncoderCode();
+    const { code: decoderCode } = this.generateDecoderCode();
+    const codeUnformatted = [decoderCode, encoderCode].join("\n");
+    const code = await prettier.format(codeUnformatted, {
+      parser: "typescript",
+    });
+    return { code };
   }
 
   add(name: string, serializable: Serializable): this {
@@ -69,7 +75,7 @@ export class CodecBuilder implements Serializable {
     return this;
   }
 
-  async generateEncoderCode(): Promise<{ code: string; transpiled: string }> {
+  private generateEncoderCode(): { code: string } {
     const allCodecBuilders = new Set<Serializable>();
     function traverse(serializable: Serializable) {
       if (serializable.topLevelEncoderCode) {
@@ -86,17 +92,15 @@ export class CodecBuilder implements Serializable {
     let code = `
     type Encoder = any;
     ${functionDeclarations.join("\n")}
-    export default ${functionName} 
     export { ${functionName} as moduleEncoder };
     `;
-    code = await prettier.format(code, { parser: "typescript" });
-    return { code, transpiled: transpileCode(code).outputText };
+    return { code };
   }
 
   topLevelEncoderCode(): string {
     const lines: string[] = [];
     lines.push(
-      `function ${this.name}_encoder_fn(encoder: Encoder, obj: any): Encoder {`
+      `function ${this.name}_encoder_fn(encoder: Encoder, obj: ${this.typeName()}): Encoder {`
     );
     this.fields.map((field) => {
       lines.push(`${field.serializable.encoder(`obj.${field.name}`)};`);
@@ -113,7 +117,7 @@ export class CodecBuilder implements Serializable {
     lines.push(
       `function ${this.name}_decoder_func(decoder: Decoder): ${this.typeName()}{`
     );
-    lines.push(`let obj: any = {};`);
+    lines.push(`const obj = {} as ${this.typeName()};`);
     this.fields.map((field) => {
       lines.push(`obj.${field.name} = ${field.serializable.decoder()};`);
     });
@@ -123,7 +127,7 @@ export class CodecBuilder implements Serializable {
     return lines.join("\n");
   }
 
-  async generateDecoderCode(): Promise<{ code: string; transpiled: string }> {
+  private generateDecoderCode(): { code: string } {
     const allCodecBuilders = new Set<Serializable>();
     function traverse(serializable: Serializable) {
       if (serializable.topLevelDecoderCode) {
@@ -139,11 +143,9 @@ export class CodecBuilder implements Serializable {
     let code = `
     type Decoder = any;
     ${functionDeclarations.join("\n")}
-    export default ${this.name}_decoder_func 
     export { ${this.name}_decoder_func as moduleDecoder };
     `;
-    code = await prettier.format(code, { parser: "typescript" });
-    return { code, transpiled: transpileCode(code).outputText };
+    return { code };
   }
 
   encoder(what: string): string {
@@ -192,7 +194,7 @@ export class ArraySerializable implements Serializable {
   }
 
   typeName(): string {
-    return `${this.itemSerializable.typeName()}[]`;
+    return `Array<${this.itemSerializable.typeName()}>`;
   }
 
   encoder(what: string) {

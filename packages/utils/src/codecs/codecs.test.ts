@@ -32,16 +32,8 @@ describe("Codecs", () => {
         )
       );
 
-    const encoderCode = await codec.generateEncoderCode();
-    fs.writeFileSync(
-      path.resolve(__dirname, "./encoder.example.ts"),
-      encoderCode.code
-    );
-    const decoderCode = await codec.generateDecoderCode();
-    fs.writeFileSync(
-      path.resolve(__dirname, "./decoder.example.ts"),
-      decoderCode.code
-    );
+    const file = await codec.generateFile();
+    fs.writeFileSync(path.resolve(__dirname, "./codec.example.ts"), file.code);
 
     const objectToEncode = {
       foo: 42,
