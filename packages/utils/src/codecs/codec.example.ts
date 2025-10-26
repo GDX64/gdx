@@ -8,10 +8,10 @@ export type TestCodec = {
   notPresent: number | undefined;
   optionalPresent: number | undefined;
   nested: Nested;
-  arrOfInts: IntArray;
-  arrOfArrOfInts: ArrOfIntArray;
-  arrOfCodecs: HelloArray;
-  arrOfOptionals: ArrOfOptionals;
+  arrOfInts: Array<number>;
+  arrOfArrOfInts: Array<Array<number>>;
+  arrOfCodecs: Array<Hello>;
+  arrOfOptionals: Array<number | undefined>;
 };
 
 export type Nested = {
@@ -19,17 +19,9 @@ export type Nested = {
   b: number;
 };
 
-export type IntArray = Array<number>;
-
-export type ArrOfIntArray = Array<IntArray>;
-
-export type HelloArray = Array<Hello>;
-
 export type Hello = {
   hello: number;
 };
-
-export type ArrOfOptionals = Array<number | undefined>;
 
 function TestCodec_decoder_func(decoder: Decoder): TestCodec {
   const obj = {} as TestCodec;
@@ -72,7 +64,7 @@ function Nested_decoder_func(decoder: Decoder): Nested {
   return obj;
 }
 
-function IntArray_array_item_decoder_func(decoder: Decoder): IntArray {
+function IntArray_array_item_decoder_func(decoder: Decoder): Array<number> {
   const arr = [];
   const length = decoder.int();
   for (let i = 0; i < length; i++) {
@@ -83,7 +75,7 @@ function IntArray_array_item_decoder_func(decoder: Decoder): IntArray {
 
 function ArrOfIntArray_array_item_decoder_func(
   decoder: Decoder,
-): ArrOfIntArray {
+): Array<Array<number>> {
   const arr = [];
   const length = decoder.int();
   for (let i = 0; i < length; i++) {
@@ -92,7 +84,7 @@ function ArrOfIntArray_array_item_decoder_func(
   return arr;
 }
 
-function HelloArray_array_item_decoder_func(decoder: Decoder): HelloArray {
+function HelloArray_array_item_decoder_func(decoder: Decoder): Array<Hello> {
   const arr = [];
   const length = decoder.int();
   for (let i = 0; i < length; i++) {
@@ -108,7 +100,7 @@ function Hello_decoder_func(decoder: Decoder): Hello {
 
 function ArrOfOptionals_array_item_decoder_func(
   decoder: Decoder,
-): ArrOfOptionals {
+): Array<number | undefined> {
   const arr = [];
   const length = decoder.int();
   for (let i = 0; i < length; i++) {

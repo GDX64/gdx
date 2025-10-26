@@ -201,13 +201,8 @@ export class ArraySerializable implements Serializable {
     return [this.itemSerializable];
   }
 
-  typeDeclaration(): string {
-    return `export type ${this.name} = Array<${this.itemSerializable.typeName()}>;
-    `;
-  }
-
   typeName(): string {
-    return this.name;
+    return `Array<${this.itemSerializable.typeName()}>`;
   }
 
   encoder(what: string) {
