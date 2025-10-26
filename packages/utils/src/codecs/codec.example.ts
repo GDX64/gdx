@@ -1,6 +1,10 @@
 type Decoder = any;
 type Encoder = any;
 
+export type ExampleArray = {
+  examples: Array<TestCodec>;
+};
+
 export type TestCodec = {
   foo: number;
   bar: number;
@@ -23,18 +27,36 @@ export type Hello = {
   hello: number;
 };
 
+function ExampleArray_decoder_func(decoder: Decoder): ExampleArray {
+  const obj: ExampleArray = {
+    examples: ExampleArrayItems_array_item_decoder_func(decoder),
+  };
+  return obj;
+}
+
+function ExampleArrayItems_array_item_decoder_func(
+  decoder: Decoder,
+): Array<TestCodec> {
+  const length = decoder.int();
+  const arr = new Array(length);
+  for (let i = 0; i < length; i++) {
+    arr[i] = TestCodec_decoder_func(decoder);
+  }
+  return arr;
+}
 function TestCodec_decoder_func(decoder: Decoder): TestCodec {
-  const obj = {} as TestCodec;
-  obj.foo = decoder.int();
-  obj.bar = decoder.int();
-  obj.name = decoder.string();
-  obj.notPresent = notPresent_optional_item_decoder_func(decoder);
-  obj.optionalPresent = optionalPresent_optional_item_decoder_func(decoder);
-  obj.nested = Nested_decoder_func(decoder);
-  obj.arrOfInts = IntArray_array_item_decoder_func(decoder);
-  obj.arrOfArrOfInts = ArrOfIntArray_array_item_decoder_func(decoder);
-  obj.arrOfCodecs = HelloArray_array_item_decoder_func(decoder);
-  obj.arrOfOptionals = ArrOfOptionals_array_item_decoder_func(decoder);
+  const obj: TestCodec = {
+    foo: decoder.int(),
+    bar: decoder.int(),
+    name: decoder.string(),
+    notPresent: notPresent_optional_item_decoder_func(decoder),
+    optionalPresent: optionalPresent_optional_item_decoder_func(decoder),
+    nested: Nested_decoder_func(decoder),
+    arrOfInts: IntArray_array_item_decoder_func(decoder),
+    arrOfArrOfInts: ArrOfIntArray_array_item_decoder_func(decoder),
+    arrOfCodecs: HelloArray_array_item_decoder_func(decoder),
+    arrOfOptionals: ArrOfOptionals_array_item_decoder_func(decoder),
+  };
   return obj;
 }
 function notPresent_optional_item_decoder_func(
@@ -58,17 +80,18 @@ function optionalPresent_optional_item_decoder_func(
 }
 
 function Nested_decoder_func(decoder: Decoder): Nested {
-  const obj = {} as Nested;
-  obj.a = decoder.int();
-  obj.b = decoder.int();
+  const obj: Nested = {
+    a: decoder.int(),
+    b: decoder.int(),
+  };
   return obj;
 }
 
 function IntArray_array_item_decoder_func(decoder: Decoder): Array<number> {
-  const arr = [];
   const length = decoder.int();
+  const arr = new Array(length);
   for (let i = 0; i < length; i++) {
-    arr.push(decoder.int());
+    arr[i] = decoder.int();
   }
   return arr;
 }
@@ -76,35 +99,36 @@ function IntArray_array_item_decoder_func(decoder: Decoder): Array<number> {
 function ArrOfIntArray_array_item_decoder_func(
   decoder: Decoder,
 ): Array<Array<number>> {
-  const arr = [];
   const length = decoder.int();
+  const arr = new Array(length);
   for (let i = 0; i < length; i++) {
-    arr.push(IntArray_array_item_decoder_func(decoder));
+    arr[i] = IntArray_array_item_decoder_func(decoder);
   }
   return arr;
 }
 
 function HelloArray_array_item_decoder_func(decoder: Decoder): Array<Hello> {
-  const arr = [];
   const length = decoder.int();
+  const arr = new Array(length);
   for (let i = 0; i < length; i++) {
-    arr.push(Hello_decoder_func(decoder));
+    arr[i] = Hello_decoder_func(decoder);
   }
   return arr;
 }
 function Hello_decoder_func(decoder: Decoder): Hello {
-  const obj = {} as Hello;
-  obj.hello = decoder.int();
+  const obj: Hello = {
+    hello: decoder.int(),
+  };
   return obj;
 }
 
 function ArrOfOptionals_array_item_decoder_func(
   decoder: Decoder,
 ): Array<number | undefined> {
-  const arr = [];
   const length = decoder.int();
+  const arr = new Array(length);
   for (let i = 0; i < length; i++) {
-    arr.push(arrOfOptionals_item_optional_item_decoder_func(decoder));
+    arr[i] = arrOfOptionals_item_optional_item_decoder_func(decoder);
   }
   return arr;
 }
@@ -118,8 +142,18 @@ function arrOfOptionals_item_optional_item_decoder_func(
   return undefined;
 }
 
-export { TestCodec_decoder_func as moduleDecoder };
+export { ExampleArray_decoder_func as moduleDecoder };
 
+function ExampleArray_encoder_fn(encoder: Encoder, obj: ExampleArray): Encoder {
+  {
+    encoder.int(obj.examples.length);
+    const arr = obj.examples;
+    arr.forEach((item: any) => {
+      TestCodec_encoder_fn(encoder, item);
+    });
+  }
+  return encoder;
+}
 function TestCodec_encoder_fn(encoder: Encoder, obj: TestCodec): Encoder {
   encoder.int(obj.foo);
   encoder.int(obj.bar);
@@ -190,4 +224,4 @@ function Hello_encoder_fn(encoder: Encoder, obj: Hello): Encoder {
   encoder.int(obj.hello);
   return encoder;
 }
-export { TestCodec_encoder_fn as moduleEncoder };
+export { ExampleArray_encoder_fn as moduleEncoder };

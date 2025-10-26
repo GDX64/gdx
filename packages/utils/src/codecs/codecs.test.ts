@@ -32,25 +32,33 @@ describe("Codecs", () => {
           "ArrOfOptionals"
         )
       );
+    const arrCodec = new CodecBuilder("ExampleArray").add(
+      "examples",
+      new ArraySerializable(codec, "ExampleArrayItems")
+    );
 
-    const file = await codec.generateFile();
+    const file = await arrCodec.generateFile();
     fs.writeFileSync(path.resolve(__dirname, "./codec.example.ts"), file.code);
 
     const objectToEncode = {
-      name: "TestName",
-      foo: 42,
-      optionalPresent: 99,
-      bar: 42,
-      nested: { a: 1, b: 2 },
-      arrOfInts: [10, 20, 30],
-      arrOfArrOfInts: [
-        [1, 2],
-        [3, 4, 5],
+      examples: [
+        {
+          name: "TestName",
+          foo: 42,
+          optionalPresent: 99,
+          bar: 42,
+          nested: { a: 1, b: 2 },
+          arrOfInts: [10, 20, 30],
+          arrOfArrOfInts: [
+            [1, 2],
+            [3, 4, 5],
+          ],
+          arrOfCodecs: [{ hello: 100 }, { hello: 200 }],
+          arrOfOptionals: [1, undefined, 3, undefined, 5],
+        },
       ],
-      arrOfCodecs: [{ hello: 100 }, { hello: 200 }],
-      arrOfOptionals: [1, undefined, 3, undefined, 5],
     };
 
-    expect(await codec.test(objectToEncode)).toEqual(objectToEncode);
+    expect(await arrCodec.test(objectToEncode)).toEqual(objectToEncode);
   });
 });

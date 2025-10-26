@@ -115,10 +115,11 @@ export class CodecBuilder implements Serializable {
     lines.push(
       `function ${this.name}_decoder_func(decoder: Decoder): ${this.typeName()}{`
     );
-    lines.push(`const obj = {} as ${this.typeName()};`);
+    lines.push(`const obj: ${this.typeName()} = {`);
     this.fields.map((field) => {
-      lines.push(`obj.${field.name} = ${field.serializable.decoder()};`);
+      lines.push(`${field.name} : ${field.serializable.decoder()},`);
     });
+    lines.push(`}`);
     lines.push(`return obj;`);
     lines.push(`}`);
 
@@ -219,10 +220,10 @@ export class ArraySerializable implements Serializable {
     const functionName = `${this.name}_array_item_decoder_func`;
     return `
     function ${functionName}(decoder: Decoder): ${this.typeName()}{
-    const arr = [];
-    const length = decoder.int();
+      const length = decoder.int();
+      const arr = new Array(length);
     for(let i=0; i<length; i++){
-      arr.push(${this.itemSerializable.decoder()});
+      arr[i] = ${this.itemSerializable.decoder()};
     }
     return arr;
   }`;
