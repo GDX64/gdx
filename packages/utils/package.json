@@ -16,7 +16,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest"
   },
   "devDependencies": {
     "typescript": "^5.7.2",
@@ -29,6 +30,7 @@
     "pixi.js": "^8.8.1",
     "vitest": "^2.1.8",
     "vue": "^3.5.13",
-    "vue-tsc": "^2.2.0"
+    "vue-tsc": "^2.2.0",
+    "prettier": "3.6.2"
   }
 }
