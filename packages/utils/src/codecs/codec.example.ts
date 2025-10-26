@@ -7,10 +7,10 @@ export type Codec = {
   notPresent: number | undefined;
   optionalPresent: number | undefined;
   nested: Nested;
-  arrOfInts: Array<number>;
-  arrOfArrOfInts: Array<Array<number>>;
-  arrOfCodecs: Array<Hello>;
-  arrOfOptionals: Array<number | undefined>;
+  arrOfInts: IntArray;
+  arrOfArrOfInts: ArrOfIntArray;
+  arrOfCodecs: HelloArray;
+  arrOfOptionals: ArrOfOptionals;
 };
 
 function Codec_decoder_func(decoder: Decoder): Codec {
@@ -21,47 +21,10 @@ function Codec_decoder_func(decoder: Decoder): Codec {
   obj.notPresent = notPresent_optional_item_decoder_func(decoder);
   obj.optionalPresent = optionalPresent_optional_item_decoder_func(decoder);
   obj.nested = Nested_decoder_func(decoder);
-  obj.arrOfInts = ((decoder) => {
-    const arr = [];
-    const length = decoder.int();
-    for (let i = 0; i < length; i++) {
-      arr.push(decoder.int());
-    }
-    return arr;
-  })(decoder);
-  obj.arrOfArrOfInts = ((decoder) => {
-    const arr = [];
-    const length = decoder.int();
-    for (let i = 0; i < length; i++) {
-      arr.push(
-        ((decoder) => {
-          const arr = [];
-          const length = decoder.int();
-          for (let i = 0; i < length; i++) {
-            arr.push(decoder.int());
-          }
-          return arr;
-        })(decoder),
-      );
-    }
-    return arr;
-  })(decoder);
-  obj.arrOfCodecs = ((decoder) => {
-    const arr = [];
-    const length = decoder.int();
-    for (let i = 0; i < length; i++) {
-      arr.push(Hello_decoder_func(decoder));
-    }
-    return arr;
-  })(decoder);
-  obj.arrOfOptionals = ((decoder) => {
-    const arr = [];
-    const length = decoder.int();
-    for (let i = 0; i < length; i++) {
-      arr.push(arrOfOptionals_item_optional_item_decoder_func(decoder));
-    }
-    return arr;
-  })(decoder);
+  obj.arrOfInts = IntArray_array_item_decoder_func(decoder);
+  obj.arrOfArrOfInts = ArrOfIntArray_array_item_decoder_func(decoder);
+  obj.arrOfCodecs = HelloArray_array_item_decoder_func(decoder);
+  obj.arrOfOptionals = ArrOfOptionals_array_item_decoder_func(decoder);
   return obj;
 }
 function notPresent_optional_item_decoder_func(
@@ -96,6 +59,38 @@ function Nested_decoder_func(decoder: Decoder): Nested {
   return obj;
 }
 
+type IntArray = Array<number>;
+function IntArray_array_item_decoder_func(decoder: Decoder): IntArray {
+  const arr = [];
+  const length = decoder.int();
+  for (let i = 0; i < length; i++) {
+    arr.push(decoder.int());
+  }
+  return arr;
+}
+
+type ArrOfIntArray = Array<IntArray>;
+function ArrOfIntArray_array_item_decoder_func(
+  decoder: Decoder,
+): ArrOfIntArray {
+  const arr = [];
+  const length = decoder.int();
+  for (let i = 0; i < length; i++) {
+    arr.push(IntArray_array_item_decoder_func(decoder));
+  }
+  return arr;
+}
+
+type HelloArray = Array<Hello>;
+function HelloArray_array_item_decoder_func(decoder: Decoder): HelloArray {
+  const arr = [];
+  const length = decoder.int();
+  for (let i = 0; i < length; i++) {
+    arr.push(Hello_decoder_func(decoder));
+  }
+  return arr;
+}
+
 export type Hello = {
   hello: number;
 };
@@ -104,6 +99,18 @@ function Hello_decoder_func(decoder: Decoder): Hello {
   const obj = {} as Hello;
   obj.hello = decoder.int();
   return obj;
+}
+
+type ArrOfOptionals = Array<number | undefined>;
+function ArrOfOptionals_array_item_decoder_func(
+  decoder: Decoder,
+): ArrOfOptionals {
+  const arr = [];
+  const length = decoder.int();
+  for (let i = 0; i < length; i++) {
+    arr.push(arrOfOptionals_item_optional_item_decoder_func(decoder));
+  }
+  return arr;
 }
 function arrOfOptionals_item_optional_item_decoder_func(
   decoder: Decoder,

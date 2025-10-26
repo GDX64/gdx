@@ -11,10 +11,10 @@ import {
 describe("Codecs", () => {
   test("should run tests", async () => {
     const nested = new CodecBuilder("Nested").add("a", Int).add("b", Int);
-    const arrOfInts = new ArraySerializable(Int);
-    const arrOfArrOfInts = new ArraySerializable(arrOfInts);
+    const arrOfInts = new ArraySerializable(Int, "IntArray");
+    const arrOfArrOfInts = new ArraySerializable(arrOfInts, "ArrOfIntArray");
     const helloStruct = new CodecBuilder("Hello").add("hello", Int);
-    const arrOfCodecs = new ArraySerializable(helloStruct);
+    const arrOfCodecs = new ArraySerializable(helloStruct, "HelloArray");
     const codec = new CodecBuilder("Codec")
       .add("foo", Int)
       .add("bar", Int)
@@ -28,7 +28,8 @@ describe("Codecs", () => {
       .add(
         "arrOfOptionals",
         new ArraySerializable(
-          new OptionalSerializable(Int, "arrOfOptionals_item")
+          new OptionalSerializable(Int, "arrOfOptionals_item"),
+          "ArrOfOptionals"
         )
       );
 

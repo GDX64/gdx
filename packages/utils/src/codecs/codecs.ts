@@ -187,14 +187,17 @@ export class IntSerializable implements Serializable {
 }
 
 export class ArraySerializable implements Serializable {
-  constructor(private itemSerializable: Serializable) {}
+  constructor(
+    private itemSerializable: Serializable,
+    private name: string
+  ) {}
 
   children(): Serializable[] {
     return [this.itemSerializable];
   }
 
   typeName(): string {
-    return `Array<${this.itemSerializable.typeName()}>`;
+    return this.name;
   }
 
   encoder(what: string) {
@@ -207,15 +210,22 @@ export class ArraySerializable implements Serializable {
     }`;
   }
 
-  decoder(): string {
-    return `((decoder)=>{
+  topLevelDecoderCode(): string {
+    const functionName = `${this.name}_array_item_decoder_func`;
+    return `
+    type ${this.typeName()} = Array<${this.itemSerializable.typeName()}>;
+    function ${functionName}(decoder: Decoder): ${this.typeName()}{
     const arr = [];
     const length = decoder.int();
     for(let i=0; i<length; i++){
       arr.push(${this.itemSerializable.decoder()});
     }
     return arr;
-  })(decoder)`;
+  }`;
+  }
+
+  decoder(): string {
+    return `${this.name}_array_item_decoder_func(decoder)`;
   }
 }
 
