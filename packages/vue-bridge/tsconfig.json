@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.common.json",
+  "compilerOptions": {
+    "outDir": "./dist-ts"
+  },
+  "references": [],
+  "include": [
+    "./src/**/*.ts",
+    "./src/**/*.test.ts",
+    "./src/**/*.vue",
+    "./tests",
+    "./src/**/*.json"
+  ],
+  "exclude": ["./node_modules", "./dist", "./dist-ts"]
+}
