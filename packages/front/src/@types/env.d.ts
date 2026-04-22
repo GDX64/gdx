@@ -37,3 +37,7 @@ declare module '*.md' {
   // Modify below per your usage
   export { html, VueComponentWith, VueComponent };
 }
+
+declare module 'pink-lemonade' {
+  export function example(): any;
+}

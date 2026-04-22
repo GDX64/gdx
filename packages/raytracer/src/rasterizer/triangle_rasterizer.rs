@@ -1,7 +1,7 @@
 use crate::math::point_vec::{TupleLike, V3D};
 use std::{
     borrow::BorrowMut,
-    simd::{self, cmp::SimdPartialOrd},
+    simd::{self, cmp::SimdPartialOrd, Select},
 };
 type Triangle = [V3D; 3];
 
