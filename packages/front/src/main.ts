@@ -35,6 +35,7 @@ const routes = [
   { path: '/webgpu', component: () => import('./pages/webgpu/Webgpu.vue') },
   { path: '/logs', component: () => import('./pages/logview/LogView.vue') },
   { path: '/heatmap', component: () => import('./pages/PinkLemonade.vue') },
+  { path: '/ponto', component: () => import('./pages/Ponto.vue') },
   {
     path: '/relative-imports-fix',
     component: () => import('./pages/RelativeImportFixer/RelativeImportsFixer.vue'),
