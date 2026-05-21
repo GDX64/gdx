@@ -6,6 +6,7 @@ import PrimeVue from 'primevue/config';
 import Aura from '@primevue/themes/aura';
 import { definePreset } from '@primevue/themes';
 import ToastService from 'primevue/toastservice';
+import LatexMath from './components/LatexMath.vue';
 import './index.css';
 import 'primeicons/primeicons.css';
 import { primeColors } from './design/design';
@@ -46,6 +47,10 @@ const routes = [
   },
   { path: '/space-index', component: () => import('./pages/spaceIndex/SpaceIndex.vue') },
   {
+    path: '/gaussian-merge',
+    component: () => import('./pages/gaussian-merge/GaussianMerge.vue'),
+  },
+  {
     path: '/audio-things',
     component: () => import('./pages/audioExperiments/AudiosThings.vue'),
   },
@@ -72,6 +77,7 @@ const router = createRouter({
 
 const { MyPreset } = makeTheme();
 const app = createApp(App);
+app.component('latex-math', LatexMath);
 app.use(PrimeVue, {
   theme: {
     preset: MyPreset,
