@@ -6,7 +6,7 @@
         <label>Sigma</label>
         <span>{{ sigma.toFixed(1) }}</span>
       </div>
-      <input type="range" min="8" max="120" v-model.number="sigma" />
+      <input type="range" min="1" max="10" v-model.number="sigma" />
       <p class="hint">Single gaussian centered at origin, plotted as a function of x.</p>
     </div>
   </div>
@@ -16,12 +16,27 @@
 import { ref } from 'vue';
 import { useAnimationFrames, useCanvasDPI } from '@gdx/utils';
 
+const props = defineProps<{
+  example?: string;
+}>();
+
 const sigma = ref(28);
 
 const { canvas, size } = useCanvasDPI();
 
+function drawExample() {
+  if (props.example === 'single') {
+    const gaussian = new Gaussian(sigma.value, 0);
+    draw([gaussian], {
+      x: [-10, 10],
+      y: [-1, 2],
+    });
+  } else if (props.example === 'merge') {
+  }
+}
+
 useAnimationFrames(() => {
-  draw();
+  drawExample();
 });
 
 class Gaussian {
@@ -35,19 +50,34 @@ class Gaussian {
   }
 }
 
+type AxisRange = {
+  x: [number, number];
+  y: [number, number];
+};
+
 function drawGaussian(
   ctx: CanvasRenderingContext2D,
   gaussian: Gaussian,
   width: number,
-  cx: number,
-  cy: number,
-  amplitude: number
+  height: number,
+  ranges: AxisRange
 ) {
+  const xMin = ranges.x[0];
+  const xMax = ranges.x[1];
+  const yMin = ranges.y[0];
+  const yMax = ranges.y[1];
+
+  const xSpan = xMax - xMin;
+  const ySpan = yMax - yMin;
+  if (xSpan <= 0 || ySpan <= 0) {
+    return;
+  }
+
   ctx.beginPath();
   for (let px = 0; px < width; px++) {
-    const x = px - cx;
+    const x = xMin + (px / Math.max(1, width - 1)) * xSpan;
     const y = gaussian.value(x);
-    const py = cy - y * amplitude;
+    const py = ((yMax - y) / ySpan) * height;
     if (px === 0) {
       ctx.moveTo(px, py);
     } else {
@@ -60,47 +90,56 @@ function drawGaussian(
 function drawTicks(
   ctx: CanvasRenderingContext2D,
   width: number,
-  cx: number,
-  cy: number,
-  amplitude: number
+  height: number,
+  ranges: AxisRange
 ) {
+  const xMin = ranges.x[0];
+  const xMax = ranges.x[1];
+  const yMin = ranges.y[0];
+  const yMax = ranges.y[1];
+  const xSpan = xMax - xMin;
+  const ySpan = yMax - yMin;
+  if (xSpan <= 0 || ySpan <= 0) {
+    return;
+  }
+
+  const toCanvasX = (x: number) => ((x - xMin) / xSpan) * width;
+  const toCanvasY = (y: number) => ((yMax - y) / ySpan) * height;
+
   ctx.strokeStyle = 'rgb(120 130 110)';
   ctx.fillStyle = 'rgb(60 70 55)';
   ctx.lineWidth = 1;
   ctx.font = '10px monospace';
 
-  const xTickStep = Math.max(24, Math.round(width / 8));
-  for (let px = cx; px < width; px += xTickStep) {
-    const relative = Math.round(px - cx);
+  const xAxisY = toCanvasY(0);
+  const yAxisX = toCanvasX(0);
+
+  const xTickCount = 8;
+  const xTickStep = xSpan / xTickCount;
+  for (let i = 0; i <= xTickCount; i++) {
+    const xValue = xMin + i * xTickStep;
+    const px = toCanvasX(xValue);
     ctx.beginPath();
-    ctx.moveTo(px, cy - 4);
-    ctx.lineTo(px, cy + 4);
+    ctx.moveTo(px, xAxisY - 4);
+    ctx.lineTo(px, xAxisY + 4);
     ctx.stroke();
-    if (relative !== 0) {
-      ctx.fillText(`${relative}`, px - 8, cy + 16);
+    if (Math.abs(xValue) > 1e-8) {
+      ctx.fillText(`${xValue.toFixed(1)}`, px - 10, xAxisY + 16);
     }
   }
-  for (let px = cx - xTickStep; px > 0; px -= xTickStep) {
-    const relative = Math.round(px - cx);
-    ctx.beginPath();
-    ctx.moveTo(px, cy - 4);
-    ctx.lineTo(px, cy + 4);
-    ctx.stroke();
-    ctx.fillText(`${relative}`, px - 10, cy + 16);
-  }
 
-  const yTicks = [0.25, 0.5, 0.75, 1];
+  const yTicks = [0.25, 0.5, 0.75, 1].filter((t) => t >= yMin && t <= yMax);
   for (const t of yTicks) {
-    const py = cy - amplitude * t;
+    const py = toCanvasY(t);
     ctx.beginPath();
-    ctx.moveTo(cx - 4, py);
-    ctx.lineTo(cx + 4, py);
+    ctx.moveTo(yAxisX - 4, py);
+    ctx.lineTo(yAxisX + 4, py);
     ctx.stroke();
-    ctx.fillText(t.toFixed(2), cx + 7, py + 3);
+    ctx.fillText(t.toFixed(2), yAxisX + 7, py + 3);
   }
 }
 
-function draw() {
+function draw(gaussians: Gaussian[], ranges: AxisRange) {
   const c = canvas.value;
   if (!c) return;
   const ctx = c.getContext('2d');
@@ -108,9 +147,19 @@ function draw() {
 
   const width = Math.max(1, size.width | 0);
   const height = Math.max(1, size.height | 0);
-  const cx = width * 0.5;
-  const cy = height * 0.78;
-  const amplitude = height * 0.58;
+
+  const xMin = ranges.x[0];
+  const xMax = ranges.x[1];
+  const yMin = ranges.y[0];
+  const yMax = ranges.y[1];
+  const xSpan = xMax - xMin;
+  const ySpan = yMax - yMin;
+  if (xSpan <= 0 || ySpan <= 0) {
+    return;
+  }
+
+  const toCanvasX = (x: number) => ((x - xMin) / xSpan) * width;
+  const toCanvasY = (y: number) => ((yMax - y) / ySpan) * height;
 
   ctx.save();
   ctx.scale(devicePixelRatio, devicePixelRatio);
@@ -120,25 +169,34 @@ function draw() {
 
   ctx.strokeStyle = 'rgb(150 160 140)';
   ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(0, cy);
-  ctx.lineTo(width, cy);
-  ctx.moveTo(cx, 0);
-  ctx.lineTo(cx, height);
-  ctx.stroke();
+  const xAxisY = toCanvasY(0);
+  if (xAxisY >= 0 && xAxisY <= height) {
+    ctx.beginPath();
+    ctx.moveTo(0, xAxisY);
+    ctx.lineTo(width, xAxisY);
+    ctx.stroke();
+  }
+  const yAxisX = toCanvasX(0);
+  if (yAxisX >= 0 && yAxisX <= width) {
+    ctx.beginPath();
+    ctx.moveTo(yAxisX, 0);
+    ctx.lineTo(yAxisX, height);
+    ctx.stroke();
+  }
 
-  drawTicks(ctx, width, cx, cy, amplitude);
+  drawTicks(ctx, width, height, ranges);
 
   ctx.strokeStyle = 'rgb(26 79 73)';
   ctx.lineWidth = 2.5;
-  const gaussian = new Gaussian(sigma.value, 0);
-  drawGaussian(ctx, gaussian, width, cx, cy, amplitude);
+  for (const gaussian of gaussians) {
+    drawGaussian(ctx, gaussian, width, height, ranges);
+  }
 
   ctx.fillStyle = 'rgb(35 35 35)';
   ctx.font = '12px monospace';
-  ctx.fillText('x', width - 14, cy - 6);
-  ctx.fillText('f(x)', cx + 6, 12);
-  ctx.fillText('0', cx + 4, cy + 14);
+  ctx.fillText('x', width - 14, xAxisY - 6);
+  ctx.fillText('f(x)', yAxisX + 6, 12);
+  ctx.fillText('0', yAxisX + 4, xAxisY + 14);
 
   ctx.restore();
 }

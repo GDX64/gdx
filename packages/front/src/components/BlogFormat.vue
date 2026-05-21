@@ -30,6 +30,11 @@ h2 {
   @apply text-2xl mb-5;
 }
 
+math {
+  width: fit-content;
+  margin: 12px 0;
+}
+
 .my-blog-post code:not(.hljs) {
   @apply italic bg-bg-100 rounded-sm px-1;
 }
