@@ -20,7 +20,7 @@ const props = defineProps<{
   example?: string;
 }>();
 
-const sigma = ref(28);
+const sigma = ref(1);
 
 const { canvas, size } = useCanvasDPI();
 
@@ -55,11 +55,17 @@ type AxisRange = {
   y: [number, number];
 };
 
+type PlotArea = {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+};
+
 function drawGaussian(
   ctx: CanvasRenderingContext2D,
   gaussian: Gaussian,
-  width: number,
-  height: number,
+  plot: PlotArea,
   ranges: AxisRange
 ) {
   const xMin = ranges.x[0];
@@ -74,11 +80,12 @@ function drawGaussian(
   }
 
   ctx.beginPath();
-  for (let px = 0; px < width; px++) {
-    const x = xMin + (px / Math.max(1, width - 1)) * xSpan;
+  for (let i = 0; i < plot.width; i++) {
+    const x = xMin + (i / Math.max(1, plot.width - 1)) * xSpan;
     const y = gaussian.value(x);
-    const py = ((yMax - y) / ySpan) * height;
-    if (px === 0) {
+    const px = plot.left + i;
+    const py = plot.top + ((yMax - y) / ySpan) * plot.height;
+    if (i === 0) {
       ctx.moveTo(px, py);
     } else {
       ctx.lineTo(px, py);
@@ -87,12 +94,7 @@ function drawGaussian(
   ctx.stroke();
 }
 
-function drawTicks(
-  ctx: CanvasRenderingContext2D,
-  width: number,
-  height: number,
-  ranges: AxisRange
-) {
+function drawTicks(ctx: CanvasRenderingContext2D, plot: PlotArea, ranges: AxisRange) {
   const xMin = ranges.x[0];
   const xMax = ranges.x[1];
   const yMin = ranges.y[0];
@@ -103,8 +105,8 @@ function drawTicks(
     return;
   }
 
-  const toCanvasX = (x: number) => ((x - xMin) / xSpan) * width;
-  const toCanvasY = (y: number) => ((yMax - y) / ySpan) * height;
+  const toCanvasX = (x: number) => plot.left + ((x - xMin) / xSpan) * plot.width;
+  const toCanvasY = (y: number) => plot.top + ((yMax - y) / ySpan) * plot.height;
 
   ctx.strokeStyle = 'rgb(120 130 110)';
   ctx.fillStyle = 'rgb(60 70 55)';
@@ -128,14 +130,18 @@ function drawTicks(
     }
   }
 
-  const yTicks = [0.25, 0.5, 0.75, 1].filter((t) => t >= yMin && t <= yMax);
-  for (const t of yTicks) {
-    const py = toCanvasY(t);
+  const yTickCount = 8;
+  const yTickStep = ySpan / yTickCount;
+  for (let i = 0; i <= yTickCount; i++) {
+    const yValue = yMin + i * yTickStep;
+    const py = toCanvasY(yValue);
     ctx.beginPath();
     ctx.moveTo(yAxisX - 4, py);
     ctx.lineTo(yAxisX + 4, py);
     ctx.stroke();
-    ctx.fillText(t.toFixed(2), yAxisX + 7, py + 3);
+    if (Math.abs(yValue) > 1e-8) {
+      ctx.fillText(yValue.toFixed(2), yAxisX + 7, py + 3);
+    }
   }
 }
 
@@ -158,8 +164,22 @@ function draw(gaussians: Gaussian[], ranges: AxisRange) {
     return;
   }
 
-  const toCanvasX = (x: number) => ((x - xMin) / xSpan) * width;
-  const toCanvasY = (y: number) => ((yMax - y) / ySpan) * height;
+  const padding = {
+    left: 12,
+    right: 12,
+    top: 12,
+    bottom: 12,
+  };
+
+  const plot: PlotArea = {
+    left: padding.left,
+    top: padding.top,
+    width: Math.max(1, width - padding.left - padding.right),
+    height: Math.max(1, height - padding.top - padding.bottom),
+  };
+
+  const toCanvasX = (x: number) => plot.left + ((x - xMin) / xSpan) * plot.width;
+  const toCanvasY = (y: number) => plot.top + ((yMax - y) / ySpan) * plot.height;
 
   ctx.save();
   ctx.scale(devicePixelRatio, devicePixelRatio);
@@ -170,33 +190,33 @@ function draw(gaussians: Gaussian[], ranges: AxisRange) {
   ctx.strokeStyle = 'rgb(150 160 140)';
   ctx.lineWidth = 1;
   const xAxisY = toCanvasY(0);
-  if (xAxisY >= 0 && xAxisY <= height) {
+  if (xAxisY >= plot.top && xAxisY <= plot.top + plot.height) {
     ctx.beginPath();
-    ctx.moveTo(0, xAxisY);
-    ctx.lineTo(width, xAxisY);
+    ctx.moveTo(plot.left, xAxisY);
+    ctx.lineTo(plot.left + plot.width, xAxisY);
     ctx.stroke();
   }
   const yAxisX = toCanvasX(0);
-  if (yAxisX >= 0 && yAxisX <= width) {
+  if (yAxisX >= plot.left && yAxisX <= plot.left + plot.width) {
     ctx.beginPath();
-    ctx.moveTo(yAxisX, 0);
-    ctx.lineTo(yAxisX, height);
+    ctx.moveTo(yAxisX, plot.top);
+    ctx.lineTo(yAxisX, plot.top + plot.height);
     ctx.stroke();
   }
 
-  drawTicks(ctx, width, height, ranges);
+  drawTicks(ctx, plot, ranges);
 
   ctx.strokeStyle = 'rgb(26 79 73)';
   ctx.lineWidth = 2.5;
   for (const gaussian of gaussians) {
-    drawGaussian(ctx, gaussian, width, height, ranges);
+    drawGaussian(ctx, gaussian, plot, ranges);
   }
 
-  ctx.fillStyle = 'rgb(35 35 35)';
-  ctx.font = '12px monospace';
-  ctx.fillText('x', width - 14, xAxisY - 6);
-  ctx.fillText('f(x)', yAxisX + 6, 12);
-  ctx.fillText('0', yAxisX + 4, xAxisY + 14);
+  //   ctx.fillStyle = 'rgb(35 35 35)';
+  //   ctx.font = '12px monospace';
+  //   ctx.fillText('x', width - 14, xAxisY - 6);
+  //   ctx.fillText('f(x)', yAxisX + 50, 12);
+  //   ctx.fillText('0', yAxisX + 4, xAxisY + 14);
 
   ctx.restore();
 }
