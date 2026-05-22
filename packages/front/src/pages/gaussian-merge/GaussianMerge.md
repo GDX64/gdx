@@ -5,3 +5,4 @@
 </latex-math>
 
 <gaussian-merge-example example="single"></gaussian-merge-example>
+<gaussian-merge-example example="merge"></gaussian-merge-example>
