@@ -1,7 +1,7 @@
 <template>
   <div class="flex gap-8 flex-wrap w-full text-base">
     <div ref="guiContainer" class="gui-container"></div>
-    <canvas ref="canvas" class="gauss-canvas"></canvas>
+    <canvas ref="canvas" class="w-full h-[500px] border-black"></canvas>
   </div>
 </template>
 
@@ -20,6 +20,15 @@ interface Drawable {
   draw(ctx: CanvasRenderingContext2D, scale: Scale): void;
   getColor(): string;
   getName(): string;
+  getLineStyle(): LineStyle;
+}
+
+type LineStyle = 'continuous' | 'dashed';
+
+const lineStyleOptions: LineStyle[] = ['continuous', 'dashed'];
+
+function applyLineStyle(ctx: CanvasRenderingContext2D, lineStyle: LineStyle) {
+  ctx.setLineDash(lineStyle === 'dashed' ? [8, 6] : []);
 }
 
 class Gaussian implements Drawable {
@@ -28,7 +37,8 @@ class Gaussian implements Drawable {
     public sigma: number,
     public u: number,
     public weight: number,
-    public color: string
+    public color: string,
+    public lineStyle: LineStyle = 'continuous'
   ) {}
 
   getColor(): string {
@@ -37,6 +47,10 @@ class Gaussian implements Drawable {
 
   getName() {
     return this.name;
+  }
+
+  getLineStyle(): LineStyle {
+    return this.lineStyle;
   }
 
   mergeWith(other: Gaussian) {
@@ -67,6 +81,7 @@ class Gaussian implements Drawable {
 
   draw(ctx: CanvasRenderingContext2D, scale: Scale) {
     ctx.strokeStyle = this.color;
+    applyLineStyle(ctx, this.lineStyle);
     ctx.beginPath();
     for (let i = 0; i < scale.plot.width; i++) {
       const x = scale.toWorldX(i);
@@ -88,7 +103,8 @@ class FunctionDraw implements Drawable {
 
   constructor(
     public fn: (x: number) => number,
-    public color: string
+    public color: string,
+    public lineStyle: LineStyle = 'continuous'
   ) {}
 
   getColor(): string {
@@ -99,8 +115,13 @@ class FunctionDraw implements Drawable {
     return this.name;
   }
 
+  getLineStyle(): LineStyle {
+    return this.lineStyle;
+  }
+
   draw(ctx: CanvasRenderingContext2D, scale: Scale) {
     ctx.strokeStyle = this.color;
+    applyLineStyle(ctx, this.lineStyle);
     ctx.beginPath();
     for (let i = 0; i < scale.plot.width; i++) {
       const x = scale.toWorldX(i);
@@ -123,39 +144,59 @@ function createExample() {
   const gui = new GUI({ container: guiContainer.value ?? undefined });
 
   if (props.example === 'merge') {
-    const gaussian1 = new Gaussian(1, -5, 0.8, 'rgb(190 70 55)');
+    const gaussian1 = new Gaussian(1, -0.5, 1, '#b83280');
     gaussian1.name = 'Gaussian A';
-    const gaussian2 = new Gaussian(1, 5, 1.2, 'rgb(55 95 170)');
+    const gaussian2 = new Gaussian(1, 0.5, 1, '#1f6aa5');
     gaussian2.name = 'Gaussian B';
 
     gui.add(gaussian1, 'sigma', 0.2, 10, 0.1).name('Sigma A');
     gui.add(gaussian1, 'u', -10, 10, 0.1).name('U A');
     gui.add(gaussian1, 'weight', 0, 3, 0.05).name('Weight A');
+    gui.add(gaussian1, 'lineStyle', lineStyleOptions).name('Line A');
     gui.add(gaussian2, 'sigma', 0.2, 10, 0.1).name('Sigma B');
     gui.add(gaussian2, 'u', -10, 10, 0.1).name('U B');
     gui.add(gaussian2, 'weight', 0, 3, 0.05).name('Weight B');
+    gui.add(gaussian2, 'lineStyle', lineStyleOptions).name('Line B');
 
     const fn = new FunctionDraw((x) => {
       return gaussian1.value(x) + gaussian2.value(x);
-    }, '#a8a632');
+    }, '#a07a16');
+    gui.add(fn, 'lineStyle', lineStyleOptions).name('Line Sum');
 
-    fn.name = 'f(x) = A + B';
+    const derivedLineStyles = {
+      merged: 'continuous' as LineStyle,
+      error: 'dashed' as LineStyle,
+    };
+    gui.add(derivedLineStyles, 'merged', lineStyleOptions).name('Line Merged');
+    gui.add(derivedLineStyles, 'error', lineStyleOptions).name('Line Error');
+
+    fn.name = 'f(x) = N_a + N_b';
 
     return () => {
       const mergedGaussian = gaussian1.mergeWith(gaussian2);
       mergedGaussian.name = 'Merged Gaussian';
+      mergedGaussian.color = '#2f2f2f';
+      mergedGaussian.lineStyle = derivedLineStyles.merged;
       const bariceterMergeGaussian = gaussian1.baricenterMergeWith(gaussian2);
       bariceterMergeGaussian.name = 'Baricenter Merge Gaussian';
-      bariceterMergeGaussian.color = '#326655';
-      draw([gaussian1, gaussian2, mergedGaussian, bariceterMergeGaussian, fn], {
-        x: [-10, 10],
-        y: [-1, 3],
+      bariceterMergeGaussian.color = '#1f8a70';
+      mergedGaussian.lineStyle = 'dashed';
+
+      const mergeError = new FunctionDraw((x: number) => {
+        return Math.abs(mergedGaussian.value(x) - fn.fn(x));
+      }, '#c44536');
+      mergeError.name = 'Merge Error';
+      mergeError.lineStyle = derivedLineStyles.error;
+      draw([gaussian1, gaussian2, fn, mergedGaussian, mergeError], {
+        x: [-5, 5],
+        y: [-1, 2],
       });
     };
   }
 
   const gaussian = new Gaussian(1, 0, 1, 'rgb(26 79 73)');
   gui.add(gaussian, 'sigma', 0.2, 10, 0.1).name('Sigma');
+  gui.add(gaussian, 'lineStyle', lineStyleOptions).name('Line');
 
   return () =>
     draw([gaussian], {
@@ -263,6 +304,7 @@ function drawLegend(
   const x = plot.left + plot.width - boxW - 8;
   const y = plot.top + 8;
 
+  ctx.setLineDash([]);
   ctx.fillStyle = 'rgba(245 247 242 / 0.85)';
   ctx.strokeStyle = 'rgb(180 185 175)';
   ctx.lineWidth = 1;
@@ -274,6 +316,7 @@ function drawLegend(
   drawables.forEach((d, i) => {
     const ry = y + padY + i * rowH + fontSize / 2;
     ctx.strokeStyle = d.getColor();
+    applyLineStyle(ctx, d.getLineStyle());
     ctx.lineWidth = 2.5;
     ctx.beginPath();
     ctx.moveTo(x + padX, ry);
@@ -305,8 +348,8 @@ function draw(gaussians: Drawable[], ranges: AxisRange) {
   }
 
   const padding = {
-    left: 12,
-    right: 12,
+    left: 18,
+    right: 18,
     top: 12,
     bottom: 12,
   };
@@ -367,15 +410,6 @@ function draw(gaussians: Drawable[], ranges: AxisRange) {
 </script>
 
 <style>
-.gauss-canvas {
-  width: 100%;
-  max-width: 840px;
-  height: 420px;
-  /* aspect-ratio: 1; */
-  border: 1px solid black;
-  touch-action: none;
-}
-
 * {
   box-sizing: border-box;
 }
