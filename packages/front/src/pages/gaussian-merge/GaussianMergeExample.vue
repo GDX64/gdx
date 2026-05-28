@@ -16,6 +16,8 @@ const props = defineProps<{
 
 const guiContainer = ref<HTMLDivElement | null>(null);
 
+const BACKGROUND_COLOR = '#ffffff';
+
 interface Drawable {
   draw(ctx: CanvasRenderingContext2D, scale: Scale): void;
   getColor(): string;
@@ -138,7 +140,7 @@ class FunctionDraw implements Drawable {
   }
 }
 
-const { canvas, size } = useCanvasDPI();
+const { canvas, size, dpi } = useCanvasDPI({ dpi: 3 });
 
 function createExample() {
   const gui = new GUI({ container: guiContainer.value ?? undefined });
@@ -189,7 +191,7 @@ function createExample() {
       mergeError.lineStyle = derivedLineStyles.error;
       draw([gaussian1, gaussian2, fn, mergedGaussian, mergeError], {
         x: [-5, 5],
-        y: [-1, 2],
+        y: [-0.5, 2],
       });
     };
   }
@@ -291,10 +293,10 @@ function drawLegend(
   plot: PlotArea
 ) {
   const lineLen = 18;
-  const rowH = 18;
   const padX = 10;
   const padY = 8;
-  const fontSize = 11;
+  const fontSize = 16;
+  const rowH = Math.ceil(fontSize * 1.5);
 
   ctx.font = `${fontSize}px monospace`;
   const textWidth = Math.max(...drawables.map((d) => ctx.measureText(d.getName()).width));
@@ -305,7 +307,7 @@ function drawLegend(
   const y = plot.top + 8;
 
   ctx.setLineDash([]);
-  ctx.fillStyle = 'rgba(245 247 242 / 0.85)';
+  ctx.fillStyle = BACKGROUND_COLOR;
   ctx.strokeStyle = 'rgb(180 185 175)';
   ctx.lineWidth = 1;
   ctx.beginPath();
@@ -314,7 +316,8 @@ function drawLegend(
   ctx.stroke();
 
   drawables.forEach((d, i) => {
-    const ry = y + padY + i * rowH + fontSize / 2;
+    const lineHeight = fontSize;
+    const ry = y + padY + i * rowH + lineHeight / 2;
     ctx.strokeStyle = d.getColor();
     applyLineStyle(ctx, d.getLineStyle());
     ctx.lineWidth = 2.5;
@@ -324,7 +327,8 @@ function drawLegend(
     ctx.stroke();
 
     ctx.fillStyle = 'rgb(35 35 35)';
-    ctx.fillText(d.getName(), x + padX + lineLen + 6, ry + fontSize / 2 - 1);
+    ctx.textBaseline = 'middle';
+    ctx.fillText(d.getName(), x + padX + lineLen + 6, ry);
   });
 }
 
@@ -374,9 +378,9 @@ function draw(gaussians: Drawable[], ranges: AxisRange) {
   };
 
   ctx.save();
-  ctx.scale(devicePixelRatio, devicePixelRatio);
+  ctx.scale(dpi, dpi);
 
-  ctx.fillStyle = 'rgb(245 247 242)';
+  ctx.fillStyle = BACKGROUND_COLOR;
   ctx.fillRect(0, 0, width, height);
 
   ctx.strokeStyle = 'rgb(150 160 140)';

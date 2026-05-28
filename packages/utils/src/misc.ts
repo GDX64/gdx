@@ -49,13 +49,13 @@ export function useDrag(start: Observable<any>): {
             (acc, value) =>
               [acc[0] + value.movementX, acc[1] + value.movementY] as [
                 number,
-                number
+                number,
               ],
-            pos.value
+            pos.value,
           ),
-          takeUntil(fromEvent(window, "pointerup"))
+          takeUntil(fromEvent(window, "pointerup")),
         );
-      })
+      }),
     )
     .subscribe((value) => {
       pos.value = value;
@@ -65,7 +65,7 @@ export function useDrag(start: Observable<any>): {
 }
 
 export function useAnimationFrames(
-  fn: (args: { elapsed: number; delta: number; count: number }) => void
+  fn: (args: { elapsed: number; delta: number; count: number }) => void,
 ): void {
   let last = 0;
   let count = 0;
@@ -112,14 +112,14 @@ export function useVisibility(container: Ref<HTMLElement | null | undefined>): {
     },
     {
       immediate: true,
-    }
+    },
   );
 
   return { isVisible };
 }
 
 export function useSize(
-  container: Ref<HTMLElement | null | undefined> = ref(null)
+  container: Ref<HTMLElement | null | undefined> = ref(null),
 ): {
   size: { width: number; height: number };
   container: Ref<HTMLElement | null | undefined>;
@@ -165,7 +165,7 @@ export function awaitTime(time: number): Promise<void> {
  */
 export async function estimateRefreshRate(samples = 10): Promise<number> {
   const lastValue = await firstValueFrom(
-    animationFrames().pipe(take(samples), last())
+    animationFrames().pipe(take(samples), last()),
   );
   const avg = lastValue.elapsed / samples;
   return 1000 / avg;
@@ -176,24 +176,26 @@ type CanvasDPIResult = {
   canvasPromise: Promise<HTMLCanvasElement>;
   size: { width: number; height: number };
   pixelSize: Ref<{ width: number; height: number }>;
+  dpi: number;
 };
 
-export function useCanvasDPI(fixed?: {
-  width: number;
-  height: number;
+export function useCanvasDPI(args?: {
+  width?: number;
+  height?: number;
+  dpi?: number;
 }): CanvasDPIResult {
   const canvas = ref<HTMLCanvasElement>();
   const { size } = useSize(canvas);
   function updateValues() {
     if (canvas.value) {
-      if (!fixed) {
-        const dpr = self.devicePixelRatio || 1;
+      if (!args?.width || !args?.height) {
+        const dpr = args?.dpi ?? (self.devicePixelRatio || 1);
         const { width, height } = size;
         canvas.value.width = Math.floor(width * dpr);
         canvas.value.height = Math.floor(height * dpr);
       } else {
-        canvas.value.width = fixed.width;
-        canvas.value.height = fixed.height;
+        canvas.value.width = args.width;
+        canvas.value.height = args.height;
       }
     }
   }
@@ -213,21 +215,26 @@ export function useCanvasDPI(fixed?: {
     canvasPromise,
     size,
     pixelSize: computed(() => {
-      if (fixed) {
-        return fixed;
+      if (args?.width && args?.height) {
+        return { width: args.width, height: args.height };
       }
       return {
-        width: Math.floor(size.width * (self.devicePixelRatio || 1)),
-        height: Math.floor(size.height * (self.devicePixelRatio || 1)),
+        width: Math.floor(
+          size.width * (args?.dpi ?? (self.devicePixelRatio || 1)),
+        ),
+        height: Math.floor(
+          size.height * (args?.dpi ?? (self.devicePixelRatio || 1)),
+        ),
       };
     }),
+    dpi: args?.dpi ?? (self.devicePixelRatio || 1),
   };
 }
 
 export function animationProgress(duration: number): Observable<number> {
   return animationFrames().pipe(
     map(({ elapsed }) => Math.min(elapsed / duration, 1)),
-    takeWhile((v) => v <= 1, true)
+    takeWhile((v) => v <= 1, true),
   );
 }
 
@@ -238,7 +245,7 @@ export function lerpTime(a: number, b: number, t: number): number {
 export function useInterpolation<T>(
   r: () => T,
   duration: number,
-  interpolator: (initial: T, final: T, t: number) => T
+  interpolator: (initial: T, final: T, t: number) => T,
 ): Ref<T> {
   const subject = new Subject<T>();
   watchEffect(() => {
@@ -250,9 +257,9 @@ export function useInterpolation<T>(
       skip(1),
       switchMap((v) => {
         return animationProgress(duration).pipe(
-          map((t) => interpolator(sRef.value, v, t))
+          map((t) => interpolator(sRef.value, v, t)),
         );
-      })
+      }),
     )
     .subscribe((final) => {
       sRef.value = final;
@@ -292,7 +299,7 @@ type SimpleObservable<T> = {
 
 export function observableToRef<T>(
   obs: SimpleObservable<T> | Observable<T>,
-  initial: T
+  initial: T,
 ): Ref<T> {
   const thing = shallowRef(initial);
   const sub = obs.subscribe((value) => {
@@ -304,7 +311,7 @@ export function observableToRef<T>(
 
 export function useObservable<T>(
   obs: SimpleObservable<T> | Observable<T>,
-  fn: (value: T) => void
+  fn: (value: T) => void,
 ): void {
   const sub = obs.subscribe(fn);
   onUnmounted(() => sub.unsubscribe());
@@ -319,7 +326,7 @@ export function fnToObservable<T>(fn: () => T): Observable<T> {
       },
       {
         immediate: true,
-      }
+      },
     );
     return () => sub();
   });
@@ -327,7 +334,7 @@ export function fnToObservable<T>(fn: () => T): Observable<T> {
 
 export function useComputedGenerator<T>(
   genFn: () => Generator<number, T>,
-  initial: T
+  initial: T,
 ): { comp: Ref<T>; progress: Ref<number> } {
   const currentValue = shallowRef<T>(initial) as Ref<T>;
   const progress = ref(0);
@@ -359,7 +366,7 @@ export function useComputedGenerator<T>(
 
 export function useComputedGeneratorState<T>(
   genFn: () => Generator<T>,
-  initial: T
+  initial: T,
 ): Ref<T> {
   const currentValue = shallowRef<T>(initial) as Ref<T>;
   watchEffect(async (clear) => {
