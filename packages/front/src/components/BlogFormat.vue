@@ -30,6 +30,11 @@ h2 {
   @apply text-2xl mb-5;
 }
 
+h3 {
+  font-weight: bold;
+  @apply text-xl mb-5;
+}
+
 math {
   width: fit-content;
   margin: 12px 0;

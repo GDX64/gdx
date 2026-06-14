@@ -113,7 +113,7 @@ variance with a covariance matrix <latex-math inline>\mathbf{P}</latex-math>. A 
 where **P** is defined as
 
 <latex-math>
-\mathbf{P} = \begin{pmatrix}\sigma_x^2 & \rho\,\sigma_x\sigma_y \\ \rho\,\sigma_x\sigma_y & \sigma_y^2\end{pmatrix}
+\mathbf{P} = \begin{bmatrix}\sigma_x^2 & \rho\,\sigma_x\sigma_y \\ \rho\,\sigma_x\sigma_y & \sigma_y^2\end{bmatrix}
 </latex-math>
 
 where <latex-math inline>\boldsymbol{\mu}\in\mathbb{R}^2</latex-math> is the center and
@@ -155,10 +155,12 @@ covariance defines. The scalar <latex-math inline>c</latex-math> picks *which* c
 <latex-math inline>c=1</latex-math> is the one-<latex-math inline>\sigma</latex-math> ellipse,
 <latex-math inline>c=2</latex-math> the two-<latex-math inline>\sigma</latex-math> one.
 
+### Diagonalization
+
 To read off the geometry, diagonalize the covariance:
 
 <latex-math>
-\mathbf{P} = \mathbf{R}\,\boldsymbol{\Lambda}\,\mathbf{R}^T, \qquad \boldsymbol{\Lambda} = \begin{pmatrix}\lambda_1 & 0\\ 0 & \lambda_2\end{pmatrix}
+\mathbf{P} = \mathbf{R}\,\boldsymbol{\Lambda}\,\mathbf{R}^T, \qquad \boldsymbol{\Lambda} = \begin{bmatrix}\lambda_1 & 0\\ 0 & \lambda_2\end{bmatrix}
 </latex-math>
 
 This is the **spectral decomposition** — the form of eigendecomposition reserved
@@ -186,11 +188,13 @@ the rotated eigenbasis the contour decouples into the familiar form
 so each semi-axis has length <latex-math inline>r_k = c\,\sqrt{\lambda_k}</latex-math> — the
 standard deviation along that axis, scaled by the contour level.
 
+### Lots of algebra
+
 For a <latex-math inline>2\times 2</latex-math> matrix we don't need a general eigensolver;
 everything has a closed form in terms of the entries. Writing
 
 <latex-math>
-\mathbf{P} = \begin{pmatrix} p_{11} & p_{12} \\ p_{12} & p_{22} \end{pmatrix}
+\mathbf{P} = \begin{bmatrix} p_{11} & p_{12} \\ p_{12} & p_{22} \end{bmatrix}
 </latex-math>
 
 (with <latex-math inline>p_{21} = p_{12}</latex-math> by symmetry), the eigenvalues are the
@@ -219,7 +223,7 @@ entries:
 The orthonormal rotation matrix is then just that angle and its perpendicular:
 
 <latex-math>
-\mathbf{R} = \begin{pmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\theta \end{pmatrix}
+\mathbf{R} = \begin{bmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\theta \end{bmatrix}
 </latex-math>
 
 (The <latex-math inline>\tfrac{1}{2}</latex-math> and the doubled
@@ -230,18 +234,68 @@ the matrix is already diagonal, <latex-math inline>\theta=0</latex-math>, and th
 axis-aligned with <latex-math inline>\lambda_1 = p_{11}</latex-math>,
 <latex-math inline>\lambda_2 = p_{22}</latex-math>, as expected.
 
-With <latex-math inline>\lambda_{1,2}</latex-math> and <latex-math inline>\mathbf{R}</latex-math> in
-hand, drawing the ellipse is mechanical: set the
+### Drawing the ellipse with orthogonal diagonalization
+
+With <latex-math inline>\lambda_{1,2}</latex-math> and <latex-math inline>\mathbf{R}</latex-math> in hand, drawing the ellipse is mechanical: set the
 semi-axes <latex-math inline>a = c\sqrt{\lambda_1}</latex-math> and
 <latex-math inline>b = c\sqrt{\lambda_2}</latex-math>, and trace
 
 <latex-math>
-\mathbf{x}(t) = \boldsymbol{\mu} + \mathbf{R}\begin{pmatrix} a\cos t \\ b\sin t \end{pmatrix}, \qquad t\in[0,2\pi)
+\mathbf{x}(t) = \boldsymbol{\mu} + \mathbf{R}\begin{bmatrix} a\cos t \\ b\sin t \end{bmatrix}, \qquad t\in[0,2\pi)
 </latex-math>
 
 The eigenvectors set the **orientation**, the square-rooted eigenvalues set the
 **shape and width**, and <latex-math inline>c</latex-math> selects which density level the
 contour traces.
+
+### Cholesky decomposition
+
+If all we want is to *draw* the ellipse — rather than report its axis angle — there
+is a cheaper route that skips eigenvalues entirely. Any symmetric positive-definite
+<latex-math inline>\mathbf{P}</latex-math> has a unique **Cholesky factorization**
+
+<latex-math>
+\mathbf{P} = \mathbf{L}\mathbf{L}^T
+</latex-math>
+
+where <latex-math inline>\mathbf{L}</latex-math> is lower-triangular with positive diagonal.
+For the <latex-math inline>2\times 2</latex-math> case the factor is explicit:
+
+<latex-math>
+\mathbf{L} = \begin{bmatrix} \sqrt{p_{11}} & 0 \\[4pt] \dfrac{p_{12}}{\sqrt{p_{11}}} & \sqrt{p_{22} - \dfrac{p_{12}^2}{p_{11}}} \end{bmatrix}
+</latex-math>
+
+The diagonal terms are real exactly when <latex-math inline>p_{11}>0</latex-math> and the
+**Schur complement** <latex-math inline>p_{22} - p_{12}^2/p_{11} > 0</latex-math>, which is just
+the positive-definiteness of <latex-math inline>\mathbf{P}</latex-math> restated — the same
+condition that kept the eigenvalues positive.
+
+Why does this draw the ellipse? Substitute
+<latex-math inline>\mathbf{x}-\boldsymbol{\mu} = \mathbf{L}\mathbf{z}</latex-math> into the contour
+equation and the metric collapses to the identity:
+
+<latex-math>
+(\mathbf{x}-\boldsymbol{\mu})^T \mathbf{P}^{-1}(\mathbf{x}-\boldsymbol{\mu}) = \mathbf{z}^T \mathbf{L}^T (\mathbf{L}\mathbf{L}^T)^{-1} \mathbf{L}\,\mathbf{z} = \mathbf{z}^T\mathbf{z} = c^2
+</latex-math>
+
+So in <latex-math inline>\mathbf{z}</latex-math>-coordinates the contour is simply a circle of
+radius <latex-math inline>c</latex-math>. What it means is that a circle in the <latex-math inline>\mathbf{z}</latex-math> world when mapped through <latex-math inline>\mathbf{L}</latex-math> becomes an ellipse in the <latex-math inline>\mathbf{x}</latex-math> world, or ellipses in the <latex-math inline>\mathbf{x}</latex-math> world when mapped to <latex-math inline>\mathbf{L}^{-1}</latex-math> become circles in the <latex-math inline>\mathbf{z}</latex-math> world. To trace the ellipse we run a unit circle through
+<latex-math inline>\mathbf{L}</latex-math>:
+
+<latex-math>
+\mathbf{x}(t) = \boldsymbol{\mu} + c\,\mathbf{L}\begin{bmatrix} \cos t \\ \sin t \end{bmatrix}, \qquad t\in[0,2\pi)
+</latex-math>
+
+This is the same affine recipe as before, with <latex-math inline>\mathbf{L}</latex-math> playing
+the role that <latex-math inline>\mathbf{R}\,\boldsymbol{\Lambda}^{1/2}</latex-math> played in the
+diagonalization version — both map the unit circle onto the same ellipse. The one
+caveat: <latex-math inline>\mathbf{L}</latex-math> is triangular, **not** a rotation, so its
+columns are *not* the ellipse's axes and it tells you nothing about the orientation
+angle. Cholesky is the tool when you want to render the curve (or sample from the
+Gaussian — <latex-math inline>\boldsymbol{\mu} + \mathbf{L}\mathbf{z}</latex-math> with
+<latex-math inline>\mathbf{z}\sim\mathcal{N}(\mathbf{0},\mathbf{I})</latex-math> draws a point from
+it); reach for the eigendecomposition when you actually need the axes and angle. For
+the <latex-math inline>2\times 2</latex-math> demo both are closed-form and equally cheap.
 
 In the example below, **Gaussian A** and **Gaussian B** are drawn as ellipses
 (the solid contour is one <latex-math inline>\sigma</latex-math>, the faint one is two),
