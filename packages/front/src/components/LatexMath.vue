@@ -1,10 +1,14 @@
 <template>
-  <div class="latex-math" v-html="mathml"></div>
+  <div class="latex-math" :class="{ inline: props.inline }" v-html="mathml"></div>
 </template>
 
 <script setup lang="ts">
 import temml from 'temml';
 import { computed, type Slots, type VNode, useSlots } from 'vue';
+
+const props = defineProps<{
+  inline?: boolean;
+}>();
 
 const slots = useSlots() as Slots;
 
@@ -22,7 +26,7 @@ const mathml = computed(() => {
   }
 
   return temml.renderToString(latex.value, {
-    displayMode: true,
+    displayMode: false,
     throwOnError: false,
   });
 });
@@ -30,6 +34,11 @@ const mathml = computed(() => {
 
 <style scoped>
 .latex-math {
-  overflow-x: auto;
+  margin-bottom: 20px;
+}
+
+.inline {
+  display: inline;
+  margin-bottom: 0;
 }
 </style>
