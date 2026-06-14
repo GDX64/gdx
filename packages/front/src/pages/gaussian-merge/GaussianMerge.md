@@ -110,6 +110,12 @@ variance with a covariance matrix <latex-math inline>\mathbf{P}</latex-math>. A 
 \mathcal{N}(\mathbf{x}; A, \boldsymbol{\mu}, \mathbf{P}) = A\,\exp\!\left(-\tfrac{1}{2}(\mathbf{x}-\boldsymbol{\mu})^T \mathbf{P}^{-1}(\mathbf{x}-\boldsymbol{\mu})\right)
 </latex-math>
 
+where **P** is defined as
+
+<latex-math>
+\mathbf{P} = \begin{pmatrix}\sigma_x^2 & \rho\,\sigma_x\sigma_y \\ \rho\,\sigma_x\sigma_y & \sigma_y^2\end{pmatrix}
+</latex-math>
+
 where <latex-math inline>\boldsymbol{\mu}\in\mathbb{R}^2</latex-math> is the center and
 <latex-math inline>\mathbf{P}</latex-math> is a symmetric positive-definite
 <latex-math inline>2\times 2</latex-math> matrix that encodes both the widths and the
@@ -129,6 +135,113 @@ The scalar <latex-math inline>(\mu_i-\mu_j)^2</latex-math> from the 1D case is n
 **outer product** <latex-math inline>(\boldsymbol{\mu}_i-\boldsymbol{\mu}_j)(\boldsymbol{\mu}_i-\boldsymbol{\mu}_j)^T</latex-math>,
 a rank-one matrix that stretches the merged covariance along the direction
 separating the two centers. Same parallel-axis theorem, now with a direction.
+
+## From covariance to ellipse
+
+Before drawing anything, we need to turn the matrix <latex-math inline>\mathbf{P}</latex-math>
+into something with a shape, a size, and an angle. The bridge is the
+**constant-density contour**: the set of points where the exponent in the
+Gaussian is held fixed,
+
+<latex-math>
+(\mathbf{x}-\boldsymbol{\mu})^T \mathbf{P}^{-1}(\mathbf{x}-\boldsymbol{\mu}) = c^2
+</latex-math>
+
+Because <latex-math inline>\mathbf{P}</latex-math> is symmetric positive-definite, this
+quadratic form is always an ellipse centered at <latex-math inline>\boldsymbol{\mu}</latex-math>.
+The left-hand side is the squared **Mahalanobis distance**, so a contour is just
+the locus of points that sit equally far from the center in the metric the
+covariance defines. The scalar <latex-math inline>c</latex-math> picks *which* contour:
+<latex-math inline>c=1</latex-math> is the one-<latex-math inline>\sigma</latex-math> ellipse,
+<latex-math inline>c=2</latex-math> the two-<latex-math inline>\sigma</latex-math> one.
+
+To read off the geometry, diagonalize the covariance:
+
+<latex-math>
+\mathbf{P} = \mathbf{R}\,\boldsymbol{\Lambda}\,\mathbf{R}^T, \qquad \boldsymbol{\Lambda} = \begin{pmatrix}\lambda_1 & 0\\ 0 & \lambda_2\end{pmatrix}
+</latex-math>
+
+This is the **spectral decomposition** — the form of eigendecomposition reserved
+for symmetric matrices. The spectral theorem guarantees that a real symmetric
+<latex-math inline>\mathbf{P}</latex-math> has real eigenvalues and *orthogonal*
+eigenvectors, so <latex-math inline>\mathbf{R}</latex-math> can be chosen orthogonal
+(<latex-math inline>\mathbf{R}^{-1} = \mathbf{R}^T</latex-math>, hence the
+<latex-math inline>\mathbf{R}^T</latex-math> rather than a general inverse). Geometrically
+<latex-math inline>\mathbf{R}</latex-math> is then a pure rotation: it rotates into the
+eigenbasis, <latex-math inline>\boldsymbol{\Lambda}</latex-math> scales along the axes, and
+<latex-math inline>\mathbf{R}^T</latex-math> rotates back. Because
+<latex-math inline>\mathbf{P}</latex-math> is also positive-definite the eigenvalues are
+strictly positive, so the <latex-math inline>\sqrt{\lambda_k}</latex-math> below are real and
+the ellipse never degenerates.
+
+The eigenvectors (the columns of <latex-math inline>\mathbf{R}</latex-math>) are the
+**directions of the ellipse's axes**, and the eigenvalues
+<latex-math inline>\lambda_1,\lambda_2</latex-math> are the variances along those axes. In
+the rotated eigenbasis the contour decouples into the familiar form
+
+<latex-math>
+\frac{y_1^2}{\lambda_1} + \frac{y_2^2}{\lambda_2} = c^2
+</latex-math>
+
+so each semi-axis has length <latex-math inline>r_k = c\,\sqrt{\lambda_k}</latex-math> — the
+standard deviation along that axis, scaled by the contour level.
+
+For a <latex-math inline>2\times 2</latex-math> matrix we don't need a general eigensolver;
+everything has a closed form in terms of the entries. Writing
+
+<latex-math>
+\mathbf{P} = \begin{pmatrix} p_{11} & p_{12} \\ p_{12} & p_{22} \end{pmatrix}
+</latex-math>
+
+(with <latex-math inline>p_{21} = p_{12}</latex-math> by symmetry), the eigenvalues are the
+roots of the characteristic polynomial
+<latex-math inline>\det(\mathbf{P} - \lambda \mathbf{I}) = 0</latex-math>, i.e.
+<latex-math inline>\lambda^2 - (p_{11}+p_{22})\,\lambda + (p_{11}p_{22} - p_{12}^2) = 0</latex-math>.
+The trace and determinant give the two roots directly:
+
+<latex-math>
+\lambda_{1,2} = \frac{p_{11}+p_{22}}{2} \pm \sqrt{\left(\frac{p_{11}-p_{22}}{2}\right)^{2} + p_{12}^{2}}
+</latex-math>
+
+with <latex-math inline>\lambda_1</latex-math> the larger root (the major axis). The square root
+is real because the symmetric matrix guarantees real eigenvalues, and both roots are
+positive when <latex-math inline>\mathbf{P}</latex-math> is positive-definite.
+
+The orientation follows from the eigenvector of <latex-math inline>\lambda_1</latex-math>.
+Solving <latex-math inline>(\mathbf{P} - \lambda_1 \mathbf{I})\mathbf{v}_1 = 0</latex-math>
+gives the major-axis direction, and its angle collapses to a single expression in the
+entries:
+
+<latex-math>
+\theta = \frac{1}{2}\operatorname{atan2}\!\big(2\,p_{12},\; p_{11} - p_{22}\big)
+</latex-math>
+
+The orthonormal rotation matrix is then just that angle and its perpendicular:
+
+<latex-math>
+\mathbf{R} = \begin{pmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\theta \end{pmatrix}
+</latex-math>
+
+(The <latex-math inline>\tfrac{1}{2}</latex-math> and the doubled
+<latex-math inline>p_{12}</latex-math> are the double-angle identity at work: the quadratic form
+mixes the axes through <latex-math inline>2p_{12}\,xy</latex-math>, so the de-mixing angle is half
+the <latex-math inline>\operatorname{atan2}</latex-math>.) When <latex-math inline>p_{12}=0</latex-math>
+the matrix is already diagonal, <latex-math inline>\theta=0</latex-math>, and the ellipse is
+axis-aligned with <latex-math inline>\lambda_1 = p_{11}</latex-math>,
+<latex-math inline>\lambda_2 = p_{22}</latex-math>, as expected.
+
+With <latex-math inline>\lambda_{1,2}</latex-math> and <latex-math inline>\mathbf{R}</latex-math> in
+hand, drawing the ellipse is mechanical: set the
+semi-axes <latex-math inline>a = c\sqrt{\lambda_1}</latex-math> and
+<latex-math inline>b = c\sqrt{\lambda_2}</latex-math>, and trace
+
+<latex-math>
+\mathbf{x}(t) = \boldsymbol{\mu} + \mathbf{R}\begin{pmatrix} a\cos t \\ b\sin t \end{pmatrix}, \qquad t\in[0,2\pi)
+</latex-math>
+
+The eigenvectors set the **orientation**, the square-rooted eigenvalues set the
+**shape and width**, and <latex-math inline>c</latex-math> selects which density level the
+contour traces.
 
 In the example below, **Gaussian A** and **Gaussian B** are drawn as ellipses
 (the solid contour is one <latex-math inline>\sigma</latex-math>, the faint one is two),
