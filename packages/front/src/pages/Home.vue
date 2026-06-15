@@ -43,76 +43,93 @@ watchEffect(() => {
 const experiences = [
   {
     company: 'Nelogica',
-    date: '2024 - Now',
+    date: '2026 - Now',
+    title: 'Software Developer V',
     description:
-      'In late 2024 I became tech lead of the Profit Web team to focus again on the Profit Web project as well as web front end libraries and APIs.',
-    title: 'Tech Lead',
-    tags: ['Web', 'FrontEnd'],
+      'Building international home broker platforms with AI-assisted workflows, real-time systems, and high-performance rendering using WebAssembly (Rust) and WebGPU.',
+    tags: ['Rust', 'WebAssembly', 'WebGPU', 'AI'],
   },
   {
     company: 'Nelogica',
-    date: '2023 - 2024',
+    date: '2025 - 2026',
+    title: 'Tech Lead - Administrative Systems',
+    description:
+      'Led a full-stack team responsible for the company intranet and extranet using PHP and TypeScript, driving the rewrite of both systems to modernize architecture and technology stack.',
+    tags: ['PHP', 'Typescript', 'FullStack'],
+  },
+  {
+    company: 'Nelogica',
+    date: '2024 - 2025',
+    title: 'Tech Lead - macOS and Web Platforms',
+    description:
+      'Led web and macOS trading products, including Profit Web, with TypeScript, Electron, Web Workers, and WebSockets. Platforms reached tens of thousands of users and processed billions of dollars in monthly orders.',
+    tags: ['Typescript', 'Electron', 'WebSockets', 'macOS'],
+  },
+  {
+    company: 'Nelogica',
+    date: '2024',
     title: 'Software Developer IV',
     description:
-      'In 2023 I moved to Porto Alegre to work in office with the mobile team using our typescript codebase to target the mobile platforms. Today we have hundreds of thousands active users of the Profit Android and IOS apps monthly.',
-    tags: ['iOS', 'Android', 'CapacitorJS'],
+      'Led development of Profit Android and Profit iOS with TypeScript, Vue.js, Kotlin, and Swift. Mobile apps reached hundreds of thousands of active users and processed billions of dollars in monthly orders.',
+    tags: ['iOS', 'Android', 'Kotlin', 'Swift'],
   },
   {
     company: 'Nelogica',
-    date: '2022 - 2023',
+    date: '2022 - 2024',
     title: 'Software Developer III',
     description:
-      'In late 2022 we developed the Profit Mac project using web technologies and electron, briging our products to thousands of MacOS users.',
-    tags: ['Electron', 'MacOS'],
+      'Built and launched the first Profit macOS platform with Electron and TypeScript for real-time market data and order execution.',
+    tags: ['Electron', 'Typescript', 'macOS'],
   },
   {
     company: 'Nelogica',
     date: '2021 - 2022',
     title: 'Software Developer II',
     description:
-      'As I acquired more skills and experience, I started to guide my work towards the aplication performance and developer tools. In this year I introduced typescript to the web projects.',
-    tags: ['Typescript', 'VueJS', 'WebSockets'],
+      'Improved runtime performance and initiated the migration of a multi-million-line JavaScript codebase to TypeScript.',
+    tags: ['Typescript', 'Performance'],
   },
   {
     company: 'Nelogica',
     date: '2020 - 2021',
     title: 'Software Developer I',
     description:
-      'In my first year at Nelogica, I worked on the Homebroker and ProfitWeb projects, using vuejs. The homebroker is a trading platform used by thousands of traders every day in several brazilian exchanges.',
-    tags: ['Javascript', 'HTML', 'CSS'],
-  },
-  {
-    company: 'PSA (Peugeot Citroën)',
-    date: '2019',
-    title: 'Engineering Intern',
-    description:
-      'I worked in the maintenance department, where I helped with spare parts management and maintenance planning.',
-    tags: ['Excel'],
+      'Built trading interfaces for Profit Web and Vector Web using JavaScript, Vue.js, HTML, and CSS.',
+    tags: ['Javascript', 'VueJS', 'HTML', 'CSS'],
   },
 ];
 
 const education = [
   {
-    company: 'Federal University of Juiz de Fora',
-    date: '2014 - 2020',
-    title: 'Electrical Engineering',
+    company: 'UFRGS',
+    date: 'In Progress',
+    title: "Master's in Data Visualization",
     description:
-      'I graduated in Electrical Engineering at the Federal University of Juiz de Fora. My bachelor thesis was about signal processing techniques to identify harmonic distortion in power systems.',
-    tags: ['DSP', 'Matlab', 'Electronics'],
+      'Graduate studies focused on data visualization, visual analytics, and interactive systems.',
+    tags: ['Data Visualization', 'Visual Analytics'],
   },
   {
-    company: 'University of Buenos Aires',
-    date: '2019 - 2020',
-    title: 'Electronic Engineering Interchange',
+    company: 'UFJF',
+    date: '2014 - 2019',
+    title: "Bachelor's in Electronic Engineering",
     description:
-      "I took master's classes: speech recognition, pattern recognition, biomedical signal processing, adaptive filtering. It was a great experience to study in another country and take the classes I was most interested in.",
+      'Emphasis on signal processing, embedded software, and electronics using Matlab, Python, and C with FreeRTOS.',
+    tags: ['DSP', 'Matlab', 'Embedded'],
+  },
+  {
+    company: 'UBA, Buenos Aires',
+    date: '2019',
+    title: 'Electronic Engineering Exchange Program',
+    description:
+      'Graduate-level coursework in speech recognition, pattern recognition, biomedical signal processing, and adaptive filtering.',
     tags: ['DSP', 'Matlab'],
   },
   {
-    company: 'Escola Técnica Pandiá Calógeras',
-    date: '2011 - 2014',
-    title: 'Electromechnical Technician',
-    description: `I did high school and technical school at the same time, where I learned about electronics, mechanics, and automation. I also had my first contact with programming, using relays and logic gates.`,
+    company: 'ETPC, Volta Redonda',
+    date: '2011 - 2013',
+    title: 'Electro-Mechanical Technician',
+    description:
+      'Technical school where I learned about electronics, mechanics, and automation, and had my first contact with programming.',
     tags: ['Electronics', 'Mechanics', 'Automation'],
   },
 ];
@@ -178,7 +195,10 @@ const selectedExperienceGroup = computed(() => {
       <div
         class="flex justify-between flex-wrap gap-4 [&_a]:decoration-prime-400 [&_a]:underline"
       >
-        <div class="max-w-[560px] min-w-[380px] flex flex-col gap-7 text-xl">
+        <div
+          id="about-me-content"
+          class="max-w-[560px] min-w-[380px] flex flex-col gap-7 text-xl"
+        >
           <p>
             In 2020 I graduated in Electrical Engineering at UFJF. But even before that,
             throughout my whole studies I was always deeply interested in science,
