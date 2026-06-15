@@ -197,7 +197,7 @@ const selectedExperienceGroup = computed(() => {
       >
         <div
           id="about-me-content"
-          class="max-w-[560px] min-w-[380px] flex flex-col gap-7 text-xl"
+          class="max-w-[560px] min-w-[380px] flex flex-col gap-7 text-xl self-start sticky top-[96px]"
         >
           <p>
             In 2020 I graduated in Electrical Engineering at UFJF. But even before that,
@@ -262,7 +262,7 @@ const selectedExperienceGroup = computed(() => {
             class="overflow-x-auto flex gap-4 no-scrollbar snap-x snap-mandatory max-w-full"
           >
             <div
-              class="flex flex-col gap-2 w-full shrink-0 px-2 snap-start"
+              class="flex flex-col gap-2 w-full shrink-0 px-2 snap-start scroll-mt-[200px]"
               ref="experienceContainer"
             >
               <Experience
@@ -276,7 +276,7 @@ const selectedExperienceGroup = computed(() => {
               ></Experience>
             </div>
             <div
-              class="flex flex-col gap-2 w-full shrink-0 px-2 snap-start"
+              class="flex flex-col gap-2 w-full shrink-0 px-2 snap-start scroll-mt-[200px]"
               ref="educationContainer"
             >
               <Experience
