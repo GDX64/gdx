@@ -6,10 +6,9 @@ import Experience from '../components/Experience.vue';
 import perfil from '../assets/perfil.jfif?url';
 import ProjectPresentation from '../components/ProjectPresentation.vue';
 import archpelagusURL from '../assets/project_images/archpelagus_print.jpg?url';
-import dataViz from '../assets/project_images/data-visualization.png?url';
 import archpelagusURL2 from '../assets/project_images/boat_render.jpg?url';
+import gaussianMergeURL from '../assets/project_images/gaussians.png?url';
 import quadTreeURL from '../assets/project_images/quad_tree.png?url';
-import wasmChart from '../assets/project_images/wasm_chart.png?url';
 import triangleURL from '../assets/project_images/triangle_example.ppm?url';
 import birdsURL from '../assets/project_images/birds_example.jpg?url';
 import LinkedinRound from '../components/Contacts/LinkedinRound.vue';
@@ -295,13 +294,6 @@ const selectedExperienceGroup = computed(() => {
           url="https://archpelagus.glmachado.com"
         ></ProjectPresentation>
         <ProjectPresentation
-          title="Code Base Visualization"
-          description="Visualize your codebase with graphs!"
-          :tags="['Algorithms', 'Canvas2D', 'Typescript']"
-          :imgURL="dataViz"
-          url="/data-visualization"
-        ></ProjectPresentation>
-        <ProjectPresentation
           title="Spatial indexing"
           description="Some approaches to spatial indexing, wich is a technique to optimize searchs in space widly used in games like my own."
           :tags="['Algorithms', 'Canvas2D', 'Typescript']"
@@ -309,18 +301,11 @@ const selectedExperienceGroup = computed(() => {
           url="/space-index"
         ></ProjectPresentation>
         <ProjectPresentation
-          title="Wasm Chart"
-          description="This is a chart built with rust compiled to webassembly, the idea is to visualize millions of data points at once in real time using some clever trees."
-          :tags="['Algorithms', 'WebAssembly', 'Rust', 'Canvas2D']"
-          :imgURL="wasmChart"
-          url="/wasm-chart"
-        ></ProjectPresentation>
-        <ProjectPresentation
-          title="More fun stuff"
-          description="Random cool projects with little context I like to keep around to show to my friends."
-          :tags="['WebgGL', 'WebAssembly', 'Rust', 'Typescript']"
-          :imgURL="birdsURL"
-          url="/more-fun-stuff"
+          title="Merging Gaussians"
+          description="Collapsing a pile of weighted Gaussian kernels into fewer of them using moment matching, with interactive demos in 1D and 2D, covering covariance ellipses, spectral and Cholesky decompositions."
+          :tags="['Math', 'Algorithms', 'Canvas2D', 'Typescript']"
+          :imgURL="gaussianMergeURL"
+          url="/gaussian-merge"
         ></ProjectPresentation>
         <ProjectPresentation
           title="SIMD Rasterization"
@@ -328,6 +313,13 @@ const selectedExperienceGroup = computed(() => {
           :tags="['WebgGL', 'WebAssembly', 'Rust', 'ThreeJS']"
           :imgURL="triangleURL"
           url="/simd-rasterization"
+        ></ProjectPresentation>
+        <ProjectPresentation
+          title="More fun stuff"
+          description="Random cool projects with little context I like to keep around to show to my friends."
+          :tags="['WebgGL', 'WebAssembly', 'Rust', 'Typescript']"
+          :imgURL="birdsURL"
+          url="/more-fun-stuff"
         ></ProjectPresentation>
       </div>
     </section>

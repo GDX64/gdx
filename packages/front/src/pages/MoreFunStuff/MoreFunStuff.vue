@@ -5,6 +5,8 @@ import gravity from '../../assets/project_images/gravity.jpg?url';
 import projections from '../../assets/project_images/projections.jpg?url';
 import birds from '../../assets/project_images/birds_example.jpg?url';
 import stack from '../../assets/project_images/stack_boxes.jpg?url';
+import wasmChart from '../../assets/project_images/wasm_chart.png?url';
+import dataViz from '../../assets/project_images/data-visualization.png?url';
 </script>
 
 <template>
@@ -50,6 +52,18 @@ import stack from '../../assets/project_images/stack_boxes.jpg?url';
         would itself have its center of mass in the same position as the desired one. Pretty fancy stuff (not really)."
         :img-u-r-l="stack"
         url="/stack"
+      ></SimpleProjectPresentation>
+      <SimpleProjectPresentation
+        title="Wasm Chart"
+        description="This is a chart built with rust compiled to webassembly, the idea is to visualize millions of data points at once in real time using some clever trees."
+        :img-u-r-l="wasmChart"
+        url="/wasm-chart"
+      ></SimpleProjectPresentation>
+      <SimpleProjectPresentation
+        title="Code Base Visualization"
+        description="Visualize your codebase with graphs!"
+        :img-u-r-l="dataViz"
+        url="/data-visualization"
       ></SimpleProjectPresentation>
     </section>
   </main>
