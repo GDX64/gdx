@@ -7,7 +7,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import { useAnimationFrames, useCanvasDPI } from '@gdx/utils';
+import { useAnimationFrames, useCanvasDPI, useVisibility } from '@gdx/utils';
 import GUI from 'lil-gui';
 
 const props = defineProps<{
@@ -224,7 +224,8 @@ class Gaussian2D {
     const l2 = tr / 2 - disc;
     this.sigmaX = Math.sqrt(Math.max(0, l1));
     this.sigmaY = Math.sqrt(Math.max(0, l2));
-    this.theta = Math.abs(b) < 1e-9 && Math.abs(a - d) < 1e-9 ? 0 : 0.5 * Math.atan2(2 * b, a - d);
+    this.theta =
+      Math.abs(b) < 1e-9 && Math.abs(a - d) < 1e-9 ? 0 : 0.5 * Math.atan2(2 * b, a - d);
   }
 
   draw(ctx: CanvasRenderingContext2D, scale: EllipseScale) {
@@ -233,8 +234,8 @@ class Gaussian2D {
     ctx.strokeStyle = this.color;
     ctx.lineWidth = 2.5;
     // Draw 1-sigma and 2-sigma contours.
-    for (const k of [1, 2]) {
-      applyLineStyle(ctx, k === 1 ? this.lineStyle : 'dashed');
+    for (const k of [3]) {
+      applyLineStyle(ctx, this.lineStyle);
       ctx.beginPath();
       ctx.ellipse(
         cx,
@@ -420,8 +421,12 @@ onMounted(() => {
   drawExampleFn = createExample();
 });
 
+const { isVisible } = useVisibility(canvas);
+
 useAnimationFrames(() => {
-  drawExampleFn();
+  if (isVisible.value) {
+    drawExampleFn();
+  }
 });
 
 type Scale = {

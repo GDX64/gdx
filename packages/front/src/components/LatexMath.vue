@@ -1,5 +1,9 @@
 <template>
-  <div class="latex-math" :class="{ inline: props.inline }" v-html="mathml"></div>
+  <div
+    class="latex-math"
+    :class="{ 'latex-math-inline': props.inline }"
+    v-html="mathml"
+  ></div>
 </template>
 
 <script setup lang="ts">
@@ -32,13 +36,17 @@ const mathml = computed(() => {
 });
 </script>
 
-<style scoped>
+<style>
 .latex-math {
   margin-bottom: 20px;
 }
 
-.inline {
+.latex-math-inline {
   display: inline;
+  margin: 0;
+}
+
+.latex-math-inline math {
   margin: 0;
 }
 </style>
