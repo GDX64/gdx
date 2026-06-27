@@ -8,7 +8,7 @@ import ProjectPresentation from '../components/ProjectPresentation.vue';
 import archpelagusURL from '../assets/project_images/archpelagus_print.jpg?url';
 import archpelagusURL2 from '../assets/project_images/boat_render.jpg?url';
 import gaussianMergeURL from '../assets/project_images/gaussians.png?url';
-import pbdKitesURL from '../assets/project_images/image.jpg?url';
+import pbdKitesURL from '../assets/project_images/kite.png?url';
 import quadTreeURL from '../assets/project_images/quad_tree.png?url';
 import triangleURL from '../assets/project_images/triangle_example.ppm?url';
 import birdsURL from '../assets/project_images/birds_example.jpg?url';
