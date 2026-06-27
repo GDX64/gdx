@@ -149,5 +149,5 @@ useAnimationFrames(({ elapsed }) => {
   drawSeries((s) => s.final, colors.high, 2.5);
 
   ctx.restore();
-});
+}, canvas);
 </script>

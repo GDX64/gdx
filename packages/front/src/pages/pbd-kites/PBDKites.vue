@@ -12,11 +12,13 @@ import BackGround from '../BackGround.vue';
 import LatexMath from '../../components/LatexMath.vue';
 import PbdRopeExample from './PBDRopeExample.vue';
 import FilterResponseExample from './FilterResponseExample.vue';
+import KiteProjectionExample from './KiteProjectionExample.vue';
 import { VueComponentWith } from './PBDKites.md';
 
 const VueComponent = VueComponentWith({
   LatexMath,
   PbdRopeExample,
   FilterResponseExample,
+  KiteProjectionExample,
 });
 </script>

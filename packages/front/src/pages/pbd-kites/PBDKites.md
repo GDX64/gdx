@@ -70,8 +70,7 @@ The chart below is the live signal path. Every frame a fresh white-noise sample
 (purple, −1 at the left edge, +1 at the right) is pushed through the high-pass
 filter; its high-frequency tug is then added to the wind drift to give the
 **final movement** (orange) that actually steers the kite. That sum spikes when you
-move quickly and relaxes back toward the wind drift when you hold still. Only the
-last five seconds are kept; older samples are dropped each frame so nothing leaks.
+move quickly and relaxes back toward the wind drift when you hold still.
 
 <filter-response-example></filter-response-example>
 
@@ -119,6 +118,17 @@ that order — the **painter's algorithm**. Whatever is nearest gets drawn last 
 covers what is behind it. Second, the panels are not stroked with crisp lines but
 with [rough.js](https://roughjs.com), which adds a deliberate hand-drawn wobble, so
 the whole thing reads as a sketch rather than a wireframe.
+
+The sail below runs that exact pipeline on a single kite. **Drag** to spin it and
+watch the four panels re-project frame by frame; the **camera distance** slider
+moves the perspective camera nearer or farther — up close the frustum stretches the
+near panels and shrinks the far ones, while pulling it back flattens the sail toward
+a parallel projection. Turn **roughness** up to thicken the hand-drawn wobble, or
+switch on **projected vertices** to see the five points after the full
+<latex-math inline>\mathbf{P}\,\mathbf{V}\,\mathbf{M}</latex-math> transform and the
+pixel remap have collapsed them onto the canvas.
+
+<kite-projection-example></kite-projection-example>
 
 ## Hanging the ropes: Position Based Dynamics
 

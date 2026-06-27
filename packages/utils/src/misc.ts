@@ -66,10 +66,17 @@ export function useDrag(start: Observable<any>): {
 
 export function useAnimationFrames(
   fn: (args: { elapsed: number; delta: number; count: number }) => void,
+  reference?: Ref<HTMLElement | null | undefined>,
 ): void {
   let last = 0;
   let count = 0;
+  let isVisible = ref(true);
+  if (reference) {
+    const { isVisible: visibility } = useVisibility(reference);
+    isVisible = visibility;
+  }
   const sub = animationFrames().subscribe(({ elapsed }) => {
+    if (!isVisible.value) return;
     const delta = elapsed - last;
     last = elapsed;
     count++;
