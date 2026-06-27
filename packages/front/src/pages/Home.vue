@@ -8,6 +8,7 @@ import ProjectPresentation from '../components/ProjectPresentation.vue';
 import archpelagusURL from '../assets/project_images/archpelagus_print.jpg?url';
 import archpelagusURL2 from '../assets/project_images/boat_render.jpg?url';
 import gaussianMergeURL from '../assets/project_images/gaussians.png?url';
+import pbdKitesURL from '../assets/project_images/image.jpg?url';
 import quadTreeURL from '../assets/project_images/quad_tree.png?url';
 import triangleURL from '../assets/project_images/triangle_example.ppm?url';
 import birdsURL from '../assets/project_images/birds_example.jpg?url';
@@ -326,6 +327,13 @@ const selectedExperienceGroup = computed(() => {
           :tags="['Math', 'Algorithms', 'Canvas2D', 'Typescript']"
           :imgURL="gaussianMergeURL"
           url="/gaussian-merge"
+        ></ProjectPresentation>
+        <ProjectPresentation
+          title="Flying kites with PBD"
+          description="The kites drifting across the header are a little physics sim. This post walks through Position Based Dynamics: moving nodes and projecting distance constraints instead of integrating stiff spring forces, with an interactive rope demo you can drag around."
+          :tags="['Physics', 'Simulation', 'Canvas2D', 'Typescript']"
+          :imgURL="pbdKitesURL"
+          url="/pbd-kites"
         ></ProjectPresentation>
         <ProjectPresentation
           title="SIMD Rasterization"

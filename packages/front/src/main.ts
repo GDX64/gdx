@@ -51,6 +51,10 @@ const routes = [
     component: () => import('./pages/gaussian-merge/GaussianMerge.vue'),
   },
   {
+    path: '/pbd-kites',
+    component: () => import('./pages/pbd-kites/PBDKites.vue'),
+  },
+  {
     path: '/audio-things',
     component: () => import('./pages/audioExperiments/AudiosThings.vue'),
   },
