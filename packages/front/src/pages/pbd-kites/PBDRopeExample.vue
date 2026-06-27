@@ -17,7 +17,11 @@
       </label>
     </div>
     <p class="text-base text-text-label text-center">
-      Drag inside the canvas to pull the anchor around.
+      {{
+        tied
+          ? 'The far end is tied to a fixed point — drag the dark node to swing the rope from it.'
+          : 'Drag inside the canvas to pull the anchor around.'
+      }}
     </p>
   </div>
 </template>
@@ -29,14 +33,18 @@ import { onMounted, onUnmounted, ref, watchEffect } from 'vue';
 import { PBDRope } from '../../components/kite/PDBRope';
 import { primeColors } from '../../design/design';
 
+const props = withDefaults(defineProps<{ tied?: boolean }>(), { tied: false });
+
 const prime = primeColors;
 const gravity = ref(20);
 const iterations = ref(1);
 
 const { canvas, size } = useCanvasDPI();
 
-// world-space anchor that the first node is pinned to (z stays 0 -> a 2D rope)
-const anchor = vec3.fromValues(0, 4, 0);
+// world-space anchor that the dragged (first) node is pinned to (z stays 0 -> a 2D rope)
+const anchor = vec3.fromValues(props.tied ? -4 : 0, 4, 0);
+// when tied, the last node is nailed to this fixed point
+const tiedPoint = vec3.fromValues(4, 4, 0);
 const NODE_LEN = 0.25;
 const ROPE_LENGTH = 8;
 
@@ -111,6 +119,10 @@ useAnimationFrames(({ delta }) => {
   const dt = Math.min(delta, 16) / 1000;
   // re-pin the first node to the (possibly dragged) anchor, then integrate
   rope.updateFirstPosition(vec3.clone(anchor));
+  // tie the far end to a fixed point so the rope hangs between two pins
+  if (props.tied) {
+    rope.updateLastPosition(vec3.clone(tiedPoint));
+  }
   for (let i = 0; i < iterations.value; i++) {
     rope.evolve(dt / iterations.value);
   }
@@ -133,11 +145,13 @@ useAnimationFrames(({ delta }) => {
   ctx.stroke();
 
   // nodes
+  const lastIndex = nodes.length - 1;
   for (let i = 0; i < nodes.length; i++) {
     const [x, y] = project(nodes[i]);
+    const pinned = i === 0 || (props.tied && i === lastIndex);
     ctx.beginPath();
-    ctx.fillStyle = i === 0 ? prime[700] : prime[300];
-    ctx.arc(x, y, i === 0 ? 6 : 3, 0, Math.PI * 2);
+    ctx.fillStyle = pinned ? prime[700] : prime[300];
+    ctx.arc(x, y, pinned ? 6 : 3, 0, Math.PI * 2);
     ctx.fill();
   }
 

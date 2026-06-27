@@ -1,164 +1,208 @@
-# Flying Kites with Position Based Dynamics
+# How the Kites Are Drawn
 
-The kites drifting around the top of my homepage are not animated by hand and
-they are not following a scripted path. Each one is a little physical object: a
-rigid sail pushed around by filtered noise, trailing a set of **ropes** that are
-simulated, node by node, every frame. The ropes are what sell the illusion —
-they sag under gravity, snap taut when the kite lurches, and lag behind its
-motion the way a real string would. All of that comes from one compact idea
-called **Position Based Dynamics**.
+The kites drifting around the top of my homepage are not animated by hand and they
+are not following a scripted path. Each one is a small, self-contained simulation,
+and pulling it apart turns out to touch three quite different corners of graphics
+programming:
 
-This post is about that idea: what PBD is, why it is so well behaved compared to
-the force-integration you might reach for first, and how the rope hanging off
-each kite is actually put together.
+- a bit of **control theory** — filtered noise that makes the sail drift like it is
+  caught in a real, gusty wind, and snaps to attention when you grab it;
+- a hand-rolled **3D renderer** that projects the sail into the page using nothing
+  but the 2D canvas API;
+- and a dash of **Position Based Dynamics** for the ropes, so they sag, swing, and
+  trail behind the kite the way string actually does.
 
-## The problem with integrating forces
+This post walks through all three, in the order the data flows: first we decide
+where the kite *is*, then we figure out how to *draw* it, and finally we hang the
+ropes off it.
 
-The textbook way to simulate a particle is to track its position and velocity and
-push them forward with the forces acting on it:
+## Steering a kite with filtered noise
 
-<latex-math>
-\mathbf{v} \mathrel{+}= \frac{\mathbf{F}}{m}\,\Delta t, \qquad \mathbf{x} \mathrel{+}= \mathbf{v}\,\Delta t
-</latex-math>
+A kite that moved in a clean sine wave would look like a screensaver. Real kites
+are pushed around by wind, which is **noisy but correlated**: it wanders slowly,
+not frame-to-frame randomly. So the motion starts from white noise and shapes it
+into something that *feels* like wind.
 
-This is fine for a single particle in free fall. It stops being fine the moment
-you want **constraints** — "these two nodes must stay a fixed distance apart,"
-which is exactly what a rope is. The classic approach turns each constraint into a
-stiff spring: a force proportional to how far the constraint is violated. Make the
-spring weak and the rope stretches like elastic; make it stiff and the
-integrator explodes, because a large force over a discrete time step overshoots,
-which produces an even larger force on the next step. You end up babysitting
-spring constants and shrinking the time step until things are merely stable rather
-than correct.
-
-## The PBD trick: skip the forces, move the positions
-
-Position Based Dynamics sidesteps the whole instability by working **directly in
-position space**. Instead of asking "what force would pull these nodes back to the
-right distance," it just *moves the nodes there*. The loop for one step is:
-
-1. **Integrate unconstrained.** Apply gravity (and any external force) to each
-   node's velocity, then move each node as if no constraints existed.
-2. **Project constraints.** For every constraint, displace the nodes the minimum
-   amount needed to satisfy it exactly. Repeat over all constraints.
-3. **Recover velocity.** Set each node's new velocity to be its actual change in
-   position over the step, <latex-math inline>\mathbf{v} = (\mathbf{x}' - \mathbf{x})/\Delta t</latex-math>.
-
-The last step is the clever part. Velocity is never integrated against a spring
-force — it is **derived after the fact** from how far each node actually moved
-once the constraints had their say. A constraint can yank a node halfway across
-the screen and the resulting velocity is still bounded and sensible, because it is
-just a finite displacement divided by <latex-math inline>\Delta t</latex-math>.
-There is no stiff force to blow up. Stiffness becomes a question of *how many times
-you iterate* the projection, not how large a constant you dare to use.
-
-In the demo below, the dark node is the rope's anchor — drag anywhere in the
-canvas to move it and watch the chain follow. The **Gravity** slider changes the
-constant downward pull, and **Stiffness** controls how many times the constraints
-are projected per frame: turn it down and the rope visibly stretches, turn it up
-and it behaves like an inextensible string.
-
-<pbd-rope-example></pbd-rope-example>
-
-## The distance constraint
-
-A rope is just a chain of nodes joined by **distance constraints**: node
-<latex-math inline>i</latex-math> and node <latex-math inline>i+1</latex-math> want
-to stay exactly one segment length <latex-math inline>l_0</latex-math> apart.
-Given their current positions the constraint function is
+Each frame the kite draws a fresh sample of Gaussian white noise — a number with no
+memory of the last one:
 
 <latex-math>
-C(\mathbf{x}_i, \mathbf{x}_{i+1}) = \lVert \mathbf{x}_{i+1} - \mathbf{x}_i \rVert - l_0
+n \sim \mathcal{N}(0, 1)
 </latex-math>
 
-and we want to nudge both nodes so that <latex-math inline>C = 0</latex-math>. The
-correction is along the line joining them. Writing
+generated with the Box–Muller transform. White noise on its own is useless as
+wind: it jitters at every frequency at once. To tame it I run it through a
+**low-pass filter**, which keeps the slow components and throws away the fast
+jitter, leaving a signal that drifts gently. That drift drives the kite's
+horizontal and vertical position.
+
+The filters here are **biquads** — second-order IIR (infinite impulse response)
+filters, the same workhorse used all over audio. A biquad computes each output
+sample from the two previous inputs and the two previous outputs:
+
+<latex-math>
+y[n] = b_0\,x[n] + b_1\,x[n-1] + b_2\,x[n-2] - a_1\,y[n-1] - a_2\,y[n-2]
+</latex-math>
+
+The feedback terms (the <latex-math inline>y[n-1]</latex-math>,
+<latex-math inline>y[n-2]</latex-math>) are what make it *infinite* impulse
+response: every output depends on the entire past, which is exactly what gives the
+filter its smooth, springy memory. The coefficients
+<latex-math inline>a_k, b_k</latex-math> are derived from a single **cutoff
+frequency** <latex-math inline>\omega = 2\pi f_c / f_s</latex-math> — the boundary
+between "slow enough to keep" and "fast enough to discard." Picking a low cutoff
+for the wind gives that lazy, meandering drift.
+
+The mouse is wired in through the *opposite* filter. When you grab a kite, your
+pointer movement is fed through a **high-pass filter**, which does the reverse: it
+keeps the sudden, fast motion and discards the slow part. The result is that a
+quick flick produces a sharp tug on the kite that decays away on its own, while
+slowly dragging the cursor barely registers. Low-passed noise for the ambient
+sway, high-passed input for the snappy response — and the two are simply summed:
+
+<latex-math>
+x_{\text{kite}} = \underbrace{g_{\text{low}}\,\text{LP}(n)}_{\text{wind drift}} + \underbrace{g_{\text{high}}\,\text{HP}(\text{mouse})}_{\text{your tug}} + x_0
+</latex-math>
+
+The chart below is the live signal path. Every frame a fresh white-noise sample
+(grey) is pushed through the low-pass filter to produce the slow **wind drift**
+(blue). Move your pointer anywhere on the page and its screen-relative position
+(purple, −1 at the left edge, +1 at the right) is pushed through the high-pass
+filter; its high-frequency tug is then added to the wind drift to give the
+**final movement** (orange) that actually steers the kite. That sum spikes when you
+move quickly and relaxes back toward the wind drift when you hold still. Only the
+last five seconds are kept; older samples are dropped each frame so nothing leaks.
+
+<filter-response-example></filter-response-example>
+
+The same filtered signals also feed the sail's **orientation**, so when the kite
+lurches sideways it also banks into the turn. None of this is a physical wind
+model — it is just signal processing standing in for one, and it is remarkably
+convincing for how little code it takes.
+
+## Drawing a 3D kite with a 2D API
+
+The sail is a genuinely three-dimensional object: four triangular panels meeting at
+a slightly raised center, free to rotate in space. But the canvas only gives us 2D
+primitives. So the renderer reimplements the **model → view → projection** pipeline
+that a GPU would normally run, by hand, in a few lines of matrix math.
+
+Each vertex starts in the kite's own local space and is pushed through three
+transforms:
+
+<latex-math>
+\mathbf{v}_{\text{clip}} = \mathbf{P}\,\mathbf{V}\,\mathbf{M}\,\mathbf{v}_{\text{local}}
+</latex-math>
+
+The **model matrix** <latex-math inline>\mathbf{M}</latex-math> places and rotates
+the kite in the world (this is where the filtered motion from the previous section
+lands). The **view matrix** <latex-math inline>\mathbf{V}</latex-math> — built with
+a standard `lookAt` — expresses everything relative to a camera that slowly orbits
+the scene. The **projection matrix** <latex-math inline>\mathbf{P}</latex-math> is a
+perspective frustum, which is the part that makes distant kites smaller.
+
+After the projection we are in **clip space**, and the perspective divide leaves
+**normalized device coordinates** in <latex-math inline>[-1, 1]</latex-math>. One
+last affine map rescales that square to actual pixels:
+
+<latex-math>
+x_{\text{screen}} = \frac{x_{\text{ndc}} + 1}{2}\,W, \qquad y_{\text{screen}} = \frac{1 - y_{\text{ndc}}}{2}\,H
+</latex-math>
+
+The <latex-math inline>y</latex-math> flip is there because clip space points up
+while the canvas counts pixels downward. Now every vertex is just a 2D point, and
+we can hand the resulting polygons to the canvas.
+
+Two details make it look right. First, with no depth buffer available, overlapping
+kites are sorted **back-to-front by their distance from the camera** and drawn in
+that order — the **painter's algorithm**. Whatever is nearest gets drawn last and
+covers what is behind it. Second, the panels are not stroked with crisp lines but
+with [rough.js](https://roughjs.com), which adds a deliberate hand-drawn wobble, so
+the whole thing reads as a sketch rather than a wireframe.
+
+## Hanging the ropes: Position Based Dynamics
+
+The ropes trailing each kite are the part that really sells the illusion of weight.
+Each one is a chain of nodes, simulated every frame with **Position Based Dynamics**
+(PBD) — a technique that is both simpler and far more stable than the spring-force
+simulation you might reach for first.
+
+The naive approach makes every rope segment a stiff spring and integrates the
+forces. The trouble is that a stiff spring over a discrete time step overshoots,
+which produces an even larger force next step, and the simulation explodes. PBD
+sidesteps the whole problem by working **directly in position space**. One step is:
+
+1. **Integrate.** Apply gravity (and wind) to each node, moving it as if it were
+   free.
+2. **Project constraints.** For each segment, *move the two nodes* the minimum
+   amount needed to restore its rest length — no forces involved.
+3. **Recover velocity.** Set each node's velocity to its actual change in position,
+   <latex-math inline>\mathbf{v} = (\mathbf{x}' - \mathbf{x})/\Delta t</latex-math>.
+
+Because velocity is read back *after* the constraints have moved things, a
+constraint can yank a node hard without ever producing a runaway force. Stiffness
+becomes a matter of how many times you iterate the projection, not how large a
+constant you dare to use.
+
+The only constraint a rope needs is a **distance constraint**: keep neighbouring
+nodes a fixed segment length <latex-math inline>l_0</latex-math> apart. With
 <latex-math inline>\mathbf{d} = \mathbf{x}_{i+1} - \mathbf{x}_i</latex-math> and
 <latex-math inline>\hat{\mathbf{d}} = \mathbf{d}/\lVert\mathbf{d}\rVert</latex-math>,
-the total error to remove is
-<latex-math inline>\lVert\mathbf{d}\rVert - l_0</latex-math>, and we split it
-between the two nodes **in inverse proportion to their mass** so that a heavy node
-moves less than a light one:
+the leftover error <latex-math inline>\lVert\mathbf{d}\rVert - l_0</latex-math> is
+split between the two nodes in inverse proportion to their mass:
 
 <latex-math>
-\mathbf{x}_i \mathrel{+}= \frac{m_{i+1}}{m_i + m_{i+1}}\,(\lVert\mathbf{d}\rVert - l_0)\,\hat{\mathbf{d}}
-</latex-math>
-
-<latex-math>
+\mathbf{x}_i \mathrel{+}= \frac{m_{i+1}}{m_i + m_{i+1}}\,(\lVert\mathbf{d}\rVert - l_0)\,\hat{\mathbf{d}}, \qquad
 \mathbf{x}_{i+1} \mathrel{-}= \frac{m_i}{m_i + m_{i+1}}\,(\lVert\mathbf{d}\rVert - l_0)\,\hat{\mathbf{d}}
 </latex-math>
 
-Conservation of momentum falls out for free: the mass-weighted displacements are
-equal and opposite, so the constraint never injects net translation. This is
-exactly the projection step in the code — each segment is visited in turn and its
-two endpoints are slid toward or away from each other along
-<latex-math inline>\hat{\mathbf{d}}</latex-math>.
+The displacements are equal and opposite, so momentum is conserved and the
+constraint never drifts the rope sideways.
 
-## Pinning nodes with infinite mass
+In the demo below the dark node is the rope's anchor — drag anywhere to move it and
+watch the chain follow. **Gravity** sets the downward pull; **Stiffness** is the
+number of projection passes per frame: turn it down and the rope visibly stretches,
+turn it up and it behaves like an inextensible string.
 
-There is a beautifully cheap way to **fix** a node in place using the same
-mass-weighting. Give it an enormous mass — effectively infinite — and the
-distance constraint's weighting term collapses:
+<pbd-rope-example></pbd-rope-example>
+
+### Pinning ends with infinite mass
+
+There is a wonderfully cheap way to **fix** a node: give it an enormous mass. The
+mass-weighting term then collapses so that the free neighbour absorbs the entire
+correction and the pinned node never moves:
 
 <latex-math>
 \frac{m_{\text{fixed}}}{m_{\text{free}} + m_{\text{fixed}}} \to 1, \qquad \frac{m_{\text{free}}}{m_{\text{free}} + m_{\text{fixed}}} \to 0
 </latex-math>
 
-so the free neighbour absorbs the entire correction and the pinned node does not
-budge. That is precisely how each rope is attached to its kite. Every frame, the
-first node of the rope is teleported to the kite's anchor point in world space and
-flagged with a huge fixed mass; the constraint solver then treats it as an
-immovable boundary that the rest of the chain hangs from. The same mechanism pins
-the far end of the long control line, so the kite is effectively tethered to a
-point in the sky.
+That is exactly how each rope attaches to its kite: the first node is teleported to
+the sail's anchor point every frame and flagged with a huge mass, so the rest of
+the chain hangs from it. The same mechanism pins the far end of the long control
+line to a fixed point in the sky.
 
-## Substepping for stability
+You can tie **both** ends the same way. Below, the right-hand node is nailed to a
+fixed point and the left node follows your cursor — drag it and the rope hangs
+between the two pins as a catenary. Pull the ends apart past the rope's natural
+length and the chain snaps straight, every segment fighting to keep its rest
+length.
 
-Even without stiff forces there is one more knob that matters: the size of the
-time step. Rather than projecting constraints once over a full frame, the rope
-splits each frame into several **substeps** and runs the whole integrate-and-project
-cycle on each one:
+<pbd-rope-example tied></pbd-rope-example>
 
-<latex-math>
-\Delta t_{\text{sub}} = \frac{\Delta t}{N_{\text{substeps}}}
-</latex-math>
+A couple of finishing touches keep it calm: each frame is split into a few
+**substeps** so the unconstrained integration drifts less before the constraints
+correct it, and a small velocity-dependent **drag** bleeds off energy so the rope
+settles into a hang instead of swinging forever.
 
-Smaller steps mean the unconstrained integration drifts less before the
-constraints get a chance to correct it, so the rope converges to its rest shape
-faster and with less residual stretch — at a roughly linear cost. The kite ropes
-use a handful of substeps per frame, which is plenty to keep a chain of a few
-dozen nodes looking taut.
+## Putting it together
 
-## A touch of drag
+So each kite in the header is really three little systems stacked on top of each
+other. Filtered noise decides where the sail drifts and how it banks. A
+by-hand model–view–projection pipeline flattens that 3D sail onto the 2D canvas,
+sorted back-to-front and stroked with a sketchy line. And a handful of PBD ropes,
+re-pinned to the sail every frame, trail behind it under gravity and wind.
 
-A pure distance-constrained chain will swing forever; real string loses energy to
-the air. After velocities are recovered from the position change, each node gets a
-small **velocity-dependent drag** subtracted off, scaled by its own speed so that
-fast motion is damped harder than slow drift. It is a single extra line in the
-velocity-update pass, but it is the difference between a rope that jitters
-perpetually and one that settles into a calm hang and then trails gently behind the
-kite as it moves.
-
-## Putting it on a kite
-
-Stepping back from the rope, each kite in the header is the sum of a few of these
-pieces:
-
-- A **rigid sail** — four triangular panels meeting at a center point — whose
-  position and orientation are driven by low-pass-filtered Gaussian noise (the slow
-  drift of the wind) plus a high-pass response to the mouse (the quick tugs when
-  you grab it).
-- Three **short ropes** anchored to the sail's corners and one long **control
-  line**, every one of them a `PBDRope` re-pinned to its anchor each frame and
-  evolved with gravity and wind as the constant force.
-- A hand-drawn rendering pass that projects the 3D nodes to the screen and strokes
-  them with a sketchy line, so the whole thing reads as a doodle rather than a
-  physics demo.
-
-None of it needs a solver library, implicit integration, or carefully tuned spring
-constants. Position Based Dynamics gets the ropes looking right with a few dozen
-lines: move the nodes, satisfy the constraints, read the velocity back off the
-motion. That simplicity — and the unconditional stability that comes with it — is
-why PBD has become the workhorse behind cloth, rope, and soft-body effects in games,
-and why it was the obvious tool for making a few kites feel like they are really
+None of the pieces is individually large — a biquad is six multiplies, the renderer
+is a few matrix products, a rope is move-the-nodes-and-project. But stacked
+together they turn a static doodle into something that genuinely feels like it is
 flying.

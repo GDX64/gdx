@@ -329,9 +329,9 @@ const selectedExperienceGroup = computed(() => {
           url="/gaussian-merge"
         ></ProjectPresentation>
         <ProjectPresentation
-          title="Flying kites with PBD"
-          description="The kites drifting across the header are a little physics sim. This post walks through Position Based Dynamics: moving nodes and projecting distance constraints instead of integrating stiff spring forces, with an interactive rope demo you can drag around."
-          :tags="['Physics', 'Simulation', 'Canvas2D', 'Typescript']"
+          title="How the kites are drawn"
+          description="The kites drifting across the header are a little simulation. This post pulls one apart: filtered noise for wind-like motion, a hand-rolled 3D model-view-projection renderer on the 2D canvas, and Position Based Dynamics for the trailing ropes, with interactive demos."
+          :tags="['Signal Processing', '3D', 'Simulation', 'Canvas2D', 'Typescript']"
           :imgURL="pbdKitesURL"
           url="/pbd-kites"
         ></ProjectPresentation>
