@@ -326,7 +326,7 @@ function drawPlane(gaussians: Gaussian2D[], range: number) {
   ctx.restore();
 }
 
-const { canvas, size, dpi } = useCanvasDPI({ dpi: 1 });
+const { canvas, size, dpi } = useCanvasDPI();
 
 function createExample() {
   const gui = new GUI({ container: guiContainer.value ?? undefined });
@@ -509,7 +509,7 @@ function drawLegend(
   const lineLen = 18;
   const padX = 10;
   const padY = 8;
-  const fontSize = 16;
+  const fontSize = 12;
   const rowH = Math.ceil(fontSize * 1.5);
 
   ctx.font = `${fontSize}px monospace`;
@@ -517,7 +517,7 @@ function drawLegend(
   const boxW = padX * 2 + lineLen + 6 + textWidth;
   const boxH = padY * 2 + drawables.length * rowH - (rowH - fontSize);
 
-  const x = plot.left + plot.width - boxW - 8;
+  const x = plot.left + plot.width - boxW;
   const y = plot.top + 8;
 
   ctx.setLineDash([]);
