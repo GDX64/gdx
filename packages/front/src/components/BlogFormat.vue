@@ -24,7 +24,11 @@ onMounted(() => {
 </script>
 
 <style>
-.my-blog-post h1,
+.my-blog-post h1 {
+  font-weight: bold;
+  @apply text-3xl mb-5;
+}
+
 h2 {
   font-weight: bold;
   @apply text-2xl mb-5;

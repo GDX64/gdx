@@ -198,7 +198,7 @@ const selectedExperienceGroup = computed(() => {
       >
         <div
           id="about-me-content"
-          class="max-w-[560px] min-w-[380px] flex flex-col gap-7 text-xl self-start sticky top-[96px]"
+          class="max-w-[560px] min-w-[380px] flex flex-col gap-7 text-xl self-start"
         >
           <p>
             In 2020 I graduated in Electrical Engineering at UFJF. But even before that,
