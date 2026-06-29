@@ -12,9 +12,7 @@
     <div class="transition-all w-full overflow-hidden" :class="isOpen ? 'h-32' : 'h-0'">
       {{ description }}
     </div>
-    <div class="flex gap-2">
-      <TagList :tags="tags" />
-    </div>
+    <TagList :tags="tags" />
   </BorderContainer>
 </template>
 
