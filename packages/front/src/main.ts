@@ -51,6 +51,10 @@ const routes = [
     component: () => import('./pages/gaussian-merge/GaussianMerge.vue'),
   },
   {
+    path: '/fluid-simulation',
+    component: () => import('./pages/fluid-simulation/FluidSimulation.vue'),
+  },
+  {
     path: '/pbd-kites',
     component: () => import('./pages/pbd-kites/PBDKites.vue'),
   },
