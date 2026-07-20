@@ -31,11 +31,11 @@ const params = {
   solverIterations: 16,
 };
 
-let simulation = new FluidSimulation(params);
+let simulation: FluidSimulation | null = null;
 let renderer: FluidRenderer | null = null;
 
-function rebuildSimulation() {
-  simulation = new FluidSimulation(params);
+async function rebuildSimulation() {
+  simulation = await FluidSimulation.create(params);
 }
 
 onMounted(async () => {
@@ -46,30 +46,31 @@ onMounted(async () => {
   gui.add(params, 'solverIterations', 1, 40, 1).name('Solver iterations');
   gui.add({ reset: rebuildSimulation }, 'reset').name('Reset');
 
-  const canvasEl = await canvasPromise;
+  const [canvasEl] = await Promise.all([canvasPromise, rebuildSimulation()]);
   renderer = await FluidRenderer.create(canvasEl, params.size);
 });
 
 let pointerDown = false;
 let lastPointer: { i: number; j: number } | null = null;
 
-function pointerToGrid(event: PointerEvent): { i: number; j: number } {
+function pointerToGrid(sim: FluidSimulation, event: PointerEvent): { i: number; j: number } {
   const rect = canvas.value!.getBoundingClientRect();
   const px = (event.clientX - rect.left) / rect.width;
   const py = (event.clientY - rect.top) / rect.height;
-  const i = Math.min(simulation.size, Math.max(1, Math.floor(px * simulation.size) + 1));
-  const j = Math.min(simulation.size, Math.max(1, Math.floor(py * simulation.size) + 1));
+  const i = Math.min(sim.size, Math.max(1, Math.floor(px * sim.size) + 1));
+  const j = Math.min(sim.size, Math.max(1, Math.floor(py * sim.size) + 1));
   return { i, j };
 }
 
 function onPointerDown(event: PointerEvent) {
+  if (!simulation) return;
   pointerDown = true;
-  lastPointer = pointerToGrid(event);
+  lastPointer = pointerToGrid(simulation, event);
 }
 
 function onPointerMove(event: PointerEvent) {
-  if (!pointerDown) return;
-  const { i, j } = pointerToGrid(event);
+  if (!pointerDown || !simulation) return;
+  const { i, j } = pointerToGrid(simulation, event);
   simulation.addDensity(i, j, 6);
   if (lastPointer) {
     const dx = i - lastPointer.i;
@@ -85,7 +86,7 @@ function onPointerUp() {
 }
 
 useAnimationFrames(() => {
-  if (!isVisible.value || !renderer) return;
+  if (!isVisible.value || !renderer || !simulation) return;
   simulation.step();
   renderer.draw(simulation);
 });

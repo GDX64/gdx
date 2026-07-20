@@ -1,0 +1,13 @@
+{
+  "name": "fluid-sim",
+  "version": "1.0.0",
+  "description": "Grid-based fluid simulation, compiled to WebAssembly",
+  "files": [
+    "pkg/**/*"
+  ],
+  "scripts": {
+    "dev": "wasm-pack build --target web",
+    "build": "wasm-pack build --target web --release",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
