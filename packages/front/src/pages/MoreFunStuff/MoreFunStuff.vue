@@ -25,24 +25,10 @@ import dataViz from '../../assets/project_images/data-visualization.png?url';
 
     <section class="grid grid-cols-1 gap-4 mt-16 sm:grid-cols-2">
       <SimpleProjectPresentation
-        title="Gravity"
-        description="This is not quite gravity, it is just an n-body simulation that I made to run some wasm code."
-        :img-u-r-l="gravity"
-        url="/gravity"
-      ></SimpleProjectPresentation>
-      <SimpleProjectPresentation
         title="Projections"
         description="Just a visualization of how to project a point into a plane. It was made with canvas 2d and DOMMatrix only."
         :img-u-r-l="projections"
         url="/archpelagus"
-      ></SimpleProjectPresentation>
-      <SimpleProjectPresentation
-        title="Test Renderer"
-        description="Sometimes I try to make custom renderers for vuejs and other libraries. Once I did one for solid. This example
-        was made with vue custom renderer and pixijs. The birds are boids, they try to get together and fly together, but try no to 
-        collide. A bunch of happy birds flying around."
-        :img-u-r-l="birds"
-        url="/libtest"
       ></SimpleProjectPresentation>
       <SimpleProjectPresentation
         title="Stack boxes"
@@ -52,12 +38,6 @@ import dataViz from '../../assets/project_images/data-visualization.png?url';
         would itself have its center of mass in the same position as the desired one. Pretty fancy stuff (not really)."
         :img-u-r-l="stack"
         url="/stack"
-      ></SimpleProjectPresentation>
-      <SimpleProjectPresentation
-        title="Wasm Chart"
-        description="This is a chart built with rust compiled to webassembly, the idea is to visualize millions of data points at once in real time using some clever trees."
-        :img-u-r-l="wasmChart"
-        url="/wasm-chart"
       ></SimpleProjectPresentation>
       <SimpleProjectPresentation
         title="Code Base Visualization"
