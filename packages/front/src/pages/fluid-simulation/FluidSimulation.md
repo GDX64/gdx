@@ -280,11 +280,11 @@ completed output of the stage before it, which is what makes it safe to
 implement as a straight sequential pipeline over plain arrays with no
 hidden coupling between steps.
 
-## What we still need to decide
+## Seeing it move
 
-This covers the theory end to end. Left open, to settle when we write the
-code: grid resolution and cell size, how forces are injected (mouse drag
-producing a force impulse in a small radius), the values of
-<latex-math inline>\nu</latex-math> and <latex-math inline>\kappa</latex-math>,
-the number of Gauss-Seidel iterations to use per solve, and how density
-ultimately gets mapped to pixels for display.
+All of the above — add force, diffuse, project, advect, project, diffuse
+density, advect density — runs once per frame below. Click and drag on the
+canvas to inject density and push velocity into the grid; the panel lets you
+tune viscosity, diffusion, the time step, and the solver iteration count live.
+
+<fluid-simulation-example></fluid-simulation-example>
