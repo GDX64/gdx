@@ -1,14 +1,36 @@
 import { FluidSimulation } from './FluidSimulation';
 
-export interface FluidRendererOptions {
-  densityColor?: [number, number, number];
-  backgroundColor?: [number, number, number];
+// Packs a float32 into the bit pattern of an IEEE 754 half-float (as a
+// uint16), since JS has no native half-float typed array. Adapted from the
+// well-known compact float32-to-float16 conversion (e.g. three.js DataUtils).
+function toHalfFloat(value: number): number {
+  floatView[0] = value;
+  const x = int32View[0];
+
+  let bits = (x >> 16) & 0x8000;
+  let m = (x >> 12) & 0x07ff;
+  const e = (x >> 23) & 0xff;
+
+  if (e < 103) return bits;
+  if (e > 142) {
+    bits |= 0x7c00;
+    bits |= (e === 255 ? 0 : 1) & (x & 0x007fffff ? 1 : 0);
+    return bits;
+  }
+  if (e < 113) {
+    m |= 0x0800;
+    bits |= (m >> (114 - e)) + ((m >> (113 - e)) & 1);
+    return bits;
+  }
+  bits |= ((e - 112) << 10) | (m >> 1);
+  bits += m & 1;
+  return bits;
 }
 
-const DEFAULT_OPTIONS: Required<FluidRendererOptions> = {
-  densityColor: [40, 130, 220],
-  backgroundColor: [5, 6, 8],
-};
+const floatView = new Float32Array(1);
+const int32View = new Int32Array(floatView.buffer);
+
+export interface FluidRendererOptions {}
 
 // Fullscreen triangle-strip quad, no vertex buffer needed: positions come
 // straight out of the vertex index.
@@ -35,19 +57,36 @@ fn main(@builtin(vertex_index) vertexIndex: u32) -> VertexOut {
 `;
 
 const fragmentShader = /*wgsl*/ `
-struct Colors {
-  density: vec4<f32>,
-  background: vec4<f32>,
-};
-
 @group(0) @binding(0) var densitySampler: sampler;
 @group(0) @binding(1) var densityTexture: texture_2d<f32>;
-@group(0) @binding(2) var<uniform> colors: Colors;
+
+// Thermal-camera style colormap: black - purple - red - orange - yellow - white.
+fn heatmap(t: f32) -> vec3<f32> {
+  let x = clamp(t, 0.0, 1.0);
+  let c0 = vec3<f32>(0.0, 0.0, 0.0);
+  let c1 = vec3<f32>(0.35, 0.0, 0.45);
+  let c2 = vec3<f32>(0.75, 0.0, 0.15);
+  let c3 = vec3<f32>(1.0, 0.45, 0.0);
+  let c4 = vec3<f32>(1.0, 0.95, 0.25);
+  let c5 = vec3<f32>(1.0, 1.0, 1.0);
+
+  if (x < 0.2) {
+    return mix(c0, c1, x / 0.2);
+  } else if (x < 0.4) {
+    return mix(c1, c2, (x - 0.2) / 0.2);
+  } else if (x < 0.6) {
+    return mix(c2, c3, (x - 0.4) / 0.2);
+  } else if (x < 0.8) {
+    return mix(c3, c4, (x - 0.6) / 0.2);
+  } else {
+    return mix(c4, c5, (x - 0.8) / 0.2);
+  }
+}
 
 @fragment
 fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
   let d = textureSample(densityTexture, densitySampler, uv).r;
-  return mix(colors.background, colors.density, clamp(d, 0.0, 1.0));
+  return vec4<f32>(heatmap(d), 1.0);
 }
 `;
 
@@ -55,7 +94,7 @@ fn main(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
 // uploaded as a single-channel texture, and one fullscreen-quad draw call
 // with a fragment shader colors every pixel — no per-cell CPU drawing.
 export class FluidRenderer {
-  private readonly densityData: Uint8Array;
+  private readonly densityData: Uint16Array;
 
   private constructor(
     private readonly device: GPUDevice,
@@ -65,16 +104,14 @@ export class FluidRenderer {
     private readonly texture: GPUTexture,
     private readonly bindGroup: GPUBindGroup
   ) {
-    this.densityData = new Uint8Array(gridSize * gridSize);
+    this.densityData = new Uint16Array(gridSize * gridSize);
   }
 
   static async create(
     canvas: HTMLCanvasElement,
     gridSize: number,
-    options: FluidRendererOptions = {}
+    _options: FluidRendererOptions = {}
   ): Promise<FluidRenderer> {
-    const opts = { ...DEFAULT_OPTIONS, ...options };
-
     const adapter = await navigator.gpu.requestAdapter();
     if (!adapter) throw new Error('WebGPU is not supported in this browser');
     const device = await adapter.requestDevice();
@@ -85,7 +122,7 @@ export class FluidRenderer {
 
     const texture = device.createTexture({
       size: [gridSize, gridSize],
-      format: 'r8unorm',
+      format: 'r16float',
       usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
     });
     const sampler = device.createSampler({ magFilter: 'linear', minFilter: 'linear' });
@@ -104,31 +141,11 @@ export class FluidRenderer {
       primitive: { topology: 'triangle-strip' },
     });
 
-    const colorBuffer = device.createBuffer({
-      size: 8 * 4, // two vec4<f32>: density color, background color
-      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-    });
-    device.queue.writeBuffer(
-      colorBuffer,
-      0,
-      new Float32Array([
-        opts.densityColor[0] / 255,
-        opts.densityColor[1] / 255,
-        opts.densityColor[2] / 255,
-        1,
-        opts.backgroundColor[0] / 255,
-        opts.backgroundColor[1] / 255,
-        opts.backgroundColor[2] / 255,
-        1,
-      ])
-    );
-
     const bindGroup = device.createBindGroup({
       layout: pipeline.getBindGroupLayout(0),
       entries: [
         { binding: 0, resource: sampler },
         { binding: 1, resource: texture.createView() },
-        { binding: 2, resource: { buffer: colorBuffer } },
       ],
     });
 
@@ -143,14 +160,14 @@ export class FluidRenderer {
     for (let j = 0; j < n; j++) {
       for (let i = 0; i < n; i++) {
         const value = density[i + 1 + stride * (j + 1)];
-        this.densityData[i + n * j] = Math.max(0, Math.min(255, value * 255));
+        this.densityData[i + n * j] = toHalfFloat(Math.max(0, value));
       }
     }
 
     this.device.queue.writeTexture(
       { texture: this.texture },
       this.densityData,
-      { bytesPerRow: n },
+      { bytesPerRow: n * 2 },
       { width: n, height: n }
     );
 
