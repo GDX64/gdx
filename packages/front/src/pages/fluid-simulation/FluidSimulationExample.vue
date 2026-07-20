@@ -20,7 +20,7 @@ import { FluidSimulation } from './FluidSimulation';
 import { FluidRenderer } from './FluidRenderer';
 
 const guiContainer = ref<HTMLDivElement | null>(null);
-const { canvas, size, dpi } = useCanvasDPI();
+const { canvas, canvasPromise } = useCanvasDPI();
 const { isVisible } = useVisibility(canvas);
 
 const params = {
@@ -29,7 +29,6 @@ const params = {
   viscosity: 0.0001,
   dt: 0.15,
   solverIterations: 16,
-  showVelocity: false,
 };
 
 let simulation = new FluidSimulation(params);
@@ -39,14 +38,16 @@ function rebuildSimulation() {
   simulation = new FluidSimulation(params);
 }
 
-onMounted(() => {
+onMounted(async () => {
   const gui = new GUI({ container: guiContainer.value ?? undefined });
   gui.add(params, 'viscosity', 0, 0.001, 0.00001).name('Viscosity');
   gui.add(params, 'diffusion', 0, 0.001, 0.00001).name('Diffusion');
   gui.add(params, 'dt', 0.01, 0.3, 0.01).name('Time step');
   gui.add(params, 'solverIterations', 1, 40, 1).name('Solver iterations');
-  gui.add(params, 'showVelocity').name('Show velocity');
   gui.add({ reset: rebuildSimulation }, 'reset').name('Reset');
+
+  const canvasEl = await canvasPromise;
+  renderer = await FluidRenderer.create(canvasEl, params.size);
 });
 
 let pointerDown = false;
@@ -84,21 +85,8 @@ function onPointerUp() {
 }
 
 useAnimationFrames(() => {
-  if (!isVisible.value) return;
-  const c = canvas.value;
-  if (!c) return;
-  const ctx = c.getContext('2d');
-  if (!ctx) return;
-  if (!renderer) {
-    renderer = new FluidRenderer(ctx, { showVelocity: params.showVelocity });
-  }
-  renderer.options.showVelocity = params.showVelocity;
-
+  if (!isVisible.value || !renderer) return;
   simulation.step();
-
-  ctx.save();
-  ctx.scale(dpi, dpi);
-  renderer.draw(simulation, Math.max(1, size.width | 0), Math.max(1, size.height | 0));
-  ctx.restore();
+  renderer.draw(simulation);
 });
 </script>
